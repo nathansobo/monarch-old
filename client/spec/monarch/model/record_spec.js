@@ -63,6 +63,14 @@ Screw.Unit(function(c) { with(c) {
     describe(".relates_to_many(name, definition)", function() {
       it("associates a method with the relation returned by the definition function", function() {
         var user = User.find('jan');
+        var relation = user.blogs2();
+        expect(relation.predicate).to(equal, Blog.user_id.eq("jan"));
+      });
+    });
+
+    describe(".has_many(plural_target_table_name)", function() {
+      it("uses .relates_to_many to make a has-many relation", function() {
+        var user = User.find('jan');
         var relation = user.blogs();
         expect(relation.predicate).to(equal, Blog.user_id.eq("jan"));
       });

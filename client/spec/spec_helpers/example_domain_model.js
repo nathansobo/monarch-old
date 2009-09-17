@@ -17,7 +17,9 @@ Screw.Unit(function(c) {
             age: "integer"
           });
 
-          relates_to_many("blogs", function() {
+          has_many("blogs");
+
+          relates_to_many("blogs2", function() {
             return Blog.where(Blog.user_id.eq(this.id()));
           });
         }}

@@ -32,6 +32,15 @@ constructor("Model.Record", {
       };
     },
 
+    has_many: function(target_table_name) {
+      var foreign_key_column_name = Inflection.singularize(this.table.global_name) + "_id";
+      this.relates_to_many(target_table_name, function() {
+        var target_table = Repository.tables[target_table_name];
+        var foreign_key_column = target_table.columns_by_name[foreign_key_column_name];
+        return target_table.where(foreign_key_column.eq(this.id()));
+      });
+    },
+
     determine_global_name: function(record_constructor) {
       return Inflection.pluralize(Inflection.underscore(record_constructor.basename));
     },
