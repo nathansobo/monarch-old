@@ -48,5 +48,13 @@ constructor("Model.Relations.Selection", Model.Relations.Relation, {
         if (self.predicate.evaluate(record)) self.record_inserted(record);
       }
     }));
+  },
+
+  evaluate_in_repository: function(repository) {
+    return new Model.Relations.Selection(this.operand.evaluate_in_repository(repository), this.predicate);
+  },
+
+  primary_table: function() {
+    return this.operand.primary_table();
   }
 });

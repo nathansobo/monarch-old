@@ -22,10 +22,6 @@ constructor("Model.Relations.Table", Model.Relations.Relation, {
     return this.records.concat();
   },
 
-  each: function(fn) {
-    Util.each(this.records, fn);
-  },
-
   insert: function(record) {
     this.record_inserted(record);
   },

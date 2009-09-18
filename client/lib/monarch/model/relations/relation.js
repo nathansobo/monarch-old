@@ -15,6 +15,18 @@ constructor("Model.Relations.Relation", {
     return new Model.Relations.Selection(this, predicate);
   },
 
+  each: function(fn) {
+    Util.each(this.all(), fn);
+  },
+
+  is_empty: function() {
+    return this.all().length == 0;
+  },
+
+  first: function() {
+    return this.all()[0];
+  },
+  
   on_insert: function(on_insert_callback) {
     this.subscribe_to_operands_if_needed();
     return this.on_insert_node.subscribe(on_insert_callback);

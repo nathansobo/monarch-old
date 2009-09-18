@@ -347,5 +347,18 @@ Screw.Unit(function(c) { with(c) {
         });
       });
     });
+
+    describe("#evaluate_in_repository(repository)", function() {
+      it("returns the same Selection with its #operand evaluated in the repository", function() {
+        var other_repo = Repository.clone_schema();
+        var selection_in_other_repo = selection.evaluate_in_repository(other_repo);
+
+        expect(selection_in_other_repo.operand).to(equal, selection.operand.evaluate_in_repository(other_repo));
+        expect(selection_in_other_repo.predicate).to(equal, selection.predicate);
+
+        var table_in_other_repo = User.table.evaluate_in_repository(other_repo);
+        expect(table_in_other_repo).to(equal, other_repo.tables.users);
+      });
+    });
   });
 }});
