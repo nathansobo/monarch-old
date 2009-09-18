@@ -26,6 +26,10 @@ constructor("Model.Relations.Relation", {
   first: function() {
     return this.all()[0];
   },
+
+  at: function(i) {
+    return this.all()[i];
+  },
   
   on_insert: function(on_insert_callback) {
     this.subscribe_to_operands_if_needed();

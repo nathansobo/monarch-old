@@ -6,6 +6,7 @@ constructor("Model.Relations.Table", Model.Relations.Relation, {
     this.record_constructor = record_constructor;
     this.columns_by_name = {};
     this.records = [];
+    this.records_by_id = {};
 
     this.initialize_events_system();
   },
@@ -23,20 +24,18 @@ constructor("Model.Relations.Table", Model.Relations.Relation, {
   },
 
   insert: function(record) {
+    this.records_by_id[record.id()] = record;
     this.record_inserted(record);
   },
 
   remove: function(record) {
+    delete this.records_by_id[record.id()];
     this.record_removed(record);
   },
 
   //TODO: replace with Selection-based find
   find: function(id) {
-    var found_record = null;
-    Util.each(this.records, function(record) {
-      if (record.id() == id) found_record = record;
-    });
-    return found_record;
+    return this.records_by_id[id];
   },
 
   wire_representation: function() {
