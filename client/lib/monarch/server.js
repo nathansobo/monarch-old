@@ -9,7 +9,6 @@ constructor("Server", {
     var fetch_future = new Model.FetchFuture();
 
     start = new Date().getTime();
-    console.debug("before get", bm());
 
     Origin.get(url, {
       relations: Util.map(relations, function(relation) {
@@ -17,17 +16,11 @@ constructor("Server", {
       })
     })
       .on_success(function(data) {
-        console.debug("on success", bm());
-
         Repository.pause_delta_events();
         Repository.update(data);
-        console.debug("after update", bm());
-
         fetch_future.trigger_before_delta_events();
         Repository.resume_delta_events();
         fetch_future.trigger_after_delta_events();
-        console.debug("after callback", bm());
-
       });
 
     return fetch_future;
