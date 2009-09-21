@@ -2,7 +2,6 @@ module Model
   module Relations
     class Table < Relation
       attr_reader :global_name, :record_class, :columns_by_name
-      attr_accessor :declared_fixtures
 
       def initialize(global_name, record_class)
         @global_name, @record_class = global_name, record_class
@@ -54,9 +53,8 @@ module Model
         Thread.current["#{global_name}_identity_map"] = nil
       end
 
-      def load_fixtures
-        return unless declared_fixtures
-        declared_fixtures.each do |id, field_values|
+      def load_fixtures(fixtures)
+        fixtures.each do |id, field_values|
           insert(record_class.unsafe_new(field_values.merge(:id => id.to_s)))
         end
       end

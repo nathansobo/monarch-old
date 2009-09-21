@@ -37,8 +37,10 @@ module Model
     end
 
     #TODO: test
-    def load_fixtures
-      tables.each {|table| table.load_fixtures}
+    def load_fixtures(fixtures)
+      fixtures.each do |table_name, table_fixtures|
+        tables_by_name[table_name].load_fixtures(table_fixtures)
+      end
     end
 
     #TODO: test
