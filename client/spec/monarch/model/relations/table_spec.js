@@ -33,11 +33,11 @@ Screw.Unit(function(c) { with(c) {
 
     describe("#insert", function() {
       it("adds the given Record to the array returned by #all", function() {
-        var mock_record = {};
+        var record = new User();
 
-        expect(table.all()).to_not(contain, mock_record);
-        table.insert(mock_record)
-        expect(table.all()).to(contain, mock_record);
+        expect(User.table.all()).to_not(contain, record);
+        User.table.insert(record)
+        expect(User.table.all()).to(contain, record);
       });
     });
 
