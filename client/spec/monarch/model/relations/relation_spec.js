@@ -75,6 +75,16 @@ Screw.Unit(function(c) { with(c) {
           expect(ordering.order_by_columns[1].direction).to(equal, "asc");
         });
       });
+
+      context("when passed strings", function() {
+        it("builds an Ordering relation with the receiver as its #operand and defaults the OrderByColumns to ascending", function() {
+          var ordering = relation.order_by(column_1.name + " asc", column_2.name + " desc");
+          expect(ordering.order_by_columns[0].column).to(equal, column_1);
+          expect(ordering.order_by_columns[0].direction).to(equal, "asc");
+          expect(ordering.order_by_columns[1].column).to(equal, column_2);
+          expect(ordering.order_by_columns[1].direction).to(equal, "desc");
+        });
+      });
     });
   });
 }});
