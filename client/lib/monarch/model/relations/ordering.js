@@ -22,5 +22,9 @@ constructor("Model.Relations.Ordering", Model.Relations.Relation, {
 
   all: function() {
     return this.operand.all().sort(this.comparator);
+  },
+
+  wire_representation: function() {
+    return this.operand.wire_representation();
   }
 })

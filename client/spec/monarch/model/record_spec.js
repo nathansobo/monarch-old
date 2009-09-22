@@ -77,7 +77,7 @@ Screw.Unit(function(c) { with(c) {
 
       context("if a single 'order_by' column is supplied in the options", function() {
         it("constructs an ordered has_many relation ordered by that one column", function() {
-          User.has_many('blogs', { order_by: Blog.name.desc() });
+          User.has_many('blogs', { order_by: "name desc" });
           var user = User.local_create({id: "jerry"});
           var ordering = user.blogs();
           expect(ordering.constructor).to(equal, Model.Relations.Ordering);
@@ -88,7 +88,7 @@ Screw.Unit(function(c) { with(c) {
 
       context("if multiple 'order_by' columns are supplied in the options", function() {
         it("constructs an ordered has_many relation ordered by those columns", function() {
-          User.has_many('blogs', { order_by: [Blog.name.desc(), Blog.user_id]});
+          User.has_many('blogs', { order_by: ["name desc", "user_id"]});
           var user = User.local_create({id: "jerry"});
           var ordering = user.blogs();
           expect(ordering.constructor).to(equal, Model.Relations.Ordering);
