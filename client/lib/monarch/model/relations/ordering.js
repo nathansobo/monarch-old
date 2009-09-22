@@ -24,6 +24,14 @@ constructor("Model.Relations.Ordering", Model.Relations.Relation, {
     return this.operand.all().sort(this.comparator);
   },
 
+  evaluate_in_repository: function(repository) {
+    return new Model.Relations.Ordering(this.operand.evaluate_in_repository(repository), this.order_by_columns);
+  },
+
+  primary_table: function() {
+    return this.operand.primary_table();
+  },
+
   wire_representation: function() {
     return this.operand.wire_representation();
   }
