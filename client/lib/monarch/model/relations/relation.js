@@ -15,6 +15,20 @@ constructor("Model.Relations.Relation", {
     return new Model.Relations.Selection(this, predicate);
   },
 
+  order_by: function() {
+    var order_by_columns = Util.map(Util.to_array(arguments), function(order_by_column) {
+      if (order_by_column.constructor == Model.OrderByColumn) {
+        return order_by_column;
+      } else if (order_by_column.constructor == Model.Column) {
+        return order_by_column.asc();
+      } else {
+        throw new Error("You can only order by Columns or OrderByColumns");
+      }
+    });
+
+    return new Model.Relations.Ordering(this, order_by_columns);
+  },
+
   each: function(fn) {
     Util.each(this.all(), fn);
   },
