@@ -184,20 +184,23 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
-    describe("#update(field_values_by_column_name)", function() {
-      it("updates the field values and calls #record_updated on its Table with all the changed attributes", function() {
+    describe("#update(values_by_method)", function() {
+      it("calls setter methods for each key in the given hash and calls #record_updated on its Table with all the changed attributes", function() {
         var record = Blog.find('recipes');
+        record.other_method = mock_function('other method');
 
         mock(record.table(), 'record_updated');
 
         record.update({
           id: 'recipes',
           name: 'Pesticides',
-          user_id: 'jan'
+          user_id: 'jan',
+          other_method: 'foo'
         });
 
         expect(record.name()).to(equal, 'Pesticides');
         expect(record.user_id()).to(equal, 'jan');
+        expect(record.other_method).to(have_been_called, with_args('foo'));
 
         expect(record.table().record_updated).to(have_been_called, with_args(record, {
           name: {
@@ -233,6 +236,20 @@ Screw.Unit(function(c) { with(c) {
 
         record.name('Pesticides');
         expect(record.table().record_updated).to_not(have_been_called);
+      });
+    });
+
+    describe("#field", function() {
+      it("returns the field for the given column name or Column", function() {
+        var record = Blog.find('recipes');
+
+        var field = record.field(Blog.id);
+        expect(field.record).to(equal, record);
+        expect(field.column).to(equal, Blog.id);
+
+        field = record.field('id');
+        expect(field.record).to(equal, record);
+        expect(field.column).to(equal, Blog.id);
       });
     });
 

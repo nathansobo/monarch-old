@@ -141,8 +141,10 @@ constructor("Model.Record", {
 
   update: function(field_values_by_column_name) {
     if (this.update_events_enabled) this.batched_updates = {};
-    for (var attr_name in field_values_by_column_name) {
-      this.fields_by_column_name[attr_name].value(field_values_by_column_name[attr_name])
+    for (var column_name in field_values_by_column_name) {
+      if (this[column_name]) {
+        this[column_name].call(this, field_values_by_column_name[column_name]);
+      }
     }
     if (this.update_events_enabled) {
       var batched_updates = this.batched_updates;
@@ -164,7 +166,11 @@ constructor("Model.Record", {
   },
 
   field: function(column) {
-    return this.fields_by_column_name[column.name];
+    if (typeof column == 'string') {
+      return this.fields_by_column_name[column];
+    } else {
+      return this.fields_by_column_name[column.name];
+    }
   },
 
   evaluate: function(column_or_constant) {
