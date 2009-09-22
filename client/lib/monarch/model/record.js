@@ -32,12 +32,23 @@ constructor("Model.Record", {
       };
     },
 
-    has_many: function(target_table_name) {
+    has_many: function(target_table_name, options) {
+      options = options || {};
       var foreign_key_column_name = Inflection.singularize(this.table.global_name) + "_id";
       this.relates_to_many(target_table_name, function() {
         var target_table = Repository.tables[target_table_name];
         var foreign_key_column = target_table.columns_by_name[foreign_key_column_name];
-        return target_table.where(foreign_key_column.eq(this.id()));
+        var relation = target_table.where(foreign_key_column.eq(this.id()));
+
+        var order_by = options.order_by
+        if (order_by) {
+          if (order_by.length) {
+            relation = relation.order_by.apply(relation, order_by)
+          } else {
+            relation = relation.order_by(order_by);
+          }
+        }
+        return relation;
       });
     },
 
