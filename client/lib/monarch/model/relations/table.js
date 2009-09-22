@@ -62,7 +62,7 @@ constructor("Model.Relations.Table", Model.Relations.Relation, {
     Util.each(dataset, function(id, attributes) {
       var extant_record = self.find(id);
       if (extant_record) {
-        extant_record.update(attributes);
+        extant_record.local_update(attributes);
       } else {
         self.record_constructor.local_create(attributes)
       }

@@ -191,7 +191,7 @@ Screw.Unit(function(c) { with(c) {
 
         mock(record.table(), 'record_updated');
 
-        record.update({
+        record.local_update({
           id: 'recipes',
           name: 'Pesticides',
           user_id: 'jan',

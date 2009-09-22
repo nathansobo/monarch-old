@@ -112,7 +112,7 @@ constructor("Model.Record", {
     this.initialize_fields_by_column_name();
     if (field_values_by_column_name) {
       this.update_events_enabled = false;
-      this.update(field_values_by_column_name);
+      this.local_update(field_values_by_column_name);
     }
     this.update_events_enabled = true;
 
@@ -139,7 +139,7 @@ constructor("Model.Record", {
     this.table().remove(this);
   },
 
-  update: function(field_values_by_column_name) {
+  local_update: function(field_values_by_column_name) {
     if (this.update_events_enabled) this.batched_updates = {};
     for (var column_name in field_values_by_column_name) {
       if (this[column_name]) {
