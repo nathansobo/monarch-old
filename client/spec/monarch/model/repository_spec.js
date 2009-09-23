@@ -9,26 +9,6 @@ Screw.Unit(function(c) { with(c) {
       repository = Repository;
     });
 
-    describe("#remote_create(relation, field_values)", function() {
-      use_fake_server();
-
-      it("calls Server.post with #origin_url and json to create a Record with the given field values in the given Relation", function() {
-        repository.origin_url = "/users/steph/repository";
-        var future = repository.remote_create(Blog.table, {name: 'Recipes'});
-        expect(Server.posts).to(have_length, 1);
-
-        var post = Server.posts.shift();
-        expect(post.url).to(equal, repository.origin_url);
-        expect(post.data).to(equal, {
-          relation: Blog.table.wire_representation(),
-          field_values: {name: 'Recipes'}
-        });
-
-        mock(future, 'handle_response');
-        post.simulate_success({id: 'recipes', name: 'Recipes'});
-      });
-    });
-
     describe("#pause_delta_events", function() {
       it("calls .pause_delta_events on all Tables", function() {
         mock(Blog.table, 'pause_delta_events');

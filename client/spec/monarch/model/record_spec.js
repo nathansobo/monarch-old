@@ -100,30 +100,26 @@ Screw.Unit(function(c) { with(c) {
         });
       });
     });
-
-    describe(".create(field_values)", function() {
-      context("when Repository.remote_create responds successfully", function() {
-        it("calls .local_create with the field values returned by the remote repository and triggers success callbacks with the result", function() {
-          var remote_create_future = new Http.AjaxFuture();
-          mock(Repository, 'remote_create', function() {
-            return remote_create_future;
-          });
-
-          var create_future = Blog.create({ name: "Recipes" });
-          expect(Repository.remote_create).to(have_been_called, with_args(Blog.table, { name: "Recipes" }));
-
-          var mock_local_create_result = {};
-          mock(Blog, 'local_create', function() {
-            return mock_local_create_result;
-          });
-          remote_create_future.trigger_success({id: 'recipes', name: 'Recipes'});
-
-          expect(create_future.successful).to(be_true);
-          expect(create_future.data).to(equal, mock_local_create_result);
-        });
-      });
-    });
-
+    
+//    describe(".create(field_values)", function() {
+//      context("when Server.create responds successfully", function() {
+//        it("calls .local_create with the field values returned by the remote repository and triggers success callbacks with the result", function() {
+//          var remote_create_future = new Http.AjaxFuture();
+//          mock(Server, 'remote_create', function() {
+//            return remote_create_future;
+//          });
+//
+//          var create_future = Blog.create({ name: "Recipes" });
+//          expect(Server.create).to(have_been_called, with_args(Blog.table, { name: "Recipes" }));
+//          
+//          remote_create_future.trigger_success({id: 'recipes', name: 'Recipes'});
+//
+//          expect(create_future.successful).to(be_true);
+//          expect(create_future.data).to(equal, mock_local_create_result);
+//        });
+//      });
+//    });
+    
     describe(".local_create(field_values)", function() {
       it("builds an instance of the Record with the given field_values and inserts it in .table before returning it", function() {
         mock(Blog.table, 'insert');
@@ -183,8 +179,8 @@ Screw.Unit(function(c) { with(c) {
         expect(User.find('jan')).to(be_null);
       });
     });
-
-    describe("#update(values_by_method)", function() {
+    
+    describe("#local_update(values_by_method)", function() {
       it("calls setter methods for each key in the given hash and calls #record_updated on its Table with all the changed attributes", function() {
         var record = Blog.find('recipes');
         record.other_method = mock_function('other method');

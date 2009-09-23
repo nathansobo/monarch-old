@@ -3,13 +3,6 @@ constructor("Model.Repository", {
     this.tables = {};
   },
 
-  remote_create: function(relation, field_values) {
-    return Server.post(this.origin_url, {
-      relation: relation.wire_representation(),
-      field_values: field_values
-    });
-  },
-
   pause_delta_events: function() {
     Util.each(this.tables, function(name, table) {
       table.pause_delta_events();

@@ -19,15 +19,20 @@ constructor("FakeServer", {
     this.puts = [];
     this.gets = [];
     this.fetches = [];
+    this.creates = [];
 
     this.Repository = Repository.clone_schema();
   },
 
-  fetch: function(url, relations) {
-    var fake_fetch = new FakeServer.FakeFetch(url, relations, this.Repository);
+  fetch: function(relations) {
+    var fake_fetch = new FakeServer.FakeFetch(Repository.origin_url, relations, this.Repository);
     this.last_fetch = fake_fetch;
     this.fetches.push(fake_fetch);
     return fake_fetch.future;
+  },
+
+  create: function(relation, field_values) {
+    throw new Error("not yet implemented");
   },
 
   simulate_fetch: function(relations) {

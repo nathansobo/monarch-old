@@ -50,7 +50,8 @@ Screw.Unit(function(c) { with(c) {
         expect(User.find('sharon')).to(be_null);
         expect(Blog.find('guns')).to(be_null);
 
-        var future = fake_server.fetch("/users/bob/sandbox", [Blog.table, User.table]);
+        Repository.origin_url = "/users/bob/sandbox"
+        var future = fake_server.fetch([Blog.table, User.table]);
 
         future.before_delta_events(before_delta_events_callback);
         future.after_delta_events(after_delta_events_callback);

@@ -8,7 +8,34 @@ Screw.Unit(function(c) { with(c) {
       server = new Http.Server();
     });
 
-    describe(".fetch(origin_url, relations)", function() {
+
+    describe("#create(relation, field_values)", function() {
+      use_example_domain_model();
+
+      before(function() {
+        server.posts = [];
+        server.post = FakeServer.prototype.post;
+      });
+
+      it("calls #post with Repository.origin_url and json to create a Record with the given field values in the given Relation", function() {
+        Repository.origin_url = "/users/steph/repository";
+        var future = server.create(Blog.table, {name: 'Recipes'});
+        expect(server.posts).to(have_length, 1);
+
+        var post = server.posts.shift();
+        expect(post.url).to(equal, "/users/steph/repository");
+        expect(post.data).to(equal, {
+          relation: Blog.table.wire_representation(),
+          field_values: {name: 'Recipes'}
+        });
+
+        mock(future, 'handle_response');
+        post.simulate_success({id: 'recipes', name: 'Recipes'});
+      });
+    });
+
+
+    describe("#fetch(origin_url, relations)", function() {
       use_example_domain_model();
       use_fake_server();
 

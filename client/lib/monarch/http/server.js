@@ -1,11 +1,10 @@
 constructor("Http.Server", {
   fetch: function(relations) {
-    var url = Repository.origin_url;
     var fetch_future = new Http.FetchFuture();
 
     start = new Date().getTime();
 
-    Server.get(url, {
+    Server.get(Repository.origin_url, {
       relations: Util.map(relations, function(relation) {
         return relation.wire_representation();
       })
@@ -20,6 +19,14 @@ constructor("Http.Server", {
 
     return fetch_future;
   },
+
+  create: function(relation, field_values) {
+    return this.post(Repository.origin_url, {
+      relation: relation.wire_representation(),
+      field_values: field_values
+    });
+  },
+
 
   post: function(url, data) {
     return this.request('POST', url, data);
