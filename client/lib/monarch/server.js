@@ -5,7 +5,8 @@ function bm() {
 }
 
 constructor("Server", {
-  fetch: function(url, relations) {
+  fetch: function(relations) {
+    var url = Repository.origin_url;
     var fetch_future = new Model.FetchFuture();
 
     start = new Date().getTime();

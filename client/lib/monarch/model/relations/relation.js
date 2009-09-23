@@ -75,7 +75,7 @@ constructor("Model.Relations.Relation", {
   },
 
   fetch: function() {
-    return Repository.fetch([this]);
+    return Origin.fetch([this]);
   },
 
   memoize_records: function() {

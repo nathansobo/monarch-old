@@ -10,10 +10,6 @@ constructor("Model.Repository", {
     });
   },
 
-  fetch: function(relations) {
-    return Origin.fetch(this.origin_url, relations);
-  },
-
   pause_delta_events: function() {
     Util.each(this.tables, function(name, table) {
       table.pause_delta_events();

@@ -8,12 +8,12 @@ Screw.Unit(function(c) { with(c) {
       server = new Server();
     });
 
-    describe(".fetch(relations)", function() {
+    describe(".fetch(origin_url, relations)", function() {
       use_example_domain_model();
       use_fake_server();
 
-      it("performs a GET to the given url with the json to fetch the given Relations, then merges the results into the Repository with the delta events sandwiched by before_events and after_events callback triggers on the returned future", function() {
-        var future = server.fetch("/users/steph/repository", [Blog.table, User.table]);
+      it("performs a GET to Repository.origin_url with the json to fetch the given Relations, then merges the results into the Repository with the delta events sandwiched by before_events and after_events callback triggers on the returned future", function() {
+        var future = server.fetch([Blog.table, User.table]);
 
         expect(Origin.gets).to(have_length, 1);
         var get = Origin.gets.shift();

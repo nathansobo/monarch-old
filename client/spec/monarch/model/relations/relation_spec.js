@@ -28,11 +28,11 @@ Screw.Unit(function(c) { with(c) {
     })
 
     describe("#fetch()", function() {
-      it("calls Repository.fetch with itself", function() {
-        mock(Repository, 'fetch', function() { return "mock future"; });
+      it("calls Origin.fetch with itself", function() {
+        mock(Origin, 'fetch', function() { return "mock future"; });
         expect(relation.fetch()).to(equal, "mock future");
-        expect(Repository.fetch).to(have_been_called, once);
-        expect(Repository.fetch).to(have_been_called, with_args([relation]));
+        expect(Origin.fetch).to(have_been_called, once);
+        expect(Origin.fetch).to(have_been_called, with_args([relation]));
       });
     });
 
