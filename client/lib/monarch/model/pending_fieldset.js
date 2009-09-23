@@ -11,7 +11,7 @@ constructor("Model.PendingFieldset", Model.Fieldset, {
   wire_representation: function() {
     var wire_representation = {};
     Util.each(this.fields_by_column_name, function(column_name, field) {
-      if (field.dirty) wire_representation[column_name] = field.value();
+      if (field.dirty) wire_representation[column_name] = field.value_wire_representation();
     });
     return wire_representation;
   },

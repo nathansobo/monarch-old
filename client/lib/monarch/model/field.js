@@ -12,19 +12,25 @@ constructor("Model.Field", {
   },
 
   value: function(value) {
-    if (value) {
+
+
+    if (arguments.length == 1) {
       if (this._value != value) {
         var old_value = this._value;
-        this._value = value;
+        this._value = this.column.convert_for_storage(value);
         if (this.pending) {
           this.dirty = true;
         } else {
-          this.fieldset.field_updated(this, old_value, value);
+          this.fieldset.field_updated(this, old_value, this._value);
         }
       }
-      return value;
+      return this._value;
     } else {
       return this._value;
     }
+  },
+
+  value_wire_representation: function() {
+    return this.column.convert_for_wire(this.value());
   }
 });

@@ -9,13 +9,9 @@ constructor("Model.Record", {
 
     column: function(name, type) {
       this[name] = this.table.define_column(name, type);
-      this.prototype[name] = function(value) {
+      this.prototype[name] = function() {
         var field = this.field(name);
-        if (value) {
-          return field.value(value);
-        } else {
-          return field.value();
-        }
+        return field.value.apply(field, arguments);
       };
     },
 

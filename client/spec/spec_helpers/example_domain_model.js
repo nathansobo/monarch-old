@@ -5,7 +5,8 @@ Screw.Unit(function(c) {
         constructor_initialize: function() { with(this) {
           columns({
             name: "string",
-            user_id: "string"
+            user_id: "string",
+            started_at: "datetime"
           });
         }}
       });
@@ -14,7 +15,8 @@ Screw.Unit(function(c) {
         constructor_initialize: function() { with(this) {
           columns({
             full_name: "string",
-            age: "integer"
+            age: "integer",
+            signed_up_at: "datetime"
           });
 
           has_many("blogs");

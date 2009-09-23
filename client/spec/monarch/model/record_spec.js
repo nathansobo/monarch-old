@@ -181,20 +181,27 @@ Screw.Unit(function(c) { with(c) {
 
         var name_before_update = record.name();
         var user_id_before_update = record.user_id();
+        var started_at_before_update = record.started_at();
+        var new_started_at = new Date();
 
         var update_future = record.update({
           fancy_name: "Programming",
-          user_id: 'wil'
+          user_id: 'wil',
+          started_at: new_started_at
         });
 
         expect(record.name()).to(equal, name_before_update);
         expect(record.user_id()).to(equal, user_id_before_update);
+        expect(record.started_at()).to(equal, started_at_before_update);
         expect(update_callback).to_not(have_been_called);
 
         var before_events_callback = mock_function('before events callback', function() {
           expect(update_callback).to_not(have_been_called);
         });
         var after_events_callback = mock_function('after events callback', function() {
+
+          console.debug(update_callback.most_recent_args[1]);
+
           expect(update_callback).to(have_been_called, with_args(record, {
             name: {
               column: Blog.name,
@@ -205,6 +212,11 @@ Screw.Unit(function(c) { with(c) {
               column: Blog.user_id,
               old_value: user_id_before_update,
               new_value: "wil"
+            },
+            started_at: {
+              column: Blog.started_at,
+              old_value: started_at_before_update,
+              new_value: new_started_at
             }
           }));
         });
@@ -219,18 +231,21 @@ Screw.Unit(function(c) { with(c) {
         expect(put.data.relation).to(equal, Blog.table.wire_representation());
         expect(put.data.field_values).to(equal, {
           name: "Fancy Programming",
-          user_id: "wil"
+          user_id: "wil",
+          started_at: new_started_at.getTime()
         });
 
         put.simulate_success({
           field_values: {
             name: "Fancy Programming Prime", // server can change field values too
-            user_id: 'wil'
+            user_id: 'wil',
+            started_at: new_started_at.getTime()
           }
         });
 
         expect(record.name()).to(equal, "Fancy Programming Prime");
         expect(record.user_id()).to(equal, "wil");
+        expect(record.started_at()).to(equal, new_started_at);
 
         expect(before_events_callback).to(have_been_called);
         expect(after_events_callback).to(have_been_called);
@@ -272,10 +287,12 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("column accessor functions", function() {
+      var record;
+      before(function() {
+        record = Blog.find('recipes');
+      });
+
       they("trigger update callbacks on the Record's table when a new value is assigned", function() {
-        var record = Blog.find('recipes');
-
-
         var update_callback = mock_function('update callback')
         Blog.on_update(update_callback);
 
@@ -293,6 +310,11 @@ Screw.Unit(function(c) { with(c) {
 
         record.name('Pesticides');
         expect(update_callback).to_not(have_been_called);
+      });
+      
+      they("can assign null", function() {
+        record.name(null);
+        expect(record.name()).to(be_null);
       });
     });
 
@@ -317,7 +339,8 @@ Screw.Unit(function(c) { with(c) {
         expect(record.wire_representation()).to(equal, {
           id: 'recipes',
           name: 'Recipes from the Front',
-          user_id: 'mike'
+          user_id: 'mike',
+          started_at: record.started_at().getTime()
         });
       });
     });
