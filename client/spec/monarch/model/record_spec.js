@@ -104,7 +104,7 @@ Screw.Unit(function(c) { with(c) {
     describe(".create(field_values)", function() {
       context("when Repository.remote_create responds successfully", function() {
         it("calls .local_create with the field values returned by the remote repository and triggers success callbacks with the result", function() {
-          var remote_create_future = new AjaxFuture();
+          var remote_create_future = new Http.AjaxFuture();
           mock(Repository, 'remote_create', function() {
             return remote_create_future;
           });

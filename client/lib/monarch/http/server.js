@@ -1,13 +1,7 @@
-var start;
-
-function bm() {
-  return new Date().getTime() - start;
-}
-
-constructor("Server", {
+constructor("Http.Server", {
   fetch: function(relations) {
     var url = Repository.origin_url;
-    var fetch_future = new Model.FetchFuture();
+    var fetch_future = new Http.FetchFuture();
 
     start = new Date().getTime();
 
@@ -40,7 +34,7 @@ constructor("Server", {
   },
 
   request: function(type, url, data) {
-    var future = new AjaxFuture();
+    var future = new Http.AjaxFuture();
     jQuery.ajax({
       url: url,
       type: type,

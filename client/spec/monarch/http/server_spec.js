@@ -1,11 +1,11 @@
-//= require "../monarch_spec_helper"
+//= require "../../monarch_spec_helper"
 
 Screw.Unit(function(c) { with(c) {
-  describe("Server", function() {
+  describe("Http.Server", function() {
     var server;
 
     before(function() {
-      server = new Server();
+      server = new Http.Server();
     });
 
     describe(".fetch(origin_url, relations)", function() {
@@ -13,6 +13,7 @@ Screw.Unit(function(c) { with(c) {
       use_fake_server();
 
       it("performs a GET to Repository.origin_url with the json to fetch the given Relations, then merges the results into the Repository with the delta events sandwiched by before_events and after_events callback triggers on the returned future", function() {
+        Repository.origin_url = "/users/steph/repository"
         var future = server.fetch([Blog.table, User.table]);
 
         expect(Origin.gets).to(have_length, 1);
@@ -128,7 +129,7 @@ Screw.Unit(function(c) { with(c) {
         expect(JSON.parse(ajax_options.data.foo)).to(equal, data.foo);
         expect(JSON.parse(ajax_options.data.baz)).to(equal, data.baz);
 
-        expect(future.constructor).to(equal, AjaxFuture);
+        expect(future.constructor).to(equal, Http.AjaxFuture);
 
         mock(future, 'handle_response');
 

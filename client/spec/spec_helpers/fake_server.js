@@ -59,7 +59,7 @@ constructor("FakeServer", {
 
 constructor("FakeServer.FakeRequest", {
   initialize: function(type, url, data) {
-    this.future = new AjaxFuture();
+    this.future = new Http.AjaxFuture();
     this.type = type;
     this.url = url;
     this.data = data;
@@ -85,7 +85,7 @@ constructor("FakeServer.FakeFetch", {
     this.url = url;
     this.relations = relations;
     this.fixture_repository = fixture_repository;
-    this.future = new Model.FetchFuture();
+    this.future = new Http.FetchFuture();
   },
 
   simulate_success: function() {

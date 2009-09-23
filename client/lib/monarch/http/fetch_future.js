@@ -1,4 +1,4 @@
-constructor("Model.FetchFuture", {
+constructor("Http.FetchFuture", {
   initialize: function() {
     this.before_delta_events_node = new SubscriptionNode();
     this.after_delta_events_node = new SubscriptionNode();
