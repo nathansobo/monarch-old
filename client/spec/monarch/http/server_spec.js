@@ -16,8 +16,8 @@ Screw.Unit(function(c) { with(c) {
         Repository.origin_url = "/users/steph/repository"
         var future = server.fetch([Blog.table, User.table]);
 
-        expect(Origin.gets).to(have_length, 1);
-        var get = Origin.gets.shift();
+        expect(Server.gets).to(have_length, 1);
+        var get = Server.gets.shift();
         expect(get.url).to(equal, "/users/steph/repository");
         expect(get.data).to(equal, {
           relations: [Blog.table.wire_representation(), User.table.wire_representation()]

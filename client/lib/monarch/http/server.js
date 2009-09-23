@@ -5,7 +5,7 @@ constructor("Http.Server", {
 
     start = new Date().getTime();
 
-    Origin.get(url, {
+    Server.get(url, {
       relations: Util.map(relations, function(relation) {
         return relation.wire_representation();
       })

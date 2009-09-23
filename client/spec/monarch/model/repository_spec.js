@@ -15,9 +15,9 @@ Screw.Unit(function(c) { with(c) {
       it("calls Server.post with #origin_url and json to create a Record with the given field values in the given Relation", function() {
         repository.origin_url = "/users/steph/repository";
         var future = repository.remote_create(Blog.table, {name: 'Recipes'});
-        expect(Origin.posts).to(have_length, 1);
+        expect(Server.posts).to(have_length, 1);
 
-        var post = Origin.posts.shift();
+        var post = Server.posts.shift();
         expect(post.url).to(equal, repository.origin_url);
         expect(post.data).to(equal, {
           relation: Blog.table.wire_representation(),

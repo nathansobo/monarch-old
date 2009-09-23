@@ -3,12 +3,12 @@ Screw.Unit(function(c) {
     var original_server;
 
     c.init(function() {
-      original_server = Origin;
-      Origin = new FakeServer();
+      original_server = Server;
+      Server = new FakeServer();
     });
 
     c.after(function() {
-      Origin = original_server;
+      Server = original_server;
     })
   };
 });

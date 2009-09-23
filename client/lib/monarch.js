@@ -13,5 +13,5 @@
 //= require "monarch/model"
 //= require "monarch/view"
 
-Origin = new Http.Server();
+Server = new Http.Server();
 Repository = new Model.Repository();
