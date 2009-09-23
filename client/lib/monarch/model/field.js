@@ -1,7 +1,13 @@
 constructor("Model.Field", {
-  initialize: function(record, column) {
-    this.record = record;
+  initialize: function(fieldset, column) {
+    this.fieldset = fieldset;
     this.column = column;
+  },
+
+  clone_pending_field: function(fieldset) {
+    var pending_field = new Model.Field(fieldset, this.column)
+    pending_field._value = this._value;
+    return pending_field;
   },
 
   value: function(value) {
@@ -9,28 +15,11 @@ constructor("Model.Field", {
       if (this._value != value) {
         var old_value = this._value;
         this._value = value;
-        this.notify_record_of_update(old_value, value);
+        this.fieldset.field_updated(this, old_value, value);
       }
       return value;
     } else {
       return this._value;
-    }
-  },
-
-  notify_record_of_update: function(old_value, new_value) {
-    if (!this.record.update_events_enabled) return;
-
-    var update_data = {};
-    update_data[this.column.name] = {
-      column: this.column,
-      old_value: old_value,
-      new_value: new_value
-    };
-
-    if (this.record.batched_updates) {
-      jQuery.extend(this.record.batched_updates, update_data);
-    } else {
-      this.record.table().record_updated(this.record, update_data)
     }
   }
 });

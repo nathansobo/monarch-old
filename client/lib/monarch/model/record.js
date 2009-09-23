@@ -10,7 +10,7 @@ constructor("Model.Record", {
     column: function(name, type) {
       this[name] = this.table.define_column(name, type);
       this.prototype[name] = function(value) {
-        var field = this.fields_by_column_name[name];
+        var field = this.field(name);
         if (value) {
           return field.value(value);
         } else {
@@ -109,13 +109,13 @@ constructor("Model.Record", {
   },
 
   initialize: function(field_values_by_column_name) {
-    this.initialize_fields_by_column_name();
+    this.primary_fieldset = new Model.Fieldset(this);
+    this.active_fieldset = this.primary_fieldset;
     if (field_values_by_column_name) {
-      this.update_events_enabled = false;
+      this.active_fieldset.disable_update_events();
       this.local_update(field_values_by_column_name);
+      this.active_fieldset.enable_update_events();
     }
-    this.update_events_enabled = true;
-
     this.initialize_relations();
   },
 
@@ -139,18 +139,44 @@ constructor("Model.Record", {
     this.table().remove(this);
   },
 
-  local_update: function(field_values_by_column_name) {
-    if (this.update_events_enabled) this.batched_updates = {};
-    for (var column_name in field_values_by_column_name) {
-      if (this[column_name]) {
-        this[column_name].call(this, field_values_by_column_name[column_name]);
+  update: function(values_by_method_name) {
+    this.start_pending_changes();
+    this.local_update(values_by_method_name);
+    return this.push();
+  },
+
+  start_pending_changes: function() {
+    this.active_fieldset = this.active_fieldset.clone_pending_fieldset();
+  },
+
+  push: function() {
+    var push_future = new Http.RepositoryUpdateFuture();
+    var active_fieldset = this.active_fieldset;
+    this.restore_primary_fieldset();
+
+    Server.put(Repository.origin_url, {
+      id: this.id(),
+      relation: this.table().wire_representation(),
+      field_values: active_fieldset.wire_representation()
+    })
+      .on_success(function(data) {
+        active_fieldset.update(data.field_values);
+        active_fieldset.commit();
+      });
+  },
+
+  restore_primary_fieldset: function() {
+    this.active_fieldset = this.primary_fieldset;
+  },
+
+  local_update: function(values_by_method_name) {
+    this.active_fieldset.begin_batch_update();
+    for (var method_name in values_by_method_name) {
+      if (this[method_name]) {
+        this[method_name].call(this, values_by_method_name[method_name]);
       }
     }
-    if (this.update_events_enabled) {
-      var batched_updates = this.batched_updates;
-      this.batched_updates = null;
-      this.table().record_updated(this, batched_updates);
-    }
+    this.active_fieldset.finish_batch_update();
   },
 
   table: function() {
@@ -158,19 +184,11 @@ constructor("Model.Record", {
   },
 
   wire_representation: function() {
-    var wire_representation = {};
-    Util.each(this.fields_by_column_name, function(column_name, field) {
-      wire_representation[column_name] = field.value();
-    });
-    return wire_representation;
+    return this.active_fieldset.wire_representation();
   },
 
   field: function(column) {
-    if (typeof column == 'string') {
-      return this.fields_by_column_name[column];
-    } else {
-      return this.fields_by_column_name[column.name];
-    }
+    return this.active_fieldset.field(column);
   },
 
   evaluate: function(column_or_constant) {

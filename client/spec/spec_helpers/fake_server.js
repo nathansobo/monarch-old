@@ -90,16 +90,16 @@ constructor("FakeServer.FakeFetch", {
     this.url = url;
     this.relations = relations;
     this.fixture_repository = fixture_repository;
-    this.future = new Http.FetchFuture();
+    this.future = new Http.RepositoryUpdateFuture();
   },
 
   simulate_success: function() {
     var dataset = this.fetch_dataset_from_fixture_repository();
-    Repository.pause_delta_events();
+    Repository.pause_events();
     Repository.update(dataset);
-    this.future.trigger_before_delta_events();
-    Repository.resume_delta_events();
-    this.future.trigger_after_delta_events();
+    this.future.trigger_before_events();
+    Repository.resume_events();
+    this.future.trigger_after_events();
   },
 
   fetch_dataset_from_fixture_repository: function() {

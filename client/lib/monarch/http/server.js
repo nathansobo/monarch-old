@@ -1,6 +1,6 @@
 constructor("Http.Server", {
   fetch: function(relations) {
-    var fetch_future = new Http.FetchFuture();
+    var fetch_future = new Http.RepositoryUpdateFuture();
 
     start = new Date().getTime();
 
@@ -10,11 +10,11 @@ constructor("Http.Server", {
       })
     })
       .on_success(function(data) {
-        Repository.pause_delta_events();
+        Repository.pause_events();
         Repository.update(data);
-        fetch_future.trigger_before_delta_events();
-        Repository.resume_delta_events();
-        fetch_future.trigger_after_delta_events();
+        fetch_future.trigger_before_events();
+        Repository.resume_events();
+        fetch_future.trigger_after_events();
       });
 
     return fetch_future;

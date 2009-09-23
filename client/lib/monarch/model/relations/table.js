@@ -45,13 +45,13 @@ constructor("Model.Relations.Table", Model.Relations.Relation, {
     };
   },
 
-  pause_delta_events: function() {
+  pause_events: function() {
     this.on_insert_node.pause_events();
     this.on_remove_node.pause_events();
     this.on_update_node.pause_events();
   },
 
-  resume_delta_events: function() {
+  resume_events: function() {
     this.on_insert_node.resume_events();
     this.on_remove_node.resume_events();
     this.on_update_node.resume_events();

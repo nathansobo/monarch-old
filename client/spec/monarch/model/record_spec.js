@@ -37,7 +37,7 @@ Screw.Unit(function(c) { with(c) {
       it("generates a method on .prototype that accesses the field corresponding to the prototype", function() {
         var record = new Blog();
 
-        var field = record.fields_by_column_name.user_id;
+        var field = record.field('user_id');
         expect(field.value()).to(be_undefined);
         expect(record.user_id("jan")).to(equal, "jan");
         expect(field.value()).to(equal, "jan");
@@ -146,21 +146,6 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("#initialize(field_values_by_column_name={})", function() {
-      it("instantiates a Field in #fields_by_column_name for each Column on the constructor's .table", function() {
-        var record = new Blog();
-
-        var name_field = record.fields_by_column_name.name;
-        var user_id_field = record.fields_by_column_name.user_id;
-
-        expect(name_field).to(be_an_instance_of, Model.Field);
-        expect(name_field.record).to(equal, record);
-        expect(name_field.column).to(equal, Blog.name);
-
-        expect(user_id_field).to(be_an_instance_of, Model.Field);
-        expect(user_id_field.record).to(equal, record);
-        expect(user_id_field.column).to(equal, Blog.user_id);
-      });
-
       it("assigns the given field values to their respective Fields", function() {
         var record = new Blog({
           id: "recipes",
@@ -179,13 +164,72 @@ Screw.Unit(function(c) { with(c) {
         expect(User.find('jan')).to(be_null);
       });
     });
+
+//    describe("#update", function() {
+//      use_fake_server();
+//
+//      it("performs a pending local update, then sends the changes to the server before firing update events or commiting the changes", function() {
+//        Repository.origin_url = "/repo";
+//
+//        var record = Blog.find('recipes');
+//        record.fancy_name = function(plain_name) {
+//          this.name("Fancy " + plain_name);
+//        };
+//
+//        var update_callback = mock_function("update callback");
+//        Blog.on_update(update_callback);
+//
+//        var name_before_update = record.name();
+//        var user_id_before_update = record.user_id();
+//
+//        var update_future = record.update({
+//          fancy_name: "Programming",
+//          user_id: 'wil'
+//        });
+//
+//        expect(record.name()).to(equal, name_before_update);
+//        expect(record.user_id()).to(equal, user_id_before_update);
+//        expect(update_callback).to_not(have_been_called);
+//
+//        var before_events_callback = mock_function('before events callback', function() {
+//          expect(update_callback).to_not(have_been_called);
+//        });
+//        var after_events_callback = mock_function('after events callback', function() {
+//          expect(update_callback).to(have_been_called);
+//        });
+//        update_future.before_events(before_events_callback);
+//        update_future.after_events(after_events_callback);
+//
+//        expect(Server.puts.length).to(equal, 1);
+//        var put = Server.puts.shift();
+//
+//        expect(put.url).to(equal, Repository.origin_url);
+//        expect(put.data.id).to(equal, record.id());
+//        expect(put.data.relation).to(equal, Blog.table.to_wire_representation());
+//        expect(put.data.field_values).to(equal, {
+//          name: "Fancy Programming",
+//          user_id: "wil"
+//        });
+//
+//        put.simulate_success({
+//          field_values: {
+//            name: "Fancy Programming Prime", // server can change field values too
+//            user_id: 'wil'
+//          }
+//        });
+//
+//        expect(before_events_callback).to(have_been_called);
+//        expect(after_events_callback).to(have_been_called);
+//      });
+//    });
     
     describe("#local_update(values_by_method)", function() {
-      it("calls setter methods for each key in the given hash and calls #record_updated on its Table with all the changed attributes", function() {
+      it("calls setter methods for each key in the given hash and fires update callbacks on its Table with all the changed attributes", function() {
         var record = Blog.find('recipes');
         record.other_method = mock_function('other method');
 
-        mock(record.table(), 'record_updated');
+        var update_callback = mock_function('update_callback');
+        record.table().on_update(update_callback);
 
         record.local_update({
           id: 'recipes',
@@ -198,7 +242,7 @@ Screw.Unit(function(c) { with(c) {
         expect(record.user_id()).to(equal, 'jan');
         expect(record.other_method).to(have_been_called, with_args('foo'));
 
-        expect(record.table().record_updated).to(have_been_called, with_args(record, {
+        expect(update_callback).to(have_been_called, with_args(record, {
           name: {
             column: Blog.name,
             old_value: 'Recipes from the Front',
@@ -214,13 +258,16 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("column accessor functions", function() {
-      they("call #record_updated on the Record's table when a new value is assigned", function() {
+      they("trigger update callbacks on the Record's table when a new value is assigned", function() {
         var record = Blog.find('recipes');
-        mock(record.table(), 'record_updated');
+
+
+        var update_callback = mock_function('update callback')
+        Blog.on_update(update_callback);
 
         record.name('Pesticides');
 
-        expect(record.table().record_updated).to(have_been_called, with_args(record, {
+        expect(update_callback).to(have_been_called, with_args(record, {
           name: {
             column: Blog.name,
             old_value: 'Recipes from the Front',
@@ -228,10 +275,10 @@ Screw.Unit(function(c) { with(c) {
           }
         }));
 
-        record.table().record_updated.clear();
+        update_callback.clear();
 
         record.name('Pesticides');
-        expect(record.table().record_updated).to_not(have_been_called);
+        expect(update_callback).to_not(have_been_called);
       });
     });
 
@@ -240,11 +287,11 @@ Screw.Unit(function(c) { with(c) {
         var record = Blog.find('recipes');
 
         var field = record.field(Blog.id);
-        expect(field.record).to(equal, record);
+        expect(field.fieldset.record).to(equal, record);
         expect(field.column).to(equal, Blog.id);
 
         field = record.field('id');
-        expect(field.record).to(equal, record);
+        expect(field.fieldset.record).to(equal, record);
         expect(field.column).to(equal, Blog.id);
       });
     });

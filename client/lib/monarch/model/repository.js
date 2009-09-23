@@ -3,15 +3,15 @@ constructor("Model.Repository", {
     this.tables = {};
   },
 
-  pause_delta_events: function() {
+  pause_events: function() {
     Util.each(this.tables, function(name, table) {
-      table.pause_delta_events();
+      table.pause_events();
     });
   },
 
-  resume_delta_events: function() {
+  resume_events: function() {
     Util.each(this.tables, function(name, table) {
-      table.resume_delta_events();
+      table.resume_events();
     });
   },
 

@@ -78,23 +78,23 @@ Screw.Unit(function(c) { with(c) {
         var events = [];
 
         future
-          .before_delta_events(function() {
-            events.push('before_delta_events');
+          .before_events(function() {
+            events.push('before_events');
           })
-          .after_delta_events(function() {
-            events.push('after_delta_events')
+          .after_events(function() {
+            events.push('after_events')
           });
 
-        mock(Repository, 'pause_delta_events', function() {
-          events.push('Repository.pause_delta_events')
+        mock(Repository, 'pause_events', function() {
+          events.push('Repository.pause_events')
         });
 
         mock(Repository, 'update', function() {
           events.push('Repository.update')
         });
 
-        mock(Repository, 'resume_delta_events', function() {
-          events.push('Repository.resume_delta_events')
+        mock(Repository, 'resume_events', function() {
+          events.push('Repository.resume_events')
         });
 
         get.simulate_success(dataset);
@@ -102,11 +102,11 @@ Screw.Unit(function(c) { with(c) {
         expect(Repository.update).to(have_been_called, with_args(dataset));
 
         expect(events).to(equal, [
-          'Repository.pause_delta_events',
+          'Repository.pause_events',
           'Repository.update',
-          'before_delta_events',
-          'Repository.resume_delta_events',
-          'after_delta_events'
+          'before_events',
+          'Repository.resume_events',
+          'after_events'
         ]);
       });
     });

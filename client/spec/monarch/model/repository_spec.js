@@ -9,27 +9,27 @@ Screw.Unit(function(c) { with(c) {
       repository = Repository;
     });
 
-    describe("#pause_delta_events", function() {
-      it("calls .pause_delta_events on all Tables", function() {
-        mock(Blog.table, 'pause_delta_events');
-        mock(User.table, 'pause_delta_events');
+    describe("#pause_events", function() {
+      it("calls .pause_events on all Tables", function() {
+        mock(Blog.table, 'pause_events');
+        mock(User.table, 'pause_events');
 
-        repository.pause_delta_events();
+        repository.pause_events();
 
-        expect(Blog.table.pause_delta_events).to(have_been_called, once);
-        expect(User.table.pause_delta_events).to(have_been_called, once);
+        expect(Blog.table.pause_events).to(have_been_called, once);
+        expect(User.table.pause_events).to(have_been_called, once);
       });
     });
 
-    describe("#resume_delta_events", function() {
-      it("calls .resume_delta_events on all Tables", function() {
-        mock(Blog.table, 'resume_delta_events');
-        mock(User.table, 'resume_delta_events');
+    describe("#resume_events", function() {
+      it("calls .resume_events on all Tables", function() {
+        mock(Blog.table, 'resume_events');
+        mock(User.table, 'resume_events');
 
-        repository.resume_delta_events();
+        repository.resume_events();
 
-        expect(Blog.table.resume_delta_events).to(have_been_called, once);
-        expect(User.table.resume_delta_events).to(have_been_called, once);
+        expect(Blog.table.resume_events).to(have_been_called, once);
+        expect(User.table.resume_events).to(have_been_called, once);
       });
     });
 
