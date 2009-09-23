@@ -165,63 +165,77 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
-//    describe("#update", function() {
-//      use_fake_server();
-//
-//      it("performs a pending local update, then sends the changes to the server before firing update events or commiting the changes", function() {
-//        Repository.origin_url = "/repo";
-//
-//        var record = Blog.find('recipes');
-//        record.fancy_name = function(plain_name) {
-//          this.name("Fancy " + plain_name);
-//        };
-//
-//        var update_callback = mock_function("update callback");
-//        Blog.on_update(update_callback);
-//
-//        var name_before_update = record.name();
-//        var user_id_before_update = record.user_id();
-//
-//        var update_future = record.update({
-//          fancy_name: "Programming",
-//          user_id: 'wil'
-//        });
-//
-//        expect(record.name()).to(equal, name_before_update);
-//        expect(record.user_id()).to(equal, user_id_before_update);
-//        expect(update_callback).to_not(have_been_called);
-//
-//        var before_events_callback = mock_function('before events callback', function() {
-//          expect(update_callback).to_not(have_been_called);
-//        });
-//        var after_events_callback = mock_function('after events callback', function() {
-//          expect(update_callback).to(have_been_called);
-//        });
-//        update_future.before_events(before_events_callback);
-//        update_future.after_events(after_events_callback);
-//
-//        expect(Server.puts.length).to(equal, 1);
-//        var put = Server.puts.shift();
-//
-//        expect(put.url).to(equal, Repository.origin_url);
-//        expect(put.data.id).to(equal, record.id());
-//        expect(put.data.relation).to(equal, Blog.table.to_wire_representation());
-//        expect(put.data.field_values).to(equal, {
-//          name: "Fancy Programming",
-//          user_id: "wil"
-//        });
-//
-//        put.simulate_success({
-//          field_values: {
-//            name: "Fancy Programming Prime", // server can change field values too
-//            user_id: 'wil'
-//          }
-//        });
-//
-//        expect(before_events_callback).to(have_been_called);
-//        expect(after_events_callback).to(have_been_called);
-//      });
-//    });
+    describe("#update", function() {
+      use_fake_server();
+
+      it("performs a pending local update, then sends the changes to the server and commits the (potentially changed) field values from the result", function() {
+        Repository.origin_url = "/repo";
+
+        var record = Blog.find('recipes');
+        record.fancy_name = function(plain_name) {
+          this.name("Fancy " + plain_name);
+        };
+
+        var update_callback = mock_function("update callback");
+        Blog.on_update(update_callback);
+
+        var name_before_update = record.name();
+        var user_id_before_update = record.user_id();
+
+        var update_future = record.update({
+          fancy_name: "Programming",
+          user_id: 'wil'
+        });
+
+        expect(record.name()).to(equal, name_before_update);
+        expect(record.user_id()).to(equal, user_id_before_update);
+        expect(update_callback).to_not(have_been_called);
+
+        var before_events_callback = mock_function('before events callback', function() {
+          expect(update_callback).to_not(have_been_called);
+        });
+        var after_events_callback = mock_function('after events callback', function() {
+          expect(update_callback).to(have_been_called, with_args(record, {
+            name: {
+              column: Blog.name,
+              old_value: name_before_update,
+              new_value: "Fancy Programming Prime"
+            },
+            user_id: {
+              column: Blog.user_id,
+              old_value: user_id_before_update,
+              new_value: "wil"
+            }
+          }));
+        });
+        update_future.before_events(before_events_callback);
+        update_future.after_events(after_events_callback);
+
+        expect(Server.puts.length).to(equal, 1);
+        var put = Server.puts.shift();
+
+        expect(put.url).to(equal, Repository.origin_url);
+        expect(put.data.id).to(equal, record.id());
+        expect(put.data.relation).to(equal, Blog.table.wire_representation());
+        expect(put.data.field_values).to(equal, {
+          name: "Fancy Programming",
+          user_id: "wil"
+        });
+
+        put.simulate_success({
+          field_values: {
+            name: "Fancy Programming Prime", // server can change field values too
+            user_id: 'wil'
+          }
+        });
+
+        expect(record.name()).to(equal, "Fancy Programming Prime");
+        expect(record.user_id()).to(equal, "wil");
+
+        expect(before_events_callback).to(have_been_called);
+        expect(after_events_callback).to(have_been_called);
+      });
+    });
     
     describe("#local_update(values_by_method)", function() {
       it("calls setter methods for each key in the given hash and fires update callbacks on its Table with all the changed attributes", function() {

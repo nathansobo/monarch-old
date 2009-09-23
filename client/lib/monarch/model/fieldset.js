@@ -11,16 +11,17 @@ constructor("Model.Fieldset", {
     this.enable_update_events();
   },
 
-  clone_pending_fieldset: function() {
-    var pending_fieldset = new Model.Fieldset();
-    pending_fieldset.record = this.record;
-    pending_fieldset.fields_by_column_name = {};
-    for (var column_name in this.fields_by_column_name) {
-      pending_fieldset.fields_by_column_name[column_name] = this.fields_by_column_name[column_name].clone_pending_field(pending_fieldset);
-    }
-    return pending_fieldset;
+  new_pending_fieldset: function() {
+    return new Model.PendingFieldset(this);
   },
 
+  field: function(column) {
+    if (typeof column == 'string') {
+      return this.fields_by_column_name[column];
+    } else {
+      return this.fields_by_column_name[column.name];
+    }
+  },
 
   disable_update_events: function() {
     this.update_events_enabled = false;
@@ -37,15 +38,12 @@ constructor("Model.Fieldset", {
   finish_batch_update: function() {
     var batched_updates = this.batched_updates;
     this.batched_updates = null;
-
-    if (Util.keys(batched_updates).length > 0) {
+    if (this.update_events_enabled && Util.keys(batched_updates).length > 0) {
       this.record.table().record_updated(this.record, batched_updates);
     }
   },
 
   field_updated: function(field, old_value, new_value) {
-    if (!this.update_events_enabled) return;
-
     var change_data = {};
     change_data[field.column.name] = {
       column: field.column,
@@ -56,23 +54,15 @@ constructor("Model.Fieldset", {
     if (this.batched_updates) {
       jQuery.extend(this.batched_updates, change_data);
     } else {
-      this.record.table().record_updated(this.record, change_data);
+      if (this.update_events_enabled) this.record.table().record_updated(this.record, change_data);
     }
   },
 
-  wire_representation: function() {
+  wire_representation: function(only_dirty) {
     var wire_representation = {};
     Util.each(this.fields_by_column_name, function(column_name, field) {
-      wire_representation[column_name] = field.value();
+      if (!only_dirty || field.dirty) wire_representation[column_name] = field.value();
     });
     return wire_representation;
-  },
-
-  field: function(column) {
-    if (typeof column == 'string') {
-      return this.fields_by_column_name[column];
-    } else {
-      return this.fields_by_column_name[column.name];
-    }
   }
 });

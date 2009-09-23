@@ -146,37 +146,49 @@ constructor("Model.Record", {
   },
 
   start_pending_changes: function() {
-    this.active_fieldset = this.active_fieldset.clone_pending_fieldset();
+    this.active_fieldset = this.active_fieldset.new_pending_fieldset();
   },
 
   push: function() {
     var push_future = new Http.RepositoryUpdateFuture();
-    var active_fieldset = this.active_fieldset;
+    var pending_fieldset = this.active_fieldset;
     this.restore_primary_fieldset();
 
     Server.put(Repository.origin_url, {
       id: this.id(),
       relation: this.table().wire_representation(),
-      field_values: active_fieldset.wire_representation()
+      field_values: pending_fieldset.wire_representation()
     })
       .on_success(function(data) {
-        active_fieldset.update(data.field_values);
-        active_fieldset.commit();
+        pending_fieldset.update(data.field_values);
+        pending_fieldset.commit({
+          before_events: function() {
+            push_future.trigger_before_events();
+          },
+          after_events: function() {
+            push_future.trigger_after_events();
+          }
+        });
       });
+    
+    return push_future;
   },
 
   restore_primary_fieldset: function() {
     this.active_fieldset = this.primary_fieldset;
   },
 
-  local_update: function(values_by_method_name) {
+  local_update: function(values_by_method_name, options) {
+    if (!options) options = {};
     this.active_fieldset.begin_batch_update();
     for (var method_name in values_by_method_name) {
       if (this[method_name]) {
         this[method_name].call(this, values_by_method_name[method_name]);
       }
     }
+    if (options.before_events) options.before_events();
     this.active_fieldset.finish_batch_update();
+    if (options.after_events) options.after_events();
   },
 
   table: function() {

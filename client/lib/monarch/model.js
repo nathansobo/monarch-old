@@ -2,6 +2,7 @@
 //= require "model/record"
 //= require "model/field"
 //= require "model/fieldset"
+//= require "model/pending_fieldset"
 //= require "model/column"
 //= require "model/order_by_column"
 //= require "model/relations"
