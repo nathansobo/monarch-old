@@ -155,8 +155,6 @@ Screw.Unit(function(c) { with(c) {
         expect(ajax_options.dataType).to(equal, 'json');
 
 
-        console.debug(ajax_options.data);
-
         expect(JSON.parse(ajax_options.data.foo)).to(equal, data.foo);
         expect(ajax_options.data.baz).to(equal, data.baz);
         expect(JSON.parse(ajax_options.data.corge)).to(equal, data.corge);

@@ -199,9 +199,6 @@ Screw.Unit(function(c) { with(c) {
           expect(update_callback).to_not(have_been_called);
         });
         var after_events_callback = mock_function('after events callback', function() {
-
-          console.debug(update_callback.most_recent_args[1]);
-
           expect(update_callback).to(have_been_called, with_args(record, {
             name: {
               column: Blog.name,
