@@ -36,7 +36,7 @@ constructor("FakeServer", {
   },
 
   simulate_fetch: function(relations) {
-    this.fetch("simulated fetch", relations);
+    this.fetch(relations);
     this.fetches.shift().simulate_success();
   },
 

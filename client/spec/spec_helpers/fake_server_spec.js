@@ -7,32 +7,30 @@ Screw.Unit(function(c) { with(c) {
     var fake_server;
     before(function() {
       fake_server = new FakeServer();
+      fake_server.Repository.load_fixtures({
+        users: {
+          sharon: {
+            full_name: "Sharon Ly"
+          },
+          stephanie: {
+            full_name: "Stephanie Wambach"
+          }
+        },
+        blogs: {
+          guns: {
+            name: "Guns, Ammo, and Me",
+            user_id: "sharon"
+          },
+          aircraft: {
+            name: "My Favorite Aircraft",
+            user_id: "stephanie"
+          }
+        }
+      });
     });
 
     describe("#fetch", function() {
       it("adds the a FakeFetch to a #fetches array, then executes the fetch against its fixture repository and triggers the returned future when #simulate_success is called on it", function() {
-        fake_server.Repository.load_fixtures({
-          users: {
-            sharon: {
-              full_name: "Sharon Ly"
-            },
-            stephanie: {
-              full_name: "Stephanie Wambach"
-            }
-          },
-          blogs: {
-            guns: {
-              name: "Guns, Ammo, and Me",
-              user_id: "sharon"
-            },
-            aircraft: {
-              name: "My Favorite Aircraft",
-              user_id: "stephanie"
-            }
-          }
-        });
-
-
         var before_events_callback = mock_function("before delta events callback", function() {
           expect(User.find("sharon")).to_not(be_null);
           expect(insert_callback).to_not(have_been_called);
@@ -68,6 +66,14 @@ Screw.Unit(function(c) { with(c) {
 
         expect(User.find('sharon').full_name()).to(equal, 'Sharon Ly');
         expect(Blog.find('guns').user_id()).to(equal, 'sharon');
+      });
+    });
+
+    describe("#simulate_fetch", function() {
+      it("immediately fetches records from the FakeServer's repository to the local repository", function() {
+        expect(Blog.all()).to(be_empty);
+        fake_server.simulate_fetch(Blog.table);
+        expect(Blog.all()).to_not(be_empty);
       });
     });
   });
