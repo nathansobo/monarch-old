@@ -57,7 +57,8 @@ constructor("Http.Server", {
   stringify_json_data: function(data) {
     var stringified_data = {};
     Util.each(data, function(key, value) {
-      stringified_data[key] = JSON.stringify(value);
+      if (typeof value == "object") value = JSON.stringify(value);
+      stringified_data[key] = value;
     });
     return stringified_data;
   }

@@ -141,6 +141,8 @@ Screw.Unit(function(c) { with(c) {
             quux: 1
           },
           baz: "hello",
+          corge: [1, 2],
+          grault: 1
         };
 
         var future = server[request_method].call(server, "/users", data);
@@ -153,8 +155,12 @@ Screw.Unit(function(c) { with(c) {
         expect(ajax_options.dataType).to(equal, 'json');
 
 
+        console.debug(ajax_options.data);
+
         expect(JSON.parse(ajax_options.data.foo)).to(equal, data.foo);
-        expect(JSON.parse(ajax_options.data.baz)).to(equal, data.baz);
+        expect(ajax_options.data.baz).to(equal, data.baz);
+        expect(JSON.parse(ajax_options.data.corge)).to(equal, data.corge);
+        expect(JSON.parse(ajax_options.data.grault)).to(equal, data.grault);
 
         expect(future.constructor).to(equal, Http.AjaxFuture);
 
