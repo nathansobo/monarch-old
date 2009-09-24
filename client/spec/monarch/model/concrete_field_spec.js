@@ -1,7 +1,7 @@
 //= require "../../monarch_spec_helper"
 
 Screw.Unit(function(c) { with(c) {
-  describe("Model.Field", function() {
+  describe("Model.ConcreteField", function() {
     use_local_fixtures();
 
     var record, field;

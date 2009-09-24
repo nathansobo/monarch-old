@@ -15,6 +15,13 @@ constructor("Model.Record", {
       };
     },
 
+    synthetic_column: function(name, definition) {
+      this[name] = this.table.define_synthetic_column(name, definition);
+      this.prototype[name] = function() {
+        return this.field(name).value();
+      };
+    },
+
     columns: function(column_name_type_pairs) {
       for (var name in column_name_type_pairs) {
         this.column(name, column_name_type_pairs[name]);
@@ -112,6 +119,7 @@ constructor("Model.Record", {
       this.local_update(field_values_by_column_name);
       this.active_fieldset.enable_update_events();
     }
+    this.primary_fieldset.initialize_synthetic_fields();
     this.initialize_relations();
   },
 
@@ -119,7 +127,7 @@ constructor("Model.Record", {
     this.fields_by_column_name = {};
     for (var attr_name in this.constructor.table.columns_by_name) {
       var column = this.constructor.table.columns_by_name[attr_name];
-      this.fields_by_column_name[attr_name] = new Model.Field(this, column);
+      this.fields_by_column_name[attr_name] = new Model.ConcreteField(this, column);
     }
   },
 
@@ -197,6 +205,10 @@ constructor("Model.Record", {
 
   field: function(column) {
     return this.active_fieldset.field(column);
+  },
+
+  signal: function(column, optional_transformer) {
+    return this.field(column).signal(optional_transformer);
   },
 
   evaluate: function(column_or_constant) {

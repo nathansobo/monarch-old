@@ -4,11 +4,24 @@ constructor("Model.Fieldset", {
 
     this.record = record;
     this.fields_by_column_name = {};
-    var table = this.record.constructor.table;
-    for (var column_name in table.columns_by_name) {
-      this.fields_by_column_name[column_name] = new Model.Field(this, table.columns_by_name[column_name]);
-    }
+    this.synthetic_fields_by_column_name = {};
+    var table = this.record.table();
+
+    var self = this;
+
+    Util.each(table.columns_by_name, function(column_name, column) {
+      self.fields_by_column_name[column_name] = new Model.ConcreteField(self, column);
+    });
+
     this.enable_update_events();
+  },
+
+  initialize_synthetic_fields: function() {
+    var self = this;
+    Util.each(this.record.table().synthetic_columns_by_name, function(column_name, column) {
+      var signal = column.definition.call(self.record);
+      self.synthetic_fields_by_column_name[column_name] = new Model.SyntheticField(self, column, signal);
+    });
   },
 
   new_pending_fieldset: function() {
@@ -16,11 +29,10 @@ constructor("Model.Fieldset", {
   },
 
   field: function(column) {
-    if (typeof column == 'string') {
-      return this.fields_by_column_name[column];
-    } else {
-      return this.fields_by_column_name[column.name];
-    }
+    var column_name = (typeof column == 'string') ? column : column.name;
+    var field = this.fields_by_column_name[column_name];
+    if (field) return field;
+    return this.synthetic_fields_by_column_name[column_name];
   },
 
   disable_update_events: function() {
@@ -35,6 +47,10 @@ constructor("Model.Fieldset", {
     this.batched_updates = {};
   },
 
+  batch_update_in_progress: function() {
+    return this.batched_updates != null;
+  },
+
   finish_batch_update: function() {
     var batched_updates = this.batched_updates;
     this.batched_updates = null;
@@ -43,7 +59,7 @@ constructor("Model.Fieldset", {
     }
   },
 
-  field_updated: function(field, old_value, new_value) {
+  field_updated: function(field, new_value, old_value) {
     var change_data = {};
     change_data[field.column.name] = {
       column: field.column,
@@ -51,7 +67,7 @@ constructor("Model.Fieldset", {
       new_value: new_value
     };
 
-    if (this.batched_updates) {
+    if (this.batch_update_in_progress()) {
       jQuery.extend(this.batched_updates, change_data);
     } else {
       if (this.update_events_enabled) this.record.table().record_updated(this.record, change_data);

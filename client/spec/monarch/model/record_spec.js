@@ -60,6 +60,13 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
+    describe(".synthetic_column(name, definition)", function() {
+      it("causes records to have synthetic fields that are based on signals returned by the definition", function() {
+        var record = Blog.find('recipes')
+        expect(record.fun_profit_name()).to(equal, record.name() + " for Fun and Profit");
+      });
+    });
+
     describe(".relates_to_many(name, definition)", function() {
       it("associates a method with the relation returned by the definition function", function() {
         var user = User.find('jan');
@@ -179,6 +186,7 @@ Screw.Unit(function(c) { with(c) {
         var update_callback = mock_function("update callback");
         Blog.on_update(update_callback);
 
+        var fun_profit_name_before_update = record.fun_profit_name();
         var name_before_update = record.name();
         var user_id_before_update = record.user_id();
         var started_at_before_update = record.started_at();
@@ -190,6 +198,7 @@ Screw.Unit(function(c) { with(c) {
           started_at: new_started_at
         });
 
+        expect(record.fun_profit_name()).to(equal, fun_profit_name_before_update);
         expect(record.name()).to(equal, name_before_update);
         expect(record.user_id()).to(equal, user_id_before_update);
         expect(record.started_at()).to(equal, started_at_before_update);
@@ -200,6 +209,11 @@ Screw.Unit(function(c) { with(c) {
         });
         var after_events_callback = mock_function('after events callback', function() {
           expect(update_callback).to(have_been_called, with_args(record, {
+            fun_profit_name: {
+              column: Blog.fun_profit_name,
+              old_value: fun_profit_name_before_update ,
+              new_value: "Fancy Programming Prime for Fun and Profit"
+            },
             name: {
               column: Blog.name,
               old_value: name_before_update,
@@ -269,6 +283,11 @@ Screw.Unit(function(c) { with(c) {
         expect(record.other_method).to(have_been_called, with_args('foo'));
 
         expect(update_callback).to(have_been_called, with_args(record, {
+          fun_profit_name: {
+            column: Blog.fun_profit_name,
+            old_value: 'Recipes from the Front for Fun and Profit',
+            new_value: 'Pesticides for Fun and Profit'
+          },
           name: {
             column: Blog.name,
             old_value: 'Recipes from the Front',
@@ -280,6 +299,20 @@ Screw.Unit(function(c) { with(c) {
             new_value: 'jan'
           }
         }));
+      });
+    });
+
+    describe("when a synthetic field changes", function() {
+      it("triggers update callbacks on the table of its record", function() {
+        var record = Blog.find('recipes');
+        var update_callback = mock_function('update_callback');
+        record.table().on_update(update_callback);
+
+        expect(record.active_fieldset.batch_update_in_progress()).to(be_false);
+
+        record.name("Farming");
+
+        expect(update_callback).to(have_been_called, once);
       });
     });
 
@@ -295,7 +328,13 @@ Screw.Unit(function(c) { with(c) {
 
         record.name('Pesticides');
 
+        expect(update_callback).to(have_been_called, once);
         expect(update_callback).to(have_been_called, with_args(record, {
+          fun_profit_name: {
+            column: Blog.fun_profit_name,
+            old_value: 'Recipes from the Front for Fun and Profit',
+            new_value: 'Pesticides for Fun and Profit'
+          },
           name: {
             column: Blog.name,
             old_value: 'Recipes from the Front',
@@ -312,6 +351,10 @@ Screw.Unit(function(c) { with(c) {
       they("can assign null", function() {
         record.name(null);
         expect(record.name()).to(be_null);
+      });
+
+      they("can read synthetic fields", function() {
+        expect(record.fun_profit_name()).to(equal, record.field('fun_profit_name').value());
       });
     });
 

@@ -5,6 +5,7 @@ constructor("Model.Relations.Table", Model.Relations.Relation, {
     this.global_name = global_name;
     this.record_constructor = record_constructor;
     this.columns_by_name = {};
+    this.synthetic_columns_by_name = {};
     this.records = [];
     this.records_by_id = {};
 
@@ -13,6 +14,10 @@ constructor("Model.Relations.Table", Model.Relations.Relation, {
 
   define_column: function(name, type) {
     return this.columns_by_name[name] = new Model.Column(this, name, type);
+  },
+
+  define_synthetic_column: function(name, definition) {
+    return this.synthetic_columns_by_name[name] = new Model.SyntheticColumn(this, name, definition);
   },
 
   column: function(name) {

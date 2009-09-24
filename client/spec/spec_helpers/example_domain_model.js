@@ -8,6 +8,12 @@ Screw.Unit(function(c) {
             user_id: "string",
             started_at: "datetime"
           });
+
+          synthetic_column("fun_profit_name", function() {
+            return this.signal('name', function(name) {
+              return name + " for Fun and Profit";
+            });
+          });
         }}
       });
 
