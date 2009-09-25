@@ -28,7 +28,8 @@ constructor("View.Builder", {
     }
   },
 
-  initialize: function() {
+  initialize: function(template) {
+    this.template = template;
     this.instructions = [];
     this.preceding_element_path = [0];
   },

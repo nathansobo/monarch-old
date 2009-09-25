@@ -20,7 +20,7 @@ constructor("View.Template", {
   },
 
   to_view: function(properties) {
-    var builder = new View.Builder();
+    var builder = new View.Builder(this);
     this.builder = builder;
     this.content(properties);
     this.builder = null;
