@@ -2,7 +2,8 @@
 
 Screw.Unit(function(c) { with(c) {
   describe("FakeServer", function() {
-    use_local_fixtures();
+//    use_local_fixtures();
+    use_example_domain_model();
 
     var fake_server;
     before(function() {
@@ -72,7 +73,7 @@ Screw.Unit(function(c) { with(c) {
     describe("#simulate_fetch", function() {
       it("immediately fetches records from the FakeServer's repository to the local repository", function() {
         expect(Blog.all()).to(be_empty);
-        fake_server.simulate_fetch(Blog.table);
+        fake_server.simulate_fetch([Blog.table]);
         expect(Blog.all()).to_not(be_empty);
       });
     });
