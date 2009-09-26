@@ -18,7 +18,6 @@ Screw.Unit(function(c) {
               full_name: 'Wil Bierbaum',
               age: 28,
               signed_up_at: 1253742028201
-
             }
           },
           blogs: {

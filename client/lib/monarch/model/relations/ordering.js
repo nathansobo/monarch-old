@@ -18,7 +18,6 @@ constructor("Model.Relations.Ordering", Model.Relations.Relation, {
       }
       return 0;
     }
-    
     this.initialize_events_system();
   },
 
