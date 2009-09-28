@@ -13,9 +13,10 @@ constructor("View.Templates.Multiview", View.Template, {
       jQuery.extend(this, this.subviews);
     },
 
-    hide_all_except: function(name) {
+    hide_all_except: function() {
+      var names = Util.to_array(arguments);
       Util.each(this.subviews, function(subview_name, subview) {
-        if (subview_name == name) {
+        if (Util.contains(names, subview_name)) {
           subview.show();
         } else {
           subview.hide();

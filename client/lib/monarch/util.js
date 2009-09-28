@@ -7,6 +7,18 @@ module("Util", {
     }
   },
 
+
+  index_of: function(array, element) {
+    for(var i = 0; i < array.length; i++) {
+      if (array[i] == element) return i;
+    }
+    return -1;
+  },
+
+  contains: function(array, element) {
+    return this.index_of(array, element) != -1;
+  },
+
   array_each: function(array, fn) {
     for(var i = 0; i < array.length; i++) {
       fn.call(array[i], array[i]);
