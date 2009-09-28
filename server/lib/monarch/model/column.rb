@@ -36,7 +36,7 @@ module Model
     def convert_value_for_wire(value)
       case type
       when :datetime
-        value.to_millis
+        value ? value.to_millis : nil
       else
         value
       end

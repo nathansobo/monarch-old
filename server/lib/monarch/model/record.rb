@@ -154,7 +154,11 @@ module Model
     end
 
     def wire_representation
-      field_values_by_column_name.stringify_keys
+      wire_representation = {}
+      fields_by_column.each do |column, field|
+        wire_representation[column.name.to_s] = field.value_wire_representation
+      end
+      wire_representation
     end
 
     def set_field_value(column, value)

@@ -102,7 +102,7 @@ module Model
 
     describe "instance methods" do
       def record
-        @record ||= BlogPost.create(:body => "Quinoa", :blog_id => "grain")
+        @record ||= BlogPost.create(:body => "Quinoa", :blog_id => "grain", :created_at => 1254162750000)
       end
 
       describe "#initialize" do
@@ -139,8 +139,15 @@ module Model
       end
 
       describe "#wire_representation" do
-        it "returns #fields_by_column_name with string-valued keys" do
-          record.wire_representation.should == record.field_values_by_column_name.stringify_keys
+        it "returns the values of all fields by string-valued column names, and converts :datetime fields to milliseconds since the epoch" do
+          wire_representation = record.wire_representation
+          wire_representation['id'].should == record.id
+          wire_representation['body'].should == record.body
+          wire_representation['blog_id'].should == record.blog_id
+          wire_representation['created_at'].should == record.created_at.to_millis
+
+          record.created_at = nil
+          record.wire_representation['created_at'].should == nil
         end
       end
 
