@@ -22,6 +22,12 @@ constructor("View.Templates.Multiview", View.Template, {
           subview.hide();
         }
       });
+    },
+
+    hide_all: function() {
+      Util.each(this.subviews, function(subview_name, subview) {
+        subview.hide();
+      });
     }
   }
 });
