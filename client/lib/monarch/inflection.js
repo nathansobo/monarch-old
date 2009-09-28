@@ -135,5 +135,10 @@ module("Inflection", {
       camelized += parts[i].charAt(0).toUpperCase() + parts[i].substring(1);
     }
     return camelized;
+  },
+
+  humanize: function(word) {
+    word = this.camelize(word);
+    return word.replace(/([a-zA-Z\d])([A-Z])/g,'$1 $2');
   }
 });

@@ -77,6 +77,10 @@ constructor("Model.Record", {
       return record;
     },
 
+    human_name: function() {
+      return Inflection.humanize(this.basename);
+    },
+
     // delegate to table
     find: function(id) {
       return this.table.find(id);
