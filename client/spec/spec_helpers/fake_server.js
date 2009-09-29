@@ -20,14 +20,19 @@ constructor("FakeServer", {
     this.gets = [];
     this.fetches = [];
     this.creates = [];
+    this.auto_fetch = false;
 
     this.Repository = Repository.clone_schema();
   },
 
   fetch: function(relations) {
     var fake_fetch = new FakeServer.FakeFetch(Repository.origin_url, relations, this.Repository);
-    this.last_fetch = fake_fetch;
-    this.fetches.push(fake_fetch);
+    if (this.auto_fetch) {
+      fake_fetch.simulate_success();
+    } else {
+      this.last_fetch = fake_fetch;
+      this.fetches.push(fake_fetch);
+    }
     return fake_fetch.future;
   },
 

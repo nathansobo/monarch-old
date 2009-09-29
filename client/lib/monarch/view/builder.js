@@ -10,7 +10,7 @@ constructor("View.Builder", Xml.Builder, {
       'table', 'tbody', 'td', 'textarea', 'th', 'thead', 'title', 'tr', 'tt', 'ul', 'var'
     ],
 
-    self_closing_tags: { 'br': 1, 'hr': 1, 'input': 1, 'img': 1 },
+    self_closing_tags: { 'br': 1, 'hr': 1, 'input': 1, 'img': 1 }
   },
 
   to_view: function(extend_view_with_properties) {
@@ -42,7 +42,7 @@ constructor("View.Builder", Xml.Builder, {
     var args = this.parse_subview_arguments(arguments);
 
     this.div().on_build(function(element, view) {
-      var subview = args.template.to_view(args.properties || {});
+      var subview = args.template.to_view(jQuery.extend({parent_view: view}, args.properties));
       if (args.collection_name) {
         if (!view[args.collection_name]) view[args.collection_name] = {};
         view[args.collection_name][args.index] = subview;

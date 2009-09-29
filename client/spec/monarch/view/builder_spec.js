@@ -27,6 +27,69 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
+    describe("#subview", function() {
+      before(function() {
+        ModuleSystem.constructor("ExampleSubviewTemplate", View.Template, {
+          content: function(props) { with (this.builder) {
+            div({'class': "subview"}, function() {
+              h1("Subview " + props.subview_number);
+            });
+          }},
+
+          view_properties: {
+            foo: "foo",
+            bar: "bar"
+          }
+        });
+      });
+
+      after(function() {
+        delete window["ExampleSubviewTemplate"];
+      });
+
+
+      context("when given a subview name", function() {
+        it("builds a view within the current view and assigns it to that name, with parent_view assigned to the parent", function() {
+          builder.div({id: "root"}, function() {
+            builder.subview("subview_1", ExampleSubviewTemplate, { subview_number: 1});
+            builder.div({id: "not_in_subview"}, function() {
+              builder.h1("Not In Subview");
+            });
+            builder.subview("subview_2", ExampleSubviewTemplate, { subview_number: 2});
+          });
+
+          var view = builder.to_view();
+
+
+          expect(view.subview_1.html()).to(equal, view.find(".subview:contains('Subview 1')").html());
+          expect(view.subview_1.foo).to(equal, "foo");
+          expect(view.subview_1.bar).to(equal, "bar");
+          expect(view.subview_1.subview_number).to(equal, 1);
+          expect(view.subview_1.parent_view).to(equal, view);
+
+          expect(view.subview_2.html()).to(equal, view.find(".subview:contains('Subview 2')").html());
+          expect(view.subview_2.foo).to(equal, "foo");
+          expect(view.subview_2.bar).to(equal, "bar");
+          expect(view.subview_2.subview_number).to(equal, 2);
+          expect(view.subview_2.parent_view).to(equal, view);
+        });
+      });
+
+      context("when given a hash name and an index", function() {
+        it("assigns the subview to an index on a hash with the given name, creating it if it doesn't exist", function() {
+          builder.div({id: "root"}, function() {
+            builder.subview("subviews", "one", ExampleSubviewTemplate, { subview_number: 1});
+            builder.subview("subviews", "two", ExampleSubviewTemplate, { subview_number: 2});
+          });
+
+          var view = builder.to_view();
+          expect(view.subviews.one.subview_number).to(equal, 1);
+          expect(view.subviews.two.subview_number).to(equal, 2);
+        });
+      });
+    });
+
+
     describe("#to_view", function() {
       it("invokes the 'initialize' method on the view if it supplied as a property after on_build callbacks have been triggered", function() {
         var on_build_callback = mock_function("on build callback");

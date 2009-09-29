@@ -1,5 +1,6 @@
 constructor("View.Templates.Multiview", View.Template, {
   content: function(subview_templates_by_name) {
+    delete subview_templates_by_name.parent_view;
     var b = this.builder;
     b.div(function() {
       Util.each(subview_templates_by_name, function(name, template) {
