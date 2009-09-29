@@ -11,6 +11,7 @@
 //= require "monarch/subscription_node"
 //= require "monarch/subscription"
 //= require "monarch/subscription_bundle"
+//= require "monarch/future"
 //= require "monarch/queue"
 //= require "monarch/inflection"
 //= require "monarch/xml"
