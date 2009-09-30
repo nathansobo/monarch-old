@@ -220,5 +220,14 @@ Screw.Unit(function(c) { with(c) {
         expect(table_in_other_repo).to(equal, other_repo.tables.users);
       });
     });
+
+    describe("#clear", function() {
+      it("removes all data from the table and its index", function() {
+        expect(User.find('jan')).to_not(be_null);
+        User.table.clear();
+        expect(User.table.empty()).to(be_true);
+        expect(User.find('jan')).to(be_null);
+      });
+    });
   });
 }});

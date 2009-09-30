@@ -89,6 +89,7 @@ constructor("Model.Relations.Table", Model.Relations.Relation, {
 
   clear: function() {
     this.records = [];
+    this.records_by_id = {}
   },
 
   clone_schema: function() {
