@@ -65,6 +65,7 @@ constructor("View.Template", Xml.Template, {
     populate_form_fields: function() {
       this.populate_text_fields();
       this.populate_checkbox_fields();
+      this.populate_select_fields();
     },
 
     save: function() {
@@ -97,6 +98,19 @@ constructor("View.Template", Xml.Template, {
           elt.attr('checked', false)
         }
       });
+    },
+
+    populate_select_fields: function() {
+      var self = this;
+      var model = this.model();
+      this.find("select").each(function() {
+        var elt = $(this);
+        var field_name = elt.attr('name');
+        if (model[field_name]) {
+          elt.val(model[field_name].call(model));
+        }
+      });
+
     }
   }
 });

@@ -21,7 +21,7 @@ Screw.Unit(function(c) { with(c) {
                 option({value: "1"});
                 option({value: "2", selected: 1});
                 option({value: "3"});
-              });
+              }).ref('quux');
             });
           }}
         });
@@ -40,6 +40,10 @@ Screw.Unit(function(c) { with(c) {
 
           baz: function(baz) {
             return true;
+          },
+
+          quux: function() {
+            return 3;
           },
 
           update: mock_function('update')
@@ -70,6 +74,12 @@ Screw.Unit(function(c) { with(c) {
           expect(view.baz.attr('checked')).to(be_false);
           view.model(model);
           expect(view.baz.attr('checked')).to(be_true);
+        });
+        
+        it("populates select fields by calling methods on the given model corresponding to their name", function() {
+          expect(view.quux.val()).to(equal, '2');
+          view.model(model);
+          expect(view.quux.val()).to(equal, '3');
         });
       });
 

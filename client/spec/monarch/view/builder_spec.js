@@ -60,7 +60,6 @@ Screw.Unit(function(c) { with(c) {
 
           var view = builder.to_view();
 
-
           expect(view.subview_1.html()).to(equal, view.find(".subview:contains('Subview 1')").html());
           expect(view.subview_1.foo).to(equal, "foo");
           expect(view.subview_1.bar).to(equal, "bar");
