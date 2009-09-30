@@ -31,7 +31,7 @@ constructor("View.Builder", Xml.Builder, {
       close_tag_instruction.click(function() {
         var href = this.attr('href');
         var following_hash = href.replace(/^.*#/, '');
-        jQuery.history.load(following_hash);
+        History.load(following_hash);
         return false;
       });
     }

@@ -22,3 +22,4 @@
 
 Server = new Http.Server();
 Repository = new Model.Repository();
+History = new View.History();

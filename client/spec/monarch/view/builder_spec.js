@@ -10,19 +10,19 @@ Screw.Unit(function(c) { with(c) {
     describe("#a", function() {
       describe("when the 'local' attribute is set to true", function() {
         it("assigns a click callback to the link that invokes jQuery.history.load with the portion of the href following the '#' character", function() {
-          mock(jQuery.history, 'load');
+          mock(History, 'load');
           builder.a({'local': true, href: "#bar"}, "Go To The Bar");
           builder.to_view().click();
-          expect(jQuery.history.load).to(have_been_called, with_args('bar'));
+          expect(History.load).to(have_been_called, with_args('bar'));
         });
       });
 
       describe("when the 'local' attribute is set to false", function() {
         it("assigns a click callback to the link that invokes jQuery.history.load", function() {
-          mock(jQuery.history, 'load');
+          mock(History, 'load');
           builder.a({'local': false, href: "isi.edu"}, "Go To The Information Sciences Institute");
           builder.to_view().click();
-          expect(jQuery.history.load).to_not(have_been_called);
+          expect(History.load).to_not(have_been_called);
         });
       });
     });

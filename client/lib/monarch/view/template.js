@@ -31,7 +31,7 @@ constructor("View.Template", Xml.Template, {
   default_view_properties: {
     field_values: function() {
       var values = {};
-      this.find("input").each(function() {
+      this.find("input,select").each(function() {
         var elt = $(this);
         if (elt.is(':checkbox')) {
           values[elt.attr('name')] = elt.attr('checked');
@@ -39,6 +39,8 @@ constructor("View.Template", Xml.Template, {
           values[elt.attr('name')] = elt.val();
         }
       });
+
+
       return values;
     },
 

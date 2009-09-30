@@ -16,6 +16,12 @@ Screw.Unit(function(c) { with(c) {
               input({name: "foo", value: "Foo"}).ref('foo');
               input({name: "bar", value: "Bar"}).ref('bar');
               input({name: "baz", value: "Baz", type: "checkbox"}).ref('baz');
+
+              select({name: "quux"}, function() {
+                option({value: "1"});
+                option({value: "2", selected: 1});
+                option({value: "3"});
+              });
             });
           }}
         });
@@ -45,7 +51,8 @@ Screw.Unit(function(c) { with(c) {
           expect(view.field_values()).to(equal, {
             foo: "Foo",
             bar: "Bar",
-            baz: false
+            baz: false,
+            quux: 2
           });
         });
       });
