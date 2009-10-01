@@ -16,12 +16,12 @@ module Model
         @operand, @predicate = operand, predicate
       end
 
-      def record_class
-        operand.record_class
+      def constituent_tables
+        operand.constituent_tables
       end
 
-      def to_sql
-        build_sql_query.to_sql
+      def record_class
+        operand.record_class
       end
 
       def build_sql_query(query=SqlQuery.new)

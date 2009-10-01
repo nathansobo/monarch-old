@@ -71,7 +71,7 @@ module Model
           record_2_id = table.create(:body => "White Rice", :blog_id => "grain").id
           record_3_id = table.create(:body => "Pearled Barley", :blog_id => "grain").id
 
-          mock.proxy(Origin).read(table, "select blog_posts.id, blog_posts.title, blog_posts.body, blog_posts.blog_id from blog_posts;")
+          mock.proxy(Origin).read(table)
 
           records = table.records
 
@@ -92,7 +92,7 @@ module Model
       describe "#to_sql" do
         it "returns a select statement for only the columns declared as Columns on the Table" do
           columns = table.columns.map {|a| a.to_sql }.join(", ")
-          table.to_sql.should == "select #{columns} from #{table.global_name};"
+          table.to_sql.should == "select #{columns} from #{table.global_name}"
         end
       end
 

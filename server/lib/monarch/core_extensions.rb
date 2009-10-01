@@ -4,6 +4,12 @@ class Object
   end
 end
 
+class Symbol
+  def starts_with?(prefix)
+    to_s.starts_with?(prefix)
+  end
+end
+
 class String
   def starts_with?(prefix)
     index(prefix) == 0

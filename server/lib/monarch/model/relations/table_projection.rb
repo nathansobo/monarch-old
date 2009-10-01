@@ -14,10 +14,6 @@ module Model
         @operand, @projected_table = operand, projected_table
       end
 
-      def to_sql
-        build_sql_query.to_sql
-      end
-
       def record_class
         projected_table.record_class
       end

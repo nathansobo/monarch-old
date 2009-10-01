@@ -8,6 +8,10 @@ module Model
         @columns_by_name = ActiveSupport::OrderedHash.new
       end
 
+      def constituent_tables
+        [self]
+      end
+
       def define_column(name, type)
         columns_by_name[name] = Column.new(self, name, type)
       end
@@ -27,10 +31,6 @@ module Model
         record.mark_clean
         record.after_create if record.respond_to?(:after_create)
         record
-      end
-
-      def to_sql
-        build_sql_query.to_sql
       end
 
       def build_sql_query(query=SqlQuery.new)

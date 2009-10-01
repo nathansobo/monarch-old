@@ -43,7 +43,11 @@ module Model
       end
 
       def records
-        Origin.read(record_class.table, to_sql)
+        Origin.read(self)
+      end
+
+      def to_sql
+        build_sql_query.to_sql
       end
 
       def record_wire_representations

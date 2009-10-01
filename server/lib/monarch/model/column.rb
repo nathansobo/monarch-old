@@ -46,6 +46,10 @@ module Model
       "#{table.global_name}.#{name}"
     end
 
+    def to_aliased_sql
+      "#{to_sql} as #{table.global_name}__#{name}"
+    end
+
     def eq(right_operand)
       Predicates::Eq.new(self, right_operand)
     end

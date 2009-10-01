@@ -1,7 +1,7 @@
 module Model
   class SqlQuery
     attr_reader :from_tables, :conditions
-    attr_writer :projected_table
+    attr_writer :projected_tables
 
     def initialize
       @from_tables = []
@@ -9,7 +9,7 @@ module Model
     end
 
     def to_sql
-      "select #{projected_columns_sql} from #{from_tables_sql}#{where_clause_sql};"
+      "select #{projected_columns_sql} from #{from_tables_sql}#{where_clause_sql}"
     end
 
     def where_clause_sql
@@ -21,7 +21,12 @@ module Model
     end
 
     def projected_columns_sql
-      projected_table.columns.map {|a| a.to_sql}.join(", ")
+      if projected_tables.size > 1
+        all_columns = projected_tables.map {|table| table.columns }.flatten
+        all_columns.map {|c| c.to_aliased_sql }.join(", ")
+      else
+        projected_tables.first.columns.map {|c| c.to_sql}.join(", ")
+      end
     end
 
     def from_tables_sql
@@ -36,8 +41,8 @@ module Model
       conditions.push(predicate)
     end
 
-    def projected_table
-      @projected_table || from_tables.first
+    def projected_tables
+      @projected_tables || from_tables
     end
   end
 end

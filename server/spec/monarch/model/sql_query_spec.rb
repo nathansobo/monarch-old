@@ -14,7 +14,7 @@ module Model
         end
 
         it "generates a simple select" do
-          query.to_sql.should == "select #{query.projected_columns_sql} from blog_posts;"
+          query.to_sql.should == "select #{query.projected_columns_sql} from blog_posts"
         end
       end
 
@@ -26,7 +26,7 @@ module Model
         end
 
         it "generates a select with a where clause having all conditions and'ed together" do
-          query.to_sql.should == %{select #{query.projected_columns_sql} from blog_posts where blog_posts.blog_id = "grain" and blog_posts.body = "Peaches";}
+          query.to_sql.should == %{select #{query.projected_columns_sql} from blog_posts where blog_posts.blog_id = "grain" and blog_posts.body = "Peaches"}
         end
       end
     end
@@ -51,18 +51,22 @@ module Model
       end
     end
 
-    describe "#projected_table" do
-      context "if #projected_table= has not been called" do
-        it "returns the first Table in #from_tables" do
-          query.add_from_table(BlogPost.table)
-          query.projected_table.should == BlogPost.table
+    describe "#projected_tables" do
+      before do
+        query.add_from_table(BlogPost.table)
+        query.add_from_table(Blog.table)
+      end
+
+      context "if #projected_tables= has not been called" do
+        it "returns all Tables in #from_tables" do
+          query.projected_tables.should == query.from_tables
         end
       end
 
       context "if #projected_table= has been called" do
         it "returns the Table that was assigned" do
-          query.projected_table = Blog.table
-          query.projected_table.should == Blog.table
+          query.projected_tables = [Blog.table]
+          query.projected_tables.should == [Blog.table]
         end
       end
     end

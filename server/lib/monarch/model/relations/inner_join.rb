@@ -15,7 +15,18 @@ module Model
         @left_operand, @right_operand, @predicate = left_operand, right_operand, predicate
       end
 
-      def build_sql_query(query)
+      def constituent_tables
+        left_operand.constituent_tables + right_operand.constituent_tables
+      end
+
+      def record_class
+        @record_class ||= Class.new(CompositeRecord)
+        @record_class.constituent_tables = constituent_tables
+        @record_class
+      end
+
+
+      def build_sql_query(query=SqlQuery.new)
         query.add_condition(predicate)
         left_operand.build_sql_query(query)
         right_operand.build_sql_query(query)

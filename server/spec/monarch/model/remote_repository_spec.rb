@@ -39,7 +39,7 @@ module Model
           record_in_id_map = BlogPost.find('grain_quinoa')
           BlogPost.table.identity_map['grain_quinoa'] = record_in_id_map
 
-          records = Origin.read(BlogPost.table, BlogPost.where(BlogPost[:id].eq("grain_quinoa")).to_sql)
+          records = Origin.read(BlogPost.where(BlogPost[:id].eq("grain_quinoa")))
           records.size.should == 1
           record = records.first
           record.should equal(record_in_id_map)
@@ -54,7 +54,7 @@ module Model
           BlogPost.table.identity_map['1'].should be_nil
           BlogPost.table.identity_map['2'].should be_nil
 
-          records = Origin.read(BlogPost.table, "select id, body from blog_posts;")
+          records = Origin.read(BlogPost.table)
           records.size.should == 2
           
           record_1 = records.find {|t| t.id == "1"}

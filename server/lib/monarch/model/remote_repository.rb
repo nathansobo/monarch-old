@@ -10,17 +10,21 @@ module Model
       connection.from(table.global_name).filter(:id => field_values[:id]).update(field_values)
     end
 
-    def read(table, query)
+    def read(relation)
+      record_class = relation.record_class
+      query = relation.to_sql
+      if relation.constituent_tables.size == 1
+        table = relation.constituent_tables.first
+      end
+
       connection[query].map do |field_values_by_column_name|
         id = field_values_by_column_name[:id]
-        record_from_id_map = table.identity_map[id]
-
-        if record_from_id_map
+        if table && record_from_id_map = table.identity_map[id]
           record_from_id_map
         else
-          record = table.record_class.unsafe_new(field_values_by_column_name)
+          record = record_class.unsafe_new(field_values_by_column_name)
           record.mark_clean
-          table.identity_map[id] = record
+          table.identity_map[id] = record if table
           record
         end
       end
