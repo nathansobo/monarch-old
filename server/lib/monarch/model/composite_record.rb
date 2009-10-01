@@ -2,10 +2,6 @@ module Model
   class CompositeRecord
     class << self
       attr_accessor :constituent_tables
-
-      def unsafe_new(field_values)
-        new(field_values)
-      end
     end
 
     delegate :constituent_tables, :to => "self.class"
@@ -31,9 +27,6 @@ module Model
 
     def [](table_or_record_class)
       constituent_records_by_table[table_or_record_class.table]
-    end
-
-    def mark_clean
     end
   end
 end

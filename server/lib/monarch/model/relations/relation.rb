@@ -50,6 +50,15 @@ module Model
         build_sql_query.to_sql
       end
 
+      def composite?
+        constituent_tables.size > 1
+      end
+
+      def table
+        raise "Can only call #table on non-composite relations" if composite?
+        constituent_tables.first
+      end
+
       def record_wire_representations
         records.map {|record| record.wire_representation}
       end

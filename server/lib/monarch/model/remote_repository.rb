@@ -11,20 +11,29 @@ module Model
     end
 
     def read(relation)
-      record_class = relation.record_class
-      query = relation.to_sql
-      if relation.constituent_tables.size == 1
-        table = relation.constituent_tables.first
+      if relation.composite?
+        read_composite_relation(relation)
+      else
+        read_simple_relation(relation)
       end
+    end
 
-      connection[query].map do |field_values_by_column_name|
-        id = field_values_by_column_name[:id]
-        if table && record_from_id_map = table.identity_map[id]
+    def read_composite_relation(relation)
+      connection[relation.to_sql].map do |field_values|
+        relation.record_class.new(field_values)
+      end
+    end
+
+    def read_simple_relation(relation)
+      table = relation.table
+      connection[relation.to_sql].map do |field_values|
+        id = field_values[:id]
+        if record_from_id_map = table.identity_map[id]
           record_from_id_map
         else
-          record = record_class.unsafe_new(field_values_by_column_name)
+          record = relation.record_class.unsafe_new(field_values)
           record.mark_clean
-          table.identity_map[id] = record if table
+          table.identity_map[id] = record
           record
         end
       end
