@@ -50,25 +50,5 @@ module Model
         query.conditions.should == [predicate_1, predicate_2]
       end
     end
-
-    describe "#projected_tables" do
-      before do
-        query.add_from_table(BlogPost.table)
-        query.add_from_table(Blog.table)
-      end
-
-      context "if #projected_tables= has not been called" do
-        it "returns all Tables in #from_tables" do
-          query.projected_tables.should == query.from_tables
-        end
-      end
-
-      context "if #projected_table= has been called" do
-        it "returns the Table that was assigned" do
-          query.projected_tables = [Blog.table]
-          query.projected_tables.should == [Blog.table]
-        end
-      end
-    end
   end
 end

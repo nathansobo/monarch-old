@@ -20,11 +20,10 @@ module Model
       end
 
       def record_class
-        @record_class ||= Class.new(CompositeRecord)
+        @record_class ||= Class.new(JoinRecord)
         @record_class.constituent_tables = constituent_tables
         @record_class
       end
-
 
       def build_sql_query(query=SqlQuery.new)
         query.add_condition(predicate)

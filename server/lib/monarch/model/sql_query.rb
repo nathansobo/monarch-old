@@ -1,8 +1,8 @@
 module Model
   class SqlQuery
     attr_reader :from_tables, :conditions
-    attr_writer :projected_tables
-
+    attr_writer :projected_columns
+    
     def initialize
       @from_tables = []
       @conditions = []
@@ -21,12 +21,8 @@ module Model
     end
 
     def projected_columns_sql
-      if projected_tables.size > 1
-        all_columns = projected_tables.map {|table| table.columns }.flatten
-        all_columns.map {|c| c.to_aliased_sql }.join(", ")
-      else
-        projected_tables.first.columns.map {|c| c.to_sql}.join(", ")
-      end
+      return '*' unless projected_columns
+      projected_columns.map {|c| c.to_sql }.join(", ")
     end
 
     def from_tables_sql
@@ -41,8 +37,21 @@ module Model
       conditions.push(predicate)
     end
 
-    def projected_tables
-      @projected_tables || from_tables
+    def projected_columns
+      return @projected_columns if @projected_columns
+      if from_tables.size == 1
+        @projected_columns = nil
+      else
+        @projected_columns = columns_aliased_with_table_name_prefix
+      end
+    end
+
+    def columns_aliased_with_table_name_prefix
+      from_tables.map do |table|
+        table.columns.map do |column|
+          ProjectedColumn.new(column, "#{table.global_name}__#{column.name}")
+        end
+      end.flatten
     end
   end
 end

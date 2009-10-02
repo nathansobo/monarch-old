@@ -53,7 +53,7 @@ module Model
         end
 
         describe "#records" do
-          it "instantiates a CompositeRecord for each of the records returned by the join" do
+          it "instantiates a JoinRecord for each of the records returned by the join" do
             composite_records = join.records
             composite_records.size.should == BlogPost.records.size
 

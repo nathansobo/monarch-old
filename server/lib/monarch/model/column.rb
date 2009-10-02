@@ -54,6 +54,10 @@ module Model
       Predicates::Eq.new(self, right_operand)
     end
 
+    def as(column_alias)
+      ProjectedColumn.new(self, column_alias)
+    end
+
     protected
     def convert_datetime_value_for_storage(value)
       case value
