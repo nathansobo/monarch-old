@@ -2,18 +2,18 @@ module Model
   module Predicates
     class Eq < Predicate
       class << self
-        def from_wire_representation(representation)
-          left_operand = operand_from_wire_representation(representation["left_operand"])
-          right_operand = operand_from_wire_representation(representation["right_operand"])
+        def from_wire_representation(representation, repository)
+          left_operand = operand_from_wire_representation(representation["left_operand"], repository)
+          right_operand = operand_from_wire_representation(representation["right_operand"], repository)
           new(left_operand, right_operand)
         end
 
-        def operand_from_wire_representation(representation)
+        def operand_from_wire_representation(representation, repository)
           case representation["type"]
           when "scalar"
             representation["value"]
           when "column"
-            Column.from_wire_representation(representation)
+            Column.from_wire_representation(representation, repository)
           else
             raise "cannot translate #{representation} into an operand"
           end
@@ -28,6 +28,11 @@ module Model
 
       def to_sql
         "#{left_operand.to_sql} = #{right_operand.to_sql}"
+      end
+
+      def ==(other_predicate)
+        return false unless other_predicate.instance_of?(Eq)
+        other_predicate.left_operand == left_operand && other_predicate.right_operand == right_operand
       end
     end
   end

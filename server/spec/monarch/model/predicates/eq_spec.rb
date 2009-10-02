@@ -5,7 +5,7 @@ module Model
     describe Eq do
       describe "class methods" do
         describe ".from_wire_representation" do
-          attr_reader :wire_representation
+          attr_reader :wire_representation, :repository
           before do
             @wire_representation = {
               "type" => "eq",
@@ -15,6 +15,8 @@ module Model
                 "value" => 2,
               }
             }
+
+            @repository = UserRepository.new(User.find('jan'))
           end
 
           context "when both operands are scalars" do
@@ -26,7 +28,7 @@ module Model
             end
 
             it "returns an Eq predicate comparing the two scalars" do
-              eq = Eq.from_wire_representation(wire_representation)
+              eq = Eq.from_wire_representation(wire_representation, repository)
               eq.class.should == Eq
               eq.left_operand.should == 1
               eq.right_operand.should == 2
@@ -37,15 +39,15 @@ module Model
             def left_operand_representation
               {
                 "type" => "column",
-                "table" => "blog_posts",
+                "table" => "super_blog_posts",
                 "name" => "body"
               }
             end
 
             it "returns an Eq predicate with the indicated column as one of its operands" do
-              eq = Eq.from_wire_representation(wire_representation)
+              eq = Eq.from_wire_representation(wire_representation, repository)
               eq.class.should == Eq
-              eq.left_operand.should == BlogPost[:body]
+              eq.left_operand.should == repository.resolve_table_name(:super_blog_posts).column(:body)
               eq.right_operand.should == 2
             end
           end

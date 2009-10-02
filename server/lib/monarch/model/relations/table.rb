@@ -8,6 +8,10 @@ module Model
         @columns_by_name = ActiveSupport::OrderedHash.new
       end
 
+      def composite?
+        false
+      end
+
       def constituent_tables
         [self]
       end

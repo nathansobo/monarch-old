@@ -30,11 +30,11 @@ module Model
     end
 
     def add_from_table(table)
-      from_tables.push(table)
+      from_tables.push(table) unless from_tables.include?(table)
     end
 
     def add_condition(predicate)
-      conditions.push(predicate)
+      conditions.push(predicate) unless conditions.include?(predicate)
     end
 
     def projected_columns

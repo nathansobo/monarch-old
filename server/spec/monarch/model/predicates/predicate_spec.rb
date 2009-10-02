@@ -5,7 +5,7 @@ module Model
     describe Predicate do
       describe ".from_wire_representation" do
         context "when 'type' is 'eq'" do
-          it "delegates to .from_wire_format on Predicates::Eq" do
+          it "delegates to .from_wire_representation on Predicates::Eq" do
             wire_representation = {
               "type" => "eq",
               "left_operand" => {
@@ -18,8 +18,9 @@ module Model
               }
             }
 
-            mock(Eq).from_wire_representation(wire_representation)
-            Predicate.from_wire_representation(wire_representation)
+            repository = Object.new
+            mock(Eq).from_wire_representation(wire_representation, repository)
+            Predicate.from_wire_representation(wire_representation, repository)
           end
         end
       end

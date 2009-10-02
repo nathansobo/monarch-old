@@ -39,5 +39,13 @@ module Model
         fields_by_projected_column[projected_columns_by_name[projected_column_or_name]]
       end
     end
+
+    def wire_representation
+      wire_representation = {}
+      fields_by_projected_column.each do |column, field|
+        wire_representation[column.name.to_s] = field.value_wire_representation
+      end
+      wire_representation
+    end
   end
 end

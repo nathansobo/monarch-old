@@ -5,10 +5,10 @@ class User < Model::Record
   column :signed_up_at, :datetime
 
   relates_to_many :blogs do
-    Blog.table
+    Blog.where(Blog[:user_id].eq(id))
   end
 
   relates_to_many :blog_posts do
-    BlogPost.table
+    blogs.join(BlogPost).on(BlogPost[:blog_id].eq(Blog[:id])).project(BlogPost)
   end
 end

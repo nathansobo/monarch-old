@@ -16,25 +16,48 @@ module Model
         end
       end
       include ForwardsArrayMethodsToRecords
+      attr_writer :exposed_name
+
+      delegate :composite?, :column, :to => :operand
 
       def where(predicate)
         Selection.new(self, predicate)
       end
 
       def join(right_operand)
-        PartiallyConstructedInnerJoin.new(self, normalize_to_relation(right_operand))
+        PartiallyConstructedInnerJoin.new(self, convert_to_table_if_needed(right_operand))
       end
 
-      def project(projected_table)
-        TableProjection.new(self, normalize_to_relation(projected_table))
+      def project(*args)
+        if args.size == 1 && table_or_record_class?(args.first)
+          TableProjection.new(self, convert_to_table_if_needed(args.first))
+        else
+          Projection.new(self, convert_to_projected_columns_if_needed(args))
+        end
       end
 
-      def normalize_to_relation(relation_or_record_class)
+      def table_or_record_class?(arg)
+        arg.instance_of?(Table) || arg.instance_of?(Class)
+      end
+
+      def convert_to_table_if_needed(relation_or_record_class)
         if relation_or_record_class.instance_of?(Class)
           relation_or_record_class.table
         else
           relation_or_record_class
         end
+      end
+
+      def convert_to_projected_columns_if_needed(args)
+        args.map do |arg|
+          if arg.instance_of?(Column)
+            ProjectedColumn.new(arg)
+          elsif table_or_record_class?(arg)
+            convert_to_table_if_needed(arg).columns.map {|c| ProjectedColumn.new(c)}
+          else
+            arg
+          end
+        end.flatten
       end
 
       def find(id_or_predicate)
@@ -50,17 +73,20 @@ module Model
         build_sql_query.to_sql
       end
 
-      def composite?
-        constituent_tables.size > 1
-      end
-
       def table
         raise "Can only call #table on non-composite relations" if composite?
         constituent_tables.first
       end
 
-      def record_wire_representations
-        records.map {|record| record.wire_representation}
+      def add_to_relational_dataset(dataset)
+        dataset[exposed_name] ||= {}
+        records.each do |record|
+          dataset[exposed_name][record.id] = record.wire_representation
+        end
+      end
+
+      def exposed_name
+        @exposed_name || operand.exposed_name
       end
 
       class PartiallyConstructedInnerJoin

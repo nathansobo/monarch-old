@@ -1,10 +1,23 @@
 module Model
   module Relations
     class Projection < Relations::Relation
-      attr_reader :operand, :projected_columns
+      attr_reader :operand, :projected_columns_by_name
 
       def initialize(operand, projected_columns)
         @operand, @projected_columns = operand, projected_columns
+
+        @projected_columns_by_name = ActiveSupport::OrderedHash.new
+        projected_columns.each do |projected_column|
+          projected_columns_by_name[projected_column.name] = projected_column
+        end
+      end
+
+      def projected_columns
+        projected_columns_by_name.values
+      end
+
+      def column(name)
+        projected_columns_by_name[name]
       end
 
       def build_sql_query(sql_query=SqlQuery.new)

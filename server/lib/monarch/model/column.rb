@@ -1,9 +1,9 @@
 module Model
   class Column
     class << self
-      def from_wire_representation(representation)
-        table = Repository.tables_by_name[representation["table"].to_sym]
-        table.columns_by_name[representation["name"].to_sym]
+      def from_wire_representation(representation, repository)
+        table = repository.resolve_table_name(representation["table"].to_sym)
+        table.column(representation["name"].to_sym)
       end
     end
 

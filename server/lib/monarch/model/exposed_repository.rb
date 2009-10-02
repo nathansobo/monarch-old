@@ -2,11 +2,11 @@ module Model
   class ExposedRepository < ::Http::Resource
     class << self
       def expose(name, &relation_definition)
-        exposed_relations[name] = relation_definition
+        exposed_relation_definitions_by_name[name] = relation_definition
       end
 
-      def exposed_relations
-        @exposed_relations ||= HashWithIndifferentAccess.new
+      def exposed_relation_definitions_by_name
+        @exposed_relation_definitions_by_name ||= HashWithIndifferentAccess.new
       end
     end
 
@@ -31,33 +31,34 @@ module Model
     end
 
     def fetch(relation_wire_representations)
-      snapshot = {}
+      dataset = {}
       relation_wire_representations.each do |representation|
-        add_to_relational_snapshot(snapshot, build_relation_from_wire_representation(representation))
+        build_relation_from_wire_representation(representation).add_to_relational_dataset(dataset)
       end
-      snapshot
+      dataset
     end
 
     def build_relation_from_wire_representation(representation)
       Relations::Relation.from_wire_representation(representation, self)
     end
 
-    def add_to_relational_snapshot(snapshot, relation)
-      table_name = relation.record_class.table.global_name.to_s
-      snapshot[table_name] ||= {}
-      relation.record_wire_representations.each do |representation|
-        snapshot[table_name][representation["id"]] = representation
-      end
-    end
-
     def resolve_table_name(name)
-      relation_definition = exposed_relations[name]
+      if relation = exposed_relations_by_name[name]
+        return relation
+      end
+      relation_definition = exposed_relation_definitions_by_name[name]
       raise "No table named #{name} defined in #{inspect}" unless relation_definition
-      instance_eval(&relation_definition)
+      relation = instance_eval(&relation_definition)
+      relation.exposed_name = name
+      exposed_relations_by_name[name] = relation
     end
 
-    def exposed_relations
-      self.class.exposed_relations
+    def exposed_relations_by_name
+      @exposed_relations_by_name ||= HashWithIndifferentAccess.new
+    end
+
+    def exposed_relation_definitions_by_name
+      self.class.exposed_relation_definitions_by_name
     end
   end
 end

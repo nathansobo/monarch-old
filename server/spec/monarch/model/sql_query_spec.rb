@@ -41,12 +41,15 @@ module Model
     end
 
     describe "#add_condition" do
-      it "adds the given Predicate to #conditions" do
+      it "adds the given Predicate to #conditions if it is not a duplicate" do
         predicate_1 = Predicates::Eq.new(BlogPost[:blog_id], "grain")
         predicate_2 = Predicates::Eq.new(BlogPost[:blog_id], "vegetable")
         query.add_condition(predicate_1)
         query.conditions.should == [predicate_1]
         query.add_condition(predicate_2)
+        query.conditions.should == [predicate_1, predicate_2]
+
+        query.add_condition(Predicates::Eq.new(BlogPost[:blog_id], "grain"))
         query.conditions.should == [predicate_1, predicate_2]
       end
     end

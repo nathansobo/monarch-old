@@ -11,7 +11,8 @@ FIXTURES = {
 
   :blogs => {
     :grain => {
-      :title => "All about grain"
+      :title => "All about grain",
+      :user_id => "jan"
     },
     :vegetable => {
       :title => "All about vegetables"

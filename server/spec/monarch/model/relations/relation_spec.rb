@@ -152,9 +152,14 @@ module Model
         end
 
         describe "#project" do
+          attr_reader :join
+
+          before do
+            @join = Blog.table.join(BlogPost.table).on(BlogPost[:blog_id].eq(Blog[:id]))
+          end
+
           context "when passed a Table" do
             it "returns a TableProjection with self as #operand and the given Table as its #projected_table" do
-              join = Blog.table.join(BlogPost.table).on(BlogPost[:blog_id].eq(Blog[:id]))
               projection = join.project(BlogPost.table)
               projection.class.should == TableProjection
               projection.operand.should == join
@@ -164,11 +169,50 @@ module Model
 
           context "when passed a subclass of Record" do
             it "returns a TableProjection with self as #operand and the #table of the given Record subclass as its #projected_table" do
-              join = Blog.table.join(BlogPost.table).on(BlogPost[:blog_id].eq(Blog[:id]))
               projection = join.project(BlogPost)
               projection.class.should == TableProjection
               projection.operand.should == join
               projection.projected_table.should == BlogPost.table
+            end
+          end
+
+          context "when passed ProjectedColumns and Columns" do
+            it "returns a Projection with ProjectedColumns corresponding to the given columns" do
+              blog_title = Blog[:title].as(:blog_title)
+              projection = join.project(blog_title, BlogPost[:title])
+              projection.projected_columns[0].should == blog_title
+              blog_post_title = projection.projected_columns[1]
+              blog_post_title.should be_an_instance_of(ProjectedColumn)
+              blog_post_title.column.should == BlogPost[:title]
+            end
+          end
+
+          context "when passed a Table and a Column" do
+            it "returns a Projection with ProjectedColumns corresponding to all the columns in the given table and also the other given columns" do
+              projection = join.project(Blog.table, BlogPost[:body])
+              projected_columns = projection.projected_columns
+
+              projected_columns.size.should == Blog.table.columns.size + 1
+              Blog.table.columns.each_with_index do |blog_column, index|
+                projected_columns[index].should be_an_instance_of(ProjectedColumn)
+                projected_columns[index].column.should == blog_column
+              end
+              projected_columns.last.should be_an_instance_of(ProjectedColumn)
+              projected_columns.last.column.should == BlogPost[:body]
+            end
+          end
+
+          context "when passed a subclass of Record and a ProjectedColumn" do
+            it "returns a Projection with ProjectedColumns corresponding to all the columns in the given record class's table and also the other given columns" do
+              blog_post_title = BlogPost[:title].as(:blog_post_title)
+              projection = join.project(Blog, blog_post_title)
+              projected_columns = projection.projected_columns
+              projected_columns.size.should == Blog.table.columns.size + 1
+              Blog.table.columns.each_with_index do |blog_column, index|
+                projected_columns[index].should be_an_instance_of(ProjectedColumn)
+                projected_columns[index].column.should == blog_column
+              end
+              projected_columns.last.should == blog_post_title
             end
           end
         end
@@ -184,13 +228,6 @@ module Model
             it "returns the first Record in the Relation that matches the Predicate" do
               BlogPost.table.find(BlogPost[:body].eq("Millet")).should == BlogPost.where(BlogPost[:body].eq("Millet")).records.first
             end
-          end
-        end
-
-
-        describe "#record_wire_representations" do
-          it "returns the #wire_representation of all its #records" do
-            BlogPost.table.record_wire_representations.should == BlogPost.table.records.map {|t| t.wire_representation}
           end
         end
 

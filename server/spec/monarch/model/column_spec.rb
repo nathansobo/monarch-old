@@ -9,7 +9,7 @@ module Model
             "type" => "column",
             "table" => "blog_posts",
             "name" => "body"
-          })
+          }, UserRepository.new(User.find('jan')))
 
           column.should == BlogPost[:body]
         end
