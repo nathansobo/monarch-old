@@ -9,7 +9,15 @@ module Model
     end
 
     def to_sql
-      "select #{projected_columns_sql} from #{from_tables_sql}#{where_clause_sql}"
+      "#{select} #{projected_columns_sql} from #{from_tables_sql}#{where_clause_sql}"
+    end
+
+    def select
+      if from_tables.size > 1
+        "select distinct"
+      else
+        "select"
+      end
     end
 
     def where_clause_sql

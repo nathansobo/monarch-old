@@ -81,6 +81,12 @@ Screw.Unit(function(c) { with(c) {
           view.model(model);
           expect(view.quux.val()).to(equal, '3');
         });
+
+        it("calls the .model_assigned hook if it's defined", function() {
+          view.model_assigned = mock_function("model_assigned");
+          view.model(model);
+          expect(view.model_assigned).to(have_been_called, with_args(model));
+        });
       });
 
       describe("#save()", function() {

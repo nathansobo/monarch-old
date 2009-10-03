@@ -68,7 +68,7 @@ module Model
         describe "#to_sql" do
           it "generates a query" do
             join.to_sql.should == %{
-              select
+              select distinct
                 blogs.id as blogs__id,
                 blogs.title as blogs__title,
                 blogs.user_id as blogs__user_id,

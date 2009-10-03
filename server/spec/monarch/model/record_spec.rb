@@ -152,14 +152,14 @@ module Model
       end
 
       describe "#update(values_by_method_name)" do
-        it "assigns field values by name and returns a hash of any fields that the update changed" do
+        it "calls those assignment methods that actually exist by name and returns a hash of any fields that the update changed" do
           def record.fancy_title=(title)
             self.title = "Fancy " + title
           end
 
           blog_id_before_update = record.blog_id
 
-          dirty_field_values = record.update(:body => "Moo", :fancy_title => "Cows", :blog_id => blog_id_before_update)
+          dirty_field_values = record.update(:body => "Moo", :fancy_title => "Cows", :blog_id => blog_id_before_update, :bogus => "crap")
 
           record.body.should == "Moo"
           record.title.should == "Fancy Cows"

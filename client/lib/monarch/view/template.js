@@ -60,6 +60,7 @@ constructor("View.Template", Xml.Template, {
       if (!model) return this._model;
       this._model = model;
       this.populate_form_fields();
+      if (this.model_assigned) this.model_assigned(model);
     },
 
     populate_form_fields: function() {

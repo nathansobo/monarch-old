@@ -97,7 +97,8 @@ module Model
 
     def update(values_by_method_name)
       values_by_method_name.each do |method_name, value|
-        self.send("#{method_name}=", value)
+        writer_method_name = "#{method_name}="
+        self.send(writer_method_name, value) if self.respond_to?(writer_method_name)
       end
       dirty_field_values_by_column_name
     end
