@@ -4,14 +4,14 @@ constructor("Http.RepositoryUpdateFuture", {
     this.after_events_node = new SubscriptionNode();
   },
 
-  trigger_before_events: function() {
+  trigger_before_events: function(data) {
     this.triggered_before_events = true;
-    this.before_events_node.publish();
+    this.before_events_node.publish(data);
   },
 
-  trigger_after_events: function() {
+  trigger_after_events: function(data) {
     this.triggered_after_events = true;
-    this.after_events_node.publish();
+    this.after_events_node.publish(data);
   },
 
   before_events: function(callback) {

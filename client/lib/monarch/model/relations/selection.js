@@ -17,6 +17,10 @@ constructor("Model.Relations.Selection", Model.Relations.Relation, {
     return records;
   },
 
+  create: function(field_values) {
+    return this.operand.create(this.predicate.force_matching_field_values(field_values));
+  },
+
   wire_representation: function() {
     return {
       type: "selection",

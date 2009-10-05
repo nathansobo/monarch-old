@@ -108,48 +108,6 @@ Screw.Unit(function(c) { with(c) {
       });
     });
     
-    describe(".create(field_values)", function() {
-      use_fake_server();
-      
-      it("instantiates a record without inserting it, posts its field values to the remote repository, then updates the record with the returned field values and inserts it", function() {
-        var insert_callback = mock_function("insert callback");
-        Blog.on_insert(insert_callback);
-
-        var field_values = { crazy_name: "Dinosaurs", user_id: 'wil' };
-        var create_future = Blog.create(field_values);
-
-        expect(Server.posts.length).to(equal, 1);
-        var post = Server.posts.shift();
-        expect(post.url).to(equal, Repository.origin_url);
-        expect(post.data.relation).to(equal, Blog.table.wire_representation());
-        expect(post.data.field_values).to(equal, new Blog(field_values).wire_representation());
-
-        var before_events_callback = mock_function("before events", function() {
-          expect(insert_callback).to_not(have_been_called);
-        });
-        var after_events_callback = mock_function("after events", function() {
-          expect(insert_callback).to(have_been_called, once);
-        });
-        create_future.before_events(before_events_callback);
-        create_future.after_events(after_events_callback);
-
-        post.simulate_success({
-          field_values: {
-            id: "dinosaurs",
-            name: "Recipes Modified By Server",
-            user_id: "wil"
-          }
-        });
-
-        expect(before_events_callback).to(have_been_called);
-        expect(after_events_callback).to(have_been_called);
-        
-        var new_record = Blog.find('dinosaurs');
-        expect(new_record.name()).to(equal, "Recipes Modified By Server");
-        expect(new_record.user_id()).to(equal, "wil");
-      });
-    });
-    
     describe(".local_create(field_values)", function() {
       it("builds an instance of the Record with the given field_values and inserts it in .table before returning it", function() {
         mock(Blog.table, 'insert');

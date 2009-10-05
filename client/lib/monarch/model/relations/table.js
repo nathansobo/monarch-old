@@ -38,6 +38,10 @@ constructor("Model.Relations.Table", Model.Relations.Relation, {
     this.record_removed(record);
   },
 
+  create: function(field_values) {
+    return Server.create(this, field_values);
+  },
+
   //TODO: replace with Selection-based find
   find: function(id) {
     return this.records_by_id[id];

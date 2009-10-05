@@ -29,6 +29,25 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
+    describe("#create", function() {
+      use_fake_server();
+
+      it("calls #create on its operand with the given attributes extended with an attribute value that satisfies the predicate", function() {
+        var create_future = selection.create({full_name: "John Lennon"});
+        expect(Server.creates.length).to(equal, 1);
+
+        var create_callback = mock_function('create callback', function(record) {
+          expect(record.age()).to(equal, 31);
+          expect(record.full_name()).to(equal, "John Lennon");
+        });
+        create_future.after_events(create_callback);
+
+        Server.creates.shift().simulate_success();
+
+        expect(create_callback).to(have_been_called);
+      });
+    });
+
     describe("#wire_representation", function() {
       it("returns the JSON representation of the Selection", function() {
         expect(selection.wire_representation()).to(equal, {

@@ -37,7 +37,14 @@ constructor("FakeServer", {
   },
 
   create: function(relation, field_values) {
-    throw new Error("not yet implemented");
+    var fake_create = new FakeServer.FakeCreate(Repository.origin_url, relation, field_values);
+    if (this.auto_create) {
+      fake_create.simulate_success();
+    } else {
+      this.last_create = fake_create;
+      this.creates.push(fake_create);
+    }
+    return fake_create.future;
   },
 
   simulate_fetch: function(relations) {
@@ -125,4 +132,28 @@ constructor("FakeServer.FakeFetch", {
       dataset[table_name][record.id()] = record.wire_representation();
     });
   }
-})
+});
+
+constructor("FakeServer.FakeCreate", {
+  constructor_initialize: function() {
+    this.id_counter = 1;
+  },
+
+  initialize: function(url, relation, field_values) {
+    this.url = url;
+    this.relation = relation;
+    this.field_values = field_values;
+    this.future = new Http.RepositoryUpdateFuture();
+  },
+
+  simulate_success: function() {
+    var self = this;
+    var field_values = jQuery.extend({}, this.field_values, {id: (this.constructor.id_counter++).toString()});
+    var new_record = new this.relation.record_constructor(field_values);
+
+    this.relation.insert(new_record, {
+      before_events: function() { self.future.trigger_before_events(new_record); },
+      after_events: function() { self.future.trigger_after_events(new_record); }
+    });
+  }
+});

@@ -21,12 +21,9 @@ constructor("Http.Server", {
   },
 
   create: function(relation, field_values) {
-    return this.post(Repository.origin_url, {
-      relation: relation.wire_representation(),
-      field_values: field_values
-    });
+    var record = new relation.record_constructor(field_values);
+    return record.push();
   },
-
 
   post: function(url, data) {
     return this.request('POST', url, data);

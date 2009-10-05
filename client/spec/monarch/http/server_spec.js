@@ -11,26 +11,49 @@ Screw.Unit(function(c) { with(c) {
 
     describe("#create(relation, field_values)", function() {
       use_example_domain_model();
+      use_fake_server();
 
-      before(function() {
-        server.posts = [];
-        server.post = FakeServer.prototype.post;
-      });
+//      before(function() {
+//        Server.posts = [];
+//        server.post = FakeServer.prototype.post;
+//      });
 
-      it("calls #post with Repository.origin_url and json to create a Record with the given field values in the given Relation", function() {
-        Repository.origin_url = "/users/steph/repository";
-        var future = server.create(Blog.table, {name: 'Recipes'});
-        expect(server.posts).to(have_length, 1);
+      it("instantiates a record without inserting it, posts its field values to the remote repository, then updates the record with the returned field values and inserts it", function() {
+        var insert_callback = mock_function("insert callback");
+        Blog.on_insert(insert_callback);
 
-        var post = server.posts.shift();
-        expect(post.url).to(equal, "/users/steph/repository");
-        expect(post.data).to(equal, {
-          relation: Blog.table.wire_representation(),
-          field_values: {name: 'Recipes'}
+        var field_values = { crazy_name: "Dinosaurs", user_id: 'wil' };
+        var create_future = server.create(Blog.table, field_values);
+
+        expect(Server.posts.length).to(equal, 1);
+        var post = Server.posts.shift();
+        expect(post.url).to(equal, Repository.origin_url);
+        expect(post.data.relation).to(equal, Blog.table.wire_representation());
+        expect(post.data.field_values).to(equal, new Blog(field_values).wire_representation());
+
+        var before_events_callback = mock_function("before events", function() {
+          expect(insert_callback).to_not(have_been_called);
+        });
+        var after_events_callback = mock_function("after events", function() {
+          expect(insert_callback).to(have_been_called, once);
+        });
+        create_future.before_events(before_events_callback);
+        create_future.after_events(after_events_callback);
+
+        post.simulate_success({
+          field_values: {
+            id: "dinosaurs",
+            name: "Recipes Modified By Server",
+            user_id: "wil"
+          }
         });
 
-        mock(future, 'handle_response');
-        post.simulate_success({id: 'recipes', name: 'Recipes'});
+        var new_record = Blog.find('dinosaurs');
+        expect(new_record.name()).to(equal, "Recipes Modified By Server");
+        expect(new_record.user_id()).to(equal, "wil");
+
+        expect(before_events_callback).to(have_been_called, with_args(new_record));
+        expect(after_events_callback).to(have_been_called, with_args(new_record));
       });
     });
 
@@ -79,11 +102,11 @@ Screw.Unit(function(c) { with(c) {
 
         future
           .before_events(function() {
-            events.push('before_events');
-          })
+          events.push('before_events');
+        })
           .after_events(function() {
-            events.push('after_events')
-          });
+          events.push('after_events')
+        });
 
         mock(Repository, 'pause_events', function() {
           events.push('Repository.pause_events')
