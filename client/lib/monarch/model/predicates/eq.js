@@ -26,5 +26,4 @@ constructor("Model.Predicates.Eq", {
       };
     }
   }
-
 });

@@ -23,5 +23,13 @@ constructor("Model.ProjectionRecord", {
     }
 
     return this.operand_record.field(projected_column.column);
+  },
+
+  evaluate: function(column_or_constant) {
+    if (column_or_constant instanceof Model.ProjectedColumn) {
+      return this.field(column_or_constant).value();
+    } else {
+      return column_or_constant;
+    }
   }
 });

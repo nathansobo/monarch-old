@@ -56,5 +56,9 @@ constructor("Model.Relations.Selection", Model.Relations.Relation, {
 
   primary_table: function() {
     return this.operand.primary_table();
+  },
+
+  column: function(name) {
+    return this.operand.column(name);
   }
 });

@@ -21,6 +21,10 @@ module Model
     def initialize(field_values)
       initialize_fields
       field_values.each do |projected_column_name, value|
+
+        p projected_column_name unless field(projected_column_name)
+
+
         field(projected_column_name).value = value
       end
     end

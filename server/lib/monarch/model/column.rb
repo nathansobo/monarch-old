@@ -55,7 +55,7 @@ module Model
     end
 
     def as(column_alias)
-      ProjectedColumn.new(self, column_alias)
+      ProjectedColumn.new(self, column_alias.to_sym)
     end
 
     protected

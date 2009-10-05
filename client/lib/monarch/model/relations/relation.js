@@ -52,6 +52,10 @@ constructor("Model.Relations.Relation", {
     return new Model.Relations.Projection(this, projected_columns);
   },
 
+  difference: function(right_operand) {
+    return new Model.Relations.Difference(this, right_operand);
+  },
+
   each: function(fn) {
     Util.each(this.records(), fn);
   },
@@ -66,6 +70,14 @@ constructor("Model.Relations.Relation", {
 
   first: function() {
     return this.records()[0];
+  },
+
+  find: function(id) {
+    return this.where(this.column('id').eq(id)).first();
+  },
+
+  size: function() {
+    return this.records().length;
   },
 
   at: function(i) {

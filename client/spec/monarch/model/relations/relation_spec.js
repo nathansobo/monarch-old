@@ -111,5 +111,16 @@ Screw.Unit(function(c) { with(c) {
         });
       });
     });
+
+    describe("#difference(right_operand)", function() {
+      it("constructs a difference with self as the #left_operand and the given #right_operand", function() {
+        var right_operand = Blog.where(Blog.user_id.eq("jan"));
+        var difference = relation.difference(right_operand);
+        expect(difference).to(be_an_instance_of, Model.Relations.Difference);
+        expect(difference.left_operand).to(equal, relation);
+        expect(difference.right_operand).to(equal, right_operand);
+      });
+    });
+
   });
 }});

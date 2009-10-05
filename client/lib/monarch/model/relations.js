@@ -3,3 +3,4 @@
 //= require "relations/selection"
 //= require "relations/ordering"
 //= require "relations/projection"
+//= require "relations/difference"
