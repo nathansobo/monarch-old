@@ -32,9 +32,6 @@ module Model
       it "finds the record with the given 'id' in the given 'relation', then updates it with the given field values and returns all changed field values as its result" do
         record = User.find('jan')
         record.should_not be_dirty
-        def record.full_name=(name)
-          set_field_value(:full_name, name + " The Great")
-        end
 
         new_signed_up_at = record.signed_up_at - 1.hours
 
@@ -42,7 +39,7 @@ module Model
           :relation => { "type" => "table", "name" => "users"}.to_json,
           :id => "jan",
           :field_values => {
-            :full_name => "Jan Christian Nelson",
+            :great_name => "Jan Christian Nelson",
             :age => record.age,
             :signed_up_at => new_signed_up_at.to_millis
           }.to_json
@@ -54,13 +51,42 @@ module Model
         record.signed_up_at.to_millis.should == new_signed_up_at.to_millis
         
         response.should be_ok
-        body_json = JSON.parse(response.body)
-        body_json.should == {
+        response.body_as_json.should == {
           'successful' => true,
           'data' => {
             'field_values' => {
               'full_name' => "Jan Christian Nelson The Great",
               'signed_up_at' => new_signed_up_at.to_millis
+            }
+          }
+        }
+      end
+    end
+
+    describe "#post" do
+      it "calls #create on the indicated 'relation' with the given 'field_values', then returns all field values as its result" do
+        signed_up_at = Time.now
+
+        response = Http::Response.new(*exposed_repository.post({
+          :relation => { "type" => "table", "name" => "users"}.to_json,
+          :field_values => {
+            :great_name => "Sharon Ly",
+            :age => 25,
+            :signed_up_at => signed_up_at.to_millis
+          }.to_json
+        }))
+
+        new_record = User.find(User[:full_name].eq('Sharon Ly The Great'))
+
+        response.should be_ok
+        response.body_as_json.should == {
+          'successful' => true,
+          'data' => {
+            'field_values' => {
+              'id' => new_record.id,
+              'full_name' => "Sharon Ly The Great",
+              'age' => 25,
+              'signed_up_at' => signed_up_at.to_millis
             }
           }
         }
