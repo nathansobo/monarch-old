@@ -21,7 +21,7 @@ module("Util", {
 
   array_each: function(array, fn) {
     for(var i = 0; i < array.length; i++) {
-      fn.call(array[i], array[i]);
+      fn.call(array[i], array[i], i);
     }
   },
 
@@ -57,5 +57,14 @@ module("Util", {
       Util.each(keys, optional_each_function);
     }
     return keys;
+  },
+
+  values: function(hash, optional_each_function) {
+    var values = [];
+    for (key in hash) values.push(hash[key]);
+    if (optional_each_function) {
+      Util.each(values, optional_each_function);
+    }
+    return values;
   }
 });

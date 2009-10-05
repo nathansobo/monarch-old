@@ -2,3 +2,4 @@
 //= require "relations/table"
 //= require "relations/selection"
 //= require "relations/ordering"
+//= require "relations/projection"

@@ -22,6 +22,23 @@ Screw.Unit(function(c) { with(c) {
         expect(Foo.Bar.basename).to(equal, "Bar");
       });
 
+      context("when not given a name", function() {
+        before(function() {
+          ModuleSystem.Object = ModuleSystem.__disabled__Object;
+        })
+
+        it("creates an anonymous constructor which inherits from Object, defining the given properties on its prototype", function() {
+          var constructor = ModuleSystem.constructor({
+            foo: "foo",
+            bar: "bar"
+          });
+
+          expect(constructor.prototype instanceof ModuleSystem.Object).to(be_true);
+          expect(constructor.prototype.foo).to(equal, "foo");
+          expect(constructor.prototype.bar).to(equal, "bar");
+        });
+      });
+
       context("when given a top-level name and a properties hash", function() {
         before(function() {
           ModuleSystem.Object = ModuleSystem.__disabled__Object;

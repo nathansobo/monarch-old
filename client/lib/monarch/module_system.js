@@ -12,13 +12,19 @@ function mixin() {
 
 ModuleSystem = {
   constructor: function() {
+    var constructor_basename, containing_module;
     var args = this.extract_constructor_arguments(arguments);
-    var constructor_basename = args.qualified_constructor_name.split(".").pop();
-    var containing_module = this.create_module_containing_constructor(args.qualified_constructor_name);
+
+    if (args.qualified_constructor_name) {
+      constructor_basename = args.qualified_constructor_name.split(".").pop();
+      containing_module = this.create_module_containing_constructor(args.qualified_constructor_name);
+    }
+
     var constructor = function() {
       if (this.initialize && !constructor.__initialize_disabled__) this.initialize.apply(this, arguments);
     }
-    constructor.basename = constructor_basename;
+
+    if (constructor_basename) constructor.basename = constructor_basename;
 
     if (args.superconstructor) {
       this.extend(args.superconstructor, constructor);
@@ -39,7 +45,7 @@ ModuleSystem = {
       this.mixin(constructor, constructor.prototype.constructor_properties);
     }
 
-    containing_module[constructor_basename] = constructor;
+    if (constructor_basename) containing_module[constructor_basename] = constructor;
 
     if (args.superconstructor && args.superconstructor.extended) args.superconstructor.extended(constructor);
     if (constructor.initialize) constructor.initialize();
@@ -104,14 +110,16 @@ ModuleSystem = {
 
   extract_constructor_arguments: function(args) {
     var args = Array.prototype.slice.call(args, 0);
+
     var constructor_arguments = {
-      qualified_constructor_name: args.shift(),
       mixin_modules: []
     };
 
     for(var i = 0; i < args.length; i++) {
       var current_arg = args[i];
-      if (typeof current_arg == "function") {
+      if (typeof current_arg == "string") {
+        constructor_arguments.qualified_constructor_name = current_arg;
+      } else if (typeof current_arg == "function") {
         constructor_arguments.superconstructor = current_arg;
       } else {
         constructor_arguments.mixin_modules.push(current_arg);

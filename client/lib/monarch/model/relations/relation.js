@@ -39,8 +39,25 @@ constructor("Model.Relations.Relation", {
     return new Model.Relations.Ordering(this, order_by_columns);
   },
 
+  project: function() {
+    var projected_columns = Util.map(Util.to_array(arguments), function(arg) {
+      if (arg instanceof Model.ProjectedColumn) {
+        return arg;
+      } else if (arg instanceof Model.Column) {
+        return new Model.ProjectedColumn(arg);
+      } else {
+        throw new Error("#project takes Columns or ProjectedColumns only");
+      }
+    });
+    return new Model.Relations.Projection(this, projected_columns);
+  },
+
   each: function(fn) {
     Util.each(this.records(), fn);
+  },
+
+  map: function(fn) {
+    return Util.map(this.records(), fn);
   },
 
   empty: function() {

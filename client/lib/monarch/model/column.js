@@ -39,5 +39,9 @@ constructor("Model.Column", {
     } else {
       return value;
     }
+  },
+
+  as: function(column_alias) {
+    return new Model.ProjectedColumn(this, column_alias);
   }
 });
