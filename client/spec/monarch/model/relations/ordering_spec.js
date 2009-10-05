@@ -11,7 +11,7 @@ Screw.Unit(function(c) { with(c) {
       ordering = new Model.Relations.Ordering(operand, [order_by_column_1, order_by_column_2]);
     });
 
-    describe("#all", function() {
+    describe("#records", function() {
       before(function() {
         User.local_create({id: "4", age: 3, full_name: "D"});
         User.local_create({id: "1", age: 1, full_name: "A"});
@@ -27,7 +27,7 @@ Screw.Unit(function(c) { with(c) {
 
         it("returns the records of its #operand in the correct order", function() {
           var expected_ids = ["1", "2", "3", "4"];
-          var actual_ids = Util.map(ordering.all(), function() { return this.id() });
+          var actual_ids = Util.map(ordering.records(), function() { return this.id() });
           expect(actual_ids).to(equal, expected_ids);
         });
       });
@@ -40,7 +40,7 @@ Screw.Unit(function(c) { with(c) {
 
         it("returns the records of its #operand in the correct order", function() {
           var expected_ids = ["4", "2", "3", "1"];
-          var actual_ids = Util.map(ordering.all(), function() { return this.id() });
+          var actual_ids = Util.map(ordering.records(), function() { return this.id() });
           expect(actual_ids).to(equal, expected_ids);
         });
       });

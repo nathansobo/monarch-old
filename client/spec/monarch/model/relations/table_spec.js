@@ -23,21 +23,21 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
-    describe("#all", function() {
+    describe("#records", function() {
       it("returns a copy of the sets records", function() {
-        var records_copy = User.table.all();
+        var records_copy = User.table.records();
         records_copy.push(1);
-        expect(User.table.all()).to_not(equal, records_copy);
+        expect(User.table.records()).to_not(equal, records_copy);
       });
     });
 
     describe("#insert", function() {
-      it("adds the given Record to the array returned by #all", function() {
+      it("adds the given Record to the array returned by #records", function() {
         var record = new User();
 
-        expect(User.table.all()).to_not(contain, record);
+        expect(User.table.records()).to_not(contain, record);
         User.table.insert(record)
-        expect(User.table.all()).to(contain, record);
+        expect(User.table.records()).to(contain, record);
       });
     });
 
@@ -222,7 +222,7 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("#clear", function() {
-      it("removes all data from the table and its index", function() {
+      it("removes records data from the table and its index", function() {
         expect(User.find('jan')).to_not(be_null);
         User.table.clear();
         expect(User.table.empty()).to(be_true);

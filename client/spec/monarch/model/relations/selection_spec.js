@@ -12,10 +12,10 @@ Screw.Unit(function(c) { with(c) {
       selection = new Model.Relations.Selection(operand, predicate);
     });
 
-    describe("#all", function() {
-      it("returns only the #all of #operand that match #predicate", function() {
+    describe("#records", function() {
+      it("returns only the #records of #operand that match #predicate", function() {
         var expected_tuples = [];
-        var operand_tuples = operand.all();
+        var operand_tuples = operand.records();
 
         for (var i = 0; i < operand_tuples.length; i++) {
           var tuple = operand_tuples[i];
@@ -25,7 +25,7 @@ Screw.Unit(function(c) { with(c) {
         }
 
         expect(expected_tuples).to_not(be_empty);
-        expect(selection.all()).to(equal, expected_tuples);
+        expect(selection.records()).to(equal, expected_tuples);
       });
     });
 
@@ -328,22 +328,22 @@ Screw.Unit(function(c) { with(c) {
 
         it("subscribes to its #operand and memoizes records, then unsubscribes and clears the memoization, then resubscribes and rememoizes", function() {
           expect(operand.has_subscribers()).to(be_false);
-          expect(selection.records).to(be_null);
+          expect(selection._records).to(be_null);
 
           var subscription = selection[event_type].call(selection, function() {});
 
           expect(operand.has_subscribers()).to(be_true);
-          expect(selection.records).to_not(be_null);
+          expect(selection._records).to_not(be_null);
 
           subscription.destroy();
 
           expect(operand.has_subscribers()).to(be_false);
-          expect(selection.records).to(be_null);
+          expect(selection._records).to(be_null);
 
           selection.on_update(function() {});
 
           expect(operand.has_subscribers()).to(be_true);
-          expect(selection.records).to_not(be_null);
+          expect(selection._records).to_not(be_null);
         });
       });
     });

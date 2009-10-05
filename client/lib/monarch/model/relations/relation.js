@@ -40,19 +40,19 @@ constructor("Model.Relations.Relation", {
   },
 
   each: function(fn) {
-    Util.each(this.all(), fn);
+    Util.each(this.records(), fn);
   },
 
   empty: function() {
-    return this.all().length == 0;
+    return this.records().length == 0;
   },
 
   first: function() {
-    return this.all()[0];
+    return this.records()[0];
   },
 
   at: function(i) {
-    return this.all()[i];
+    return this.records()[i];
   },
   
   on_insert: function(on_insert_callback) {
@@ -79,16 +79,16 @@ constructor("Model.Relations.Relation", {
   },
 
   memoize_records: function() {
-    this.records = this.all();
+    this._records = this.records();
   },
 
   record_inserted: function(record) {
-    this.records.push(record)
+    this._records.push(record)
     this.on_insert_node.publish(record);
   },
 
   record_removed: function(record) {
-    Util.remove(this.records, record);
+    Util.remove(this._records, record);
     this.on_remove_node.publish(record);
   },
 
@@ -97,7 +97,7 @@ constructor("Model.Relations.Relation", {
   },
 
   contains: function(record) {
-    var records = this.all();
+    var records = this.records();
     for(var i = 0; i < records.length; i++) {
       if (records[i] == record) return true;
     }
@@ -121,6 +121,6 @@ constructor("Model.Relations.Relation", {
 
   unsubscribe_from_operands: function() {
     this.operands_subscription_bundle.destroy_all();
-    this.records = null;
+    this._records = null;
   }
 });

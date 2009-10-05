@@ -6,7 +6,7 @@ constructor("Model.Relations.Table", Model.Relations.Relation, {
     this.record_constructor = record_constructor;
     this.columns_by_name = {};
     this.synthetic_columns_by_name = {};
-    this.records = [];
+    this._records = [];
     this.records_by_id = {};
 
     this.initialize_events_system();
@@ -24,8 +24,8 @@ constructor("Model.Relations.Table", Model.Relations.Relation, {
     return this.columns_by_name[name];
   },
 
-  all: function() {
-    return this.records.concat();
+  records: function() {
+    return this._records.concat();
   },
 
   insert: function(record) {
@@ -88,7 +88,7 @@ constructor("Model.Relations.Table", Model.Relations.Relation, {
   },
 
   clear: function() {
-    this.records = [];
+    this._records = [];
     this.records_by_id = {}
   },
 

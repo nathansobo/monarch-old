@@ -90,8 +90,8 @@ constructor("Model.Record", {
       return this.table.fetch();
     },
 
-    all: function() {
-      return this.table.all();
+    records: function() {
+      return this.table.records();
     },
 
     each: function(fn) {

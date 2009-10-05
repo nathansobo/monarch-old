@@ -21,8 +21,8 @@ constructor("Model.Relations.Ordering", Model.Relations.Relation, {
     this.initialize_events_system();
   },
 
-  all: function() {
-    return this.operand.all().sort(this.comparator);
+  records: function() {
+    return this.operand.records().sort(this.comparator);
   },
 
   evaluate_in_repository: function(repository) {

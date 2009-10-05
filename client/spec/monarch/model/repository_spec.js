@@ -82,37 +82,37 @@ Screw.Unit(function(c) { with(c) {
 
     describe("#clear", function() {
       it("removes all data from all tables", function() {
-        expect(Blog.all()).to_not(be_empty);
-        expect(User.all()).to_not(be_empty);
+        expect(Blog.records()).to_not(be_empty);
+        expect(User.records()).to_not(be_empty);
         repository.clear();
-        expect(User.all()).to(be_empty);
-        expect(Blog.all()).to(be_empty);
+        expect(User.records()).to(be_empty);
+        expect(Blog.records()).to(be_empty);
       });
     });
 
     describe("#clone_schema", function() {
       it("makes another Repository with the cloned schemas of all its Tables", function() {
         expect(repository.tables.users).to_not(be_null);
-        expect(repository.tables.users.all()).to_not(be_empty);
+        expect(repository.tables.users.records()).to_not(be_empty);
         expect(repository.tables.blogs).to_not(be_null);
-        expect(repository.tables.blogs.all()).to_not(be_empty);
+        expect(repository.tables.blogs.records()).to_not(be_empty);
 
         var clone = repository.clone_schema();
 
         // same tables
         expect(clone.tables.users).to_not(be_null);
-        expect(clone.tables.users.all()).to(be_empty);
+        expect(clone.tables.users.records()).to(be_empty);
         expect(clone.tables.blogs).to_not(be_null);
-        expect(clone.tables.blogs.all()).to(be_empty);
+        expect(clone.tables.blogs.records()).to(be_empty);
 
         // with same columns (schema)
         expect(clone.tables.users.columns_by_name).to(equal, repository.tables.users.columns_by_name);
         expect(clone.tables.users.column('full_name')).to(equal, repository.tables.users.column('full_name'));
 
         // but different data stores
-        var num_users_in_original_repository = repository.tables.users.all().length;
+        var num_users_in_original_repository = repository.tables.users.records().length;
         clone.tables.users.insert(new User({full_name: "Wil Bierbaum"}));
-        expect(repository.tables.users.all().length).to(equal, num_users_in_original_repository);
+        expect(repository.tables.users.records().length).to(equal, num_users_in_original_repository);
       });
     });
   });

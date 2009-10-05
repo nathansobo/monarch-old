@@ -6,15 +6,15 @@ constructor("Model.Relations.Selection", Model.Relations.Relation, {
     this.initialize_events_system();
   },
 
-  all: function() {
-    if (this.records) return this.records;
+  records: function() {
+    if (this._records) return this._records;
 
     var predicate = this.predicate;
-    var all = [];
+    var records = [];
     this.operand.each(function() {
-      if (predicate.evaluate(this)) all.push(this);
+      if (predicate.evaluate(this)) records.push(this);
     });
-    return all;
+    return records;
   },
 
   wire_representation: function() {

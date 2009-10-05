@@ -72,9 +72,9 @@ Screw.Unit(function(c) { with(c) {
 
     describe("#simulate_fetch", function() {
       it("immediately fetches records from the FakeServer's repository to the local repository", function() {
-        expect(Blog.all()).to(be_empty);
+        expect(Blog.records()).to(be_empty);
         fake_server.simulate_fetch([Blog.table]);
-        expect(Blog.all()).to_not(be_empty);
+        expect(Blog.records()).to_not(be_empty);
       });
     });
   });

@@ -117,7 +117,7 @@ constructor("FakeServer.FakeFetch", {
   },
 
   add_relation_to_dataset: function(relation, dataset) {
-    var records = relation.evaluate_in_repository(this.fixture_repository).all();
+    var records = relation.evaluate_in_repository(this.fixture_repository).records();
     var table_name = relation.primary_table().global_name;
 
     if (!dataset[table_name]) dataset[table_name] = {};
