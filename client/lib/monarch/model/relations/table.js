@@ -28,9 +28,9 @@ constructor("Model.Relations.Table", Model.Relations.Relation, {
     return this._records.concat();
   },
 
-  insert: function(record) {
+  insert: function(record, options) {
     this.records_by_id[record.id()] = record;
-    this.record_inserted(record);
+    this.record_inserted(record, options);
   },
 
   remove: function(record) {

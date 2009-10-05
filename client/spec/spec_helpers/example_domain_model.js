@@ -14,7 +14,11 @@ Screw.Unit(function(c) {
               return name + " for Fun and Profit";
             });
           });
-        }}
+        }},
+
+        crazy_name: function(name) {
+          this.name("CRAZY " + name);
+        }
       });
 
       ModuleSystem.constructor("User", Model.Record, {

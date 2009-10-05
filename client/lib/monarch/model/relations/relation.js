@@ -111,9 +111,12 @@ constructor("Model.Relations.Relation", {
     this._records = this.records();
   },
 
-  record_inserted: function(record) {
+  record_inserted: function(record, options) {
+    if (!options) options = {};
     this._records.push(record)
+    if (options.before_events) options.before_events();
     this.on_insert_node.publish(record);
+    if (options.after_events) options.after_events();
   },
 
   record_removed: function(record) {

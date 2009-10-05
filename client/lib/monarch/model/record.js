@@ -63,12 +63,8 @@ constructor("Model.Record", {
 
     create: function(field_values) {
       var self = this;
-      var future = new Http.AjaxFuture();
-      Repository.remote_create(this.table, field_values)
-        .on_success(function(returned_field_values) {
-          future.trigger_success(self.local_create(returned_field_values));
-        });
-      return future;
+      var record = new this(field_values);
+      return record.push();
     },
 
     local_create: function(field_values) {
@@ -162,6 +158,14 @@ constructor("Model.Record", {
   },
 
   push: function() {
+    if (this.id()) {
+      return this.push_update();
+    } else {
+      return this.push_create();
+    }
+  },
+
+  push_update: function() {
     var push_future = new Http.RepositoryUpdateFuture();
     var pending_fieldset = this.active_fieldset;
     this.restore_primary_fieldset();
@@ -182,7 +186,29 @@ constructor("Model.Record", {
           }
         });
       });
-    
+
+    return push_future;
+  },
+
+  push_create: function() {
+    var self = this;
+    var push_future = new Http.RepositoryUpdateFuture();
+    Server.post(Repository.origin_url, {
+      relation: this.table().wire_representation(),
+      field_values: this.wire_representation()
+    })
+      .on_success(function(data) {
+        self.local_update(data.field_values);
+        self.table().insert(self, {
+          before_events: function() {
+            push_future.trigger_before_events();
+          },
+          after_events: function() {
+            push_future.trigger_after_events();
+          }
+        });
+    });
+
     return push_future;
   },
 
