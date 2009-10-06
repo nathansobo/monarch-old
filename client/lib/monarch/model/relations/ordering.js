@@ -25,6 +25,10 @@ constructor("Model.Relations.Ordering", Model.Relations.Relation, {
     return this.operand.records().sort(this.comparator);
   },
 
+  create: function(field_values) {
+    return this.operand.create(field_values);
+  },
+
   evaluate_in_repository: function(repository) {
     return new Model.Relations.Ordering(this.operand.evaluate_in_repository(repository), this.order_by_columns);
   },

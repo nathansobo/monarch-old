@@ -49,7 +49,7 @@ constructor("FakeServer", {
 
   simulate_fetch: function(relations) {
     this.fetch(relations);
-    this.fetches.shift().simulate_success();
+    if (!this.auto_fetch) this.fetches.shift().simulate_success();
   },
 
   post: function(url, data) {
