@@ -1,4 +1,6 @@
-module("Monarch.Inflection", {
+(function(Monarch) {
+
+Monarch.module("Monarch.Inflection", {
   plural: [
     [/(quiz)$/i,               "$1zes"  ],
     [/^(ox)$/i,                "$1en"   ],
@@ -142,3 +144,5 @@ module("Monarch.Inflection", {
     return word.replace(/([a-zA-Z\d])([A-Z])/g,'$1 $2');
   }
 });
+
+})(Monarch);

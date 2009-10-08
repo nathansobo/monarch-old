@@ -1,4 +1,6 @@
-constructor("Monarch.Model.ConcreteField", Monarch.Model.Field, {
+(function(Monarch) {
+
+Monarch.constructor("Monarch.Model.ConcreteField", Monarch.Model.Field, {
   initialize: function(fieldset, column) {
     this.fieldset = fieldset;
     this.column = column;
@@ -41,3 +43,5 @@ constructor("Monarch.Model.ConcreteField", Monarch.Model.Field, {
     return this.column.convert_for_wire(this.value());
   }
 });
+
+})(Monarch);

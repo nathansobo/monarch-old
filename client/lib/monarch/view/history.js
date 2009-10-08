@@ -1,4 +1,6 @@
-constructor("Monarch.View.History", {
+(function(Monarch, jQuery) {
+
+Monarch.constructor("Monarch.View.History", {
   on_change: function(callback) {
     jQuery.historyInit(callback);
   },
@@ -7,3 +9,5 @@ constructor("Monarch.View.History", {
     jQuery.historyLoad(path);
   }
 });
+
+})(Monarch, jQuery);

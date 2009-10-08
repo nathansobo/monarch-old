@@ -13,7 +13,7 @@ Screw.Unit(function(c) {
   };
 });
 
-constructor("FakeServer", {
+Monarch.constructor("FakeServer", {
   initialize: function() {
     this.posts = [];
     this.puts = [];
@@ -74,7 +74,7 @@ constructor("FakeServer", {
   }
 });
 
-constructor("FakeServer.FakeRequest", {
+Monarch.constructor("FakeServer.FakeRequest", {
   initialize: function(type, url, data) {
     this.future = new Monarch.Http.AjaxFuture();
     this.type = type;
@@ -97,7 +97,7 @@ constructor("FakeServer.FakeRequest", {
   }
 });
 
-constructor("FakeServer.FakeFetch", {
+Monarch.constructor("FakeServer.FakeFetch", {
   initialize: function(url, relations, fixture_repository) {
     this.url = url;
     this.relations = relations;
@@ -134,7 +134,7 @@ constructor("FakeServer.FakeFetch", {
   }
 });
 
-constructor("FakeServer.FakeCreate", {
+Monarch.constructor("FakeServer.FakeCreate", {
   constructor_initialize: function() {
     this.id_counter = 1;
   },

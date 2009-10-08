@@ -1,4 +1,6 @@
-constructor("Monarch.Model.Field", {
+(function(Monarch) {
+
+Monarch.constructor("Monarch.Model.Field", {
   signal: function(optional_transformer) {
     return new Monarch.Model.Signal(this, optional_transformer);
   },
@@ -7,3 +9,5 @@ constructor("Monarch.Model.Field", {
     this.on_update_node.subscribe(update_callback);
   }
 });
+
+})(Monarch);

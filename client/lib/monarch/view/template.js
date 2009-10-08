@@ -1,4 +1,6 @@
-constructor("Monarch.View.Template", Monarch.Xml.Template, {
+(function(Monarch, jQuery) {
+
+Monarch.constructor("Monarch.View.Template", Monarch.Xml.Template, {
   constructor_properties: {
     to_view: function(properties) {
       return new this().to_view(properties);
@@ -18,9 +20,9 @@ constructor("Monarch.View.Template", Monarch.Xml.Template, {
     this.builder = null;
 
     var view_properties = { template: this };
-    mixin(view_properties, this.default_view_properties);
-    if (this.view_properties) mixin(view_properties, this.view_properties);
-    if (properties) mixin(view_properties, properties);
+    Monarch.ModuleSystem.mixin(view_properties, this.default_view_properties);
+    if (this.view_properties) Monarch.ModuleSystem.mixin(view_properties, this.view_properties);
+    if (properties) Monarch.ModuleSystem.mixin(view_properties, properties);
     return builder.to_view(view_properties);
   },
 
@@ -115,3 +117,5 @@ constructor("Monarch.View.Template", Monarch.Xml.Template, {
     }
   }
 });
+
+})(Monarch, jQuery);

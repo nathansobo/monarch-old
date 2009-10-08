@@ -1,4 +1,6 @@
-constructor("Monarch.Xml.Builder", {
+(function(Monarch, jQuery) {
+
+Monarch.constructor("Monarch.Xml.Builder", {
   constructor_properties: {
     initialize: function() {
       this.generate_tag_methods();
@@ -130,3 +132,5 @@ constructor("Monarch.Xml.Builder", {
     return "> " + selector_fragments.join(" > ");
   }
 });
+
+})(Monarch, jQuery);

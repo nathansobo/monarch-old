@@ -1,4 +1,6 @@
-constructor("Monarch.Model.Relations.Ordering", Monarch.Model.Relations.Relation, {
+(function(Monarch) {
+
+Monarch.constructor("Monarch.Model.Relations.Ordering", Monarch.Model.Relations.Relation, {
   initialize: function(operand, order_by_columns) {
     this.operand = operand;
     this.order_by_columns = order_by_columns;
@@ -58,3 +60,5 @@ constructor("Monarch.Model.Relations.Ordering", Monarch.Model.Relations.Relation
     }));
   }
 })
+
+})(Monarch);

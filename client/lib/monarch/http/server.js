@@ -1,4 +1,6 @@
-constructor("Monarch.Http.Server", {
+(function(Monarch, jQuery) {
+
+Monarch.constructor("Monarch.Http.Server", {
   fetch: function(relations) {
     var fetch_future = new Monarch.Http.RepositoryUpdateFuture();
 
@@ -60,3 +62,5 @@ constructor("Monarch.Http.Server", {
     return stringified_data;
   }
 });
+
+})(Monarch, jQuery);

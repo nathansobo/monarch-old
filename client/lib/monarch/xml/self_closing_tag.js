@@ -1,4 +1,6 @@
-constructor("Monarch.Xml.SelfClosingTag", Monarch.Xml.CloseTag.prototype, Monarch.Xml.OpenTag.prototype, {
+(function(Monarch) {
+
+Monarch.constructor("Monarch.Xml.SelfClosingTag", Monarch.Xml.CloseTag.prototype, Monarch.Xml.OpenTag.prototype, {
   to_xml: function() {
     return "<" + this.name + this.attributes_html() + "/>"
   },
@@ -9,3 +11,5 @@ constructor("Monarch.Xml.SelfClosingTag", Monarch.Xml.CloseTag.prototype, Monarc
     if (this.on_build_node) this.on_build_node.publish(builder.find_preceding_element(), builder.jquery_fragment);
   }
 });
+
+})(Monarch);

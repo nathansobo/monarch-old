@@ -1,4 +1,6 @@
-constructor("Monarch.Xml.CloseTag", {
+(function(Monarch) {
+
+Monarch.constructor("Monarch.Xml.CloseTag", {
   constructor_properties: {
     initialize: function() {
       this.generate_event_methods();
@@ -54,3 +56,5 @@ constructor("Monarch.Xml.CloseTag", {
     if (this.on_build_node) this.on_build_node.publish(builder.find_preceding_element(), builder.jquery_fragment);
   }
 });
+
+})(Monarch);

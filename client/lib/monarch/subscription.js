@@ -1,4 +1,6 @@
-constructor("Monarch.Subscription", {
+(function(Monarch) {
+
+Monarch.constructor("Monarch.Subscription", {
   initialize: function(node, callback) {
     this.node = node;
     this.callback = callback;
@@ -12,3 +14,5 @@ constructor("Monarch.Subscription", {
     this.node.unsubscribe(this);
   }
 });
+
+})(Monarch);

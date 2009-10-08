@@ -1,4 +1,6 @@
-constructor("Monarch.SubscriptionNode", {
+(function(Monarch) {
+
+Monarch.constructor("Monarch.SubscriptionNode", {
   constructor_properties: {
     total_subscriptions: 0
   },
@@ -53,3 +55,5 @@ constructor("Monarch.SubscriptionNode", {
     this.delayed_events = [];
   }
 });
+
+})(Monarch);

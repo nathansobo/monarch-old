@@ -1,4 +1,6 @@
-constructor("Monarch.Model.Fieldset", {
+(function(Monarch, jQuery) {
+
+Monarch.constructor("Monarch.Model.Fieldset", {
   initialize: function(record) {
     if (!record) return;
 
@@ -82,3 +84,5 @@ constructor("Monarch.Model.Fieldset", {
     return wire_representation;
   }
 });
+
+})(Monarch, jQuery);

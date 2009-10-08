@@ -1,4 +1,6 @@
-constructor("Monarch.Future", {
+(function(Monarch) {
+
+Monarch.constructor("Monarch.Future", {
   initialize: function() {
     this.on_complete_node = new Monarch.SubscriptionNode();
   },
@@ -27,3 +29,5 @@ constructor("Monarch.Future", {
     this.on_complete_node.publish(value);
   }
 });
+
+})(Monarch);

@@ -1,4 +1,6 @@
-constructor("Monarch.Model.Repository", {
+(function(Monarch) {
+
+Monarch.constructor("Monarch.Model.Repository", {
   initialize: function() {
     this.tables = {};
   },
@@ -54,3 +56,5 @@ constructor("Monarch.Model.Repository", {
     return clone;
   }
 });
+
+})(Monarch);

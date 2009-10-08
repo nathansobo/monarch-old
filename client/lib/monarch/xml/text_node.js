@@ -1,4 +1,6 @@
-constructor("Monarch.Xml.TextNode", {
+(function(Monarch) {
+
+Monarch.constructor("Monarch.Xml.TextNode", {
   initialize: function(text) {
     this.text = text;
   },
@@ -10,3 +12,5 @@ constructor("Monarch.Xml.TextNode", {
   post_process: function() {
   }
 });
+
+})(Monarch);

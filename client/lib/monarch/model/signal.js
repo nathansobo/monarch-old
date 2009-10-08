@@ -1,4 +1,6 @@
-constructor("Monarch.Model.Signal", {
+(function(Monarch) {
+
+Monarch.constructor("Monarch.Model.Signal", {
   initialize: function(source, optional_transformer) {
     this.source = source;
     this.transformer = optional_transformer;
@@ -31,3 +33,5 @@ constructor("Monarch.Model.Signal", {
     return this.on_update_node.subscribe(callback);
   }
 });
+
+})(Monarch);

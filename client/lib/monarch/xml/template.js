@@ -1,4 +1,6 @@
-constructor("Monarch.Xml.Template", {
+(function(Monarch) {
+
+Monarch.constructor("Monarch.Xml.Template", {
   constructor_properties: {
     to_jquery: function(properties) {
       return new this().to_jquery(properties);
@@ -25,3 +27,5 @@ constructor("Monarch.Xml.Template", {
     return jquery_fragment;
   }
 });
+
+})(Monarch);

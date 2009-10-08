@@ -1,4 +1,6 @@
-constructor("Monarch.Model.Record", {
+(function(Monarch) {
+
+Monarch.constructor("Monarch.Model.Record", {
   constructor_properties: {
     extended: function(subconstructor) {
       subconstructor.table = new Monarch.Model.Relations.Table(this.determine_global_name(subconstructor), subconstructor);
@@ -251,3 +253,5 @@ constructor("Monarch.Model.Record", {
     }
   }
 });
+
+})(Monarch);

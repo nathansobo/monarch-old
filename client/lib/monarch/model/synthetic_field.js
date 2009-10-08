@@ -1,4 +1,6 @@
-constructor("Monarch.Model.SyntheticField", Monarch.Model.Field, {
+(function(Monarch) {
+
+Monarch.constructor("Monarch.Model.SyntheticField", Monarch.Model.Field, {
   initialize: function(fieldset, column, signal) {
     this.fieldset = fieldset;
     this.signal = signal;
@@ -16,3 +18,5 @@ constructor("Monarch.Model.SyntheticField", Monarch.Model.Field, {
     return this.signal.value();
   }
 });
+
+})(Monarch);

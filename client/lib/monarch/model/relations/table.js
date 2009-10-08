@@ -1,4 +1,6 @@
-constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Relation, {
+(function(Monarch, jQuery) {
+
+Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Relation, {
   has_operands: false,
 
   initialize: function(global_name, record_constructor) {
@@ -110,3 +112,5 @@ constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Relation, {
     return this;
   }
 });
+
+})(Monarch, jQuery);

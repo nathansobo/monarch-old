@@ -1,4 +1,6 @@
-constructor("Monarch.Model.Relations.Relation", {
+(function(Monarch) {
+
+Monarch.constructor("Monarch.Model.Relations.Relation", {
   has_operands: true,
 
   initialize_events_system: function() {
@@ -156,3 +158,5 @@ constructor("Monarch.Model.Relations.Relation", {
     this._records = null;
   }
 });
+
+})(Monarch);

@@ -1,4 +1,6 @@
-constructor("Monarch.Model.Relations.Projection", Monarch.Model.Relations.Relation, {
+(function(Monarch) {
+
+Monarch.constructor("Monarch.Model.Relations.Projection", Monarch.Model.Relations.Relation, {
   initialize: function(operand, projected_columns) {
     var self = this;
     this.operand = operand;
@@ -24,3 +26,5 @@ constructor("Monarch.Model.Relations.Projection", Monarch.Model.Relations.Relati
     return this.projected_columns_by_name[name];
   }
 });
+
+})(Monarch);

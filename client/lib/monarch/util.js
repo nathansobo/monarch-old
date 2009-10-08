@@ -1,4 +1,6 @@
-module("Util", {
+(function(Monarch) {
+
+Monarch.module("Util", {
   each: function(array_or_hash, fn) {
     if (array_or_hash.length) {
       this.array_each(array_or_hash, fn);
@@ -68,3 +70,5 @@ module("Util", {
     return values;
   }
 });
+
+})(Monarch);

@@ -1,16 +1,14 @@
-function constructor() {
-  Monarch.ModuleSystem.constructor.apply(Monarch.ModuleSystem, arguments);
-}
+Monarch = {
+  constructor: function() {
+    Monarch.ModuleSystem.constructor.apply(Monarch.ModuleSystem, arguments);
+  },
 
-function module() {
-  Monarch.ModuleSystem.module.apply(Monarch.ModuleSystem, arguments);
-}
+  module: function() {
+    Monarch.ModuleSystem.module.apply(Monarch.ModuleSystem, arguments);
+  }
+};
 
-function mixin() {
-  Monarch.ModuleSystem.mixin.apply(Monarch.ModuleSystem, arguments);
-}
-
-Monarch = {};
+(function(Monarch) {
 Monarch.ModuleSystem = {
   constructor: function() {
     var constructor_basename, containing_module;
@@ -129,3 +127,5 @@ Monarch.ModuleSystem = {
     return constructor_arguments;
   }
 };
+
+})(Monarch);

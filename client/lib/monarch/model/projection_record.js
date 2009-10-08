@@ -1,4 +1,6 @@
-constructor("Monarch.Model.ProjectionRecord", {
+(function(Monarch) {
+
+Monarch.constructor("Monarch.Model.ProjectionRecord", {
   constructor_properties: {
     initialize_field_readers: function() {
       var self = this;
@@ -33,3 +35,5 @@ constructor("Monarch.Model.ProjectionRecord", {
     }
   }
 });
+
+})(Monarch);

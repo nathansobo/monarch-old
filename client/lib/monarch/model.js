@@ -1,3 +1,5 @@
+(function(Monarch) {
+
 //= require "model/repository"
 //= require "model/record"
 //= require "model/projection_record"
@@ -13,3 +15,5 @@
 //= require "model/order_by_column"
 //= require "model/relations"
 //= require "model/predicates"
+
+})(Monarch);

@@ -1,3 +1,5 @@
+(function(Monarch) {
+
 // requires just the files necessary to support the view portion of monarch
 
 //= require <jquery-1.3.2>
@@ -13,3 +15,5 @@
 //= require "monarch/inflection"
 //= require "monarch/xml"
 //= require "monarch/view"
+
+})(Monarch);

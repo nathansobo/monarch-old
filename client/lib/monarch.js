@@ -1,3 +1,5 @@
+(function(Monarch) {
+
 //= require <jquery-1.3.2>
 //= require <jquery.history>
 //= require <htmlescape>
@@ -23,3 +25,5 @@
 Server = new Monarch.Http.Server();
 Repository = new Monarch.Model.Repository();
 History = new Monarch.View.History();
+
+})(Monarch);

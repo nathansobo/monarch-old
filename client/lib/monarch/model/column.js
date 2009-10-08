@@ -1,4 +1,6 @@
-constructor("Monarch.Model.Column", {
+(function(Monarch) {
+
+Monarch.constructor("Monarch.Model.Column", {
   initialize: function(table, name, type) {
     this.table = table;
     this.name = name;
@@ -45,3 +47,5 @@ constructor("Monarch.Model.Column", {
     return new Monarch.Model.ProjectedColumn(this, column_alias);
   }
 });
+
+})(Monarch);

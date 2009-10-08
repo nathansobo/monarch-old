@@ -1,4 +1,6 @@
-constructor("Monarch.Model.PendingFieldset", Monarch.Model.Fieldset, {
+(function(Monarch) {
+
+Monarch.constructor("Monarch.Model.PendingFieldset", Monarch.Model.Fieldset, {
   initialize: function(primary_fieldset) {
     this.record = primary_fieldset.record;
     this.fields_by_column_name = {};
@@ -27,3 +29,5 @@ constructor("Monarch.Model.PendingFieldset", Monarch.Model.Fieldset, {
     this.record.local_update(this.wire_representation(), options);
   }
 });
+
+})(Monarch);
