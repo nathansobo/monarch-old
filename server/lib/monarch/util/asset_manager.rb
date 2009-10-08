@@ -1,4 +1,4 @@
-module Http
+module Util
   class AssetManager
     class << self
       def instance

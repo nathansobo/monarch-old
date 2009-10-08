@@ -1,4 +1,4 @@
-module Http
+module Util
   class AssetLocation
     attr_reader :virtual_prefix, :physical_prefix
 

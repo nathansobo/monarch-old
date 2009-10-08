@@ -31,7 +31,7 @@ module Http
 #        use Benchmarker
         use Rack::ContentLength
         use Rack::ShowExceptions
-        use AssetService, AssetManager.instance
+        use AssetService, Util::AssetManager.instance
         use SessioningService
         run Dispatcher.instance
       end

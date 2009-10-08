@@ -16,7 +16,7 @@ module Http
           it "responds with the file's contents and does not proxy through to the next layer of the rack stack" do
             request = TestRequest.new
             request.path_info = "/extant_file/1.js"
-            physical_path = "#{dir}/file_system_fixtures_for_asset_manager_specs/dir_1/1.js"
+            physical_path = "#{dir}/../util/file_system_fixtures_for_asset_manager_specs/dir_1/1.js"
             mock(asset_manager).physicalize_path("/extant_file/1.js") { physical_path }
             dont_allow(proxied_app).call(request.env)
 

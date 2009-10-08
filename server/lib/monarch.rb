@@ -17,6 +17,7 @@ require "active_support/core_ext/string/starts_ends_with"
 require "active_support/duration"
 require "active_support/core_ext/numeric/time"
 
+require "#{dir}/monarch/util"
 require "#{dir}/monarch/http"
 require "#{dir}/monarch/model"
 require "#{dir}/monarch/core_extensions"
@@ -36,5 +37,5 @@ end
 Origin = Model::RemoteRepository.new
 
 MONARCH_ASSET_PREFIX = "" unless defined?(MONARCH_ASSET_PREFIX)
-Http::AssetManager.add_js_location("#{MONARCH_ASSET_PREFIX}/monarch/lib", "#{MONARCH_CLIENT_SERVER_ROOT}/lib")
-Http::AssetManager.add_js_location("#{MONARCH_ASSET_PREFIX}/monarch/vendor", "#{MONARCH_CLIENT_SERVER_ROOT}/vendor")
+Util::AssetManager.add_js_location("#{MONARCH_ASSET_PREFIX}/monarch/lib", "#{MONARCH_CLIENT_SERVER_ROOT}/lib")
+Util::AssetManager.add_js_location("#{MONARCH_ASSET_PREFIX}/monarch/vendor", "#{MONARCH_CLIENT_SERVER_ROOT}/vendor")

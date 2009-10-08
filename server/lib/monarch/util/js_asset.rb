@@ -1,4 +1,4 @@
-module Http
+module Util
   class JsAsset
     RELATIVE_REQUIRE_REGEX = /^\/\/= require\s+['"]([^'"]+)['"].*/
     GLOBAL_REQUIRE_REGEX = /^\/\/= require\s+<([^>]+)>.*/
