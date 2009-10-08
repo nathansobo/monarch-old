@@ -1,8 +1,8 @@
 //= require "xmpp/builder" 
 //= require "xmpp/template" 
 
-module("Xmpp", {
+module("Monarch.Xmpp", {
   build: function(content_fn) {
-    return Xmpp.Template.build(content_fn);
+    return Monarch.Xmpp.Template.build(content_fn);
   }
 });

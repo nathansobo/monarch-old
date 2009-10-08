@@ -1,7 +1,7 @@
 //= require "../../../monarch_spec_helper"
 
 Screw.Unit(function(c) { with(c) {
-  describe("Model.Relations.Relation (abstract superclass)", function() {
+  describe("Monarch.Model.Relations.Relation (abstract superclass)", function() {
     use_local_fixtures();
     var relation, insert, column_1, column_2;
 
@@ -49,7 +49,7 @@ Screw.Unit(function(c) { with(c) {
       it("returns a Selection with the receiver as its #operand and the given predicate as its #predicate", function() {
         var predicate = Blog.user_id.eq('The Pain of Motorcycle Maintenance');
         var selection = relation.where(predicate);
-        expect(selection.constructor).to(equal, Model.Relations.Selection);
+        expect(selection.constructor).to(equal, Monarch.Model.Relations.Selection);
         expect(selection.operand).to(equal, relation);
         expect(selection.predicate).to(equal, predicate);
       });
@@ -94,7 +94,7 @@ Screw.Unit(function(c) { with(c) {
           projected_column_2 = column_2.as('b');
           var projection = relation.project(projected_column_1, projected_column_2);
 
-          expect(projection).to(be_an_instance_of, Model.Relations.Projection);
+          expect(projection).to(be_an_instance_of, Monarch.Model.Relations.Projection);
           expect(projection.operand).to(equal, relation);
           expect(projection.projected_columns_by_name['a']).to(equal, projected_column_1);
           expect(projection.projected_columns_by_name['b']).to(equal, projected_column_2);
@@ -104,7 +104,7 @@ Screw.Unit(function(c) { with(c) {
       context("when passed Columns", function() {
         it("constructs a Projection with self as #operand and the given Columns converted to ProjectedColumns", function() {
           var projection = relation.project(column_1, column_2);
-          expect(projection).to(be_an_instance_of, Model.Relations.Projection);
+          expect(projection).to(be_an_instance_of, Monarch.Model.Relations.Projection);
           expect(projection.operand).to(equal, relation);
           expect(projection.projected_columns_by_name[column_1.name].column).to(equal, column_1);
           expect(projection.projected_columns_by_name[column_2.name].column).to(equal, column_2);
@@ -116,7 +116,7 @@ Screw.Unit(function(c) { with(c) {
       it("constructs a difference with self as the #left_operand and the given #right_operand", function() {
         var right_operand = Blog.where(Blog.user_id.eq("jan"));
         var difference = relation.difference(right_operand);
-        expect(difference).to(be_an_instance_of, Model.Relations.Difference);
+        expect(difference).to(be_an_instance_of, Monarch.Model.Relations.Difference);
         expect(difference.left_operand).to(equal, relation);
         expect(difference.right_operand).to(equal, right_operand);
       });

@@ -1,4 +1,4 @@
-constructor("Model.Fieldset", {
+constructor("Monarch.Model.Fieldset", {
   initialize: function(record) {
     if (!record) return;
 
@@ -10,7 +10,7 @@ constructor("Model.Fieldset", {
     var self = this;
 
     Util.each(table.columns_by_name, function(column_name, column) {
-      self.fields_by_column_name[column_name] = new Model.ConcreteField(self, column);
+      self.fields_by_column_name[column_name] = new Monarch.Model.ConcreteField(self, column);
     });
 
     this.enable_update_events();
@@ -20,12 +20,12 @@ constructor("Model.Fieldset", {
     var self = this;
     Util.each(this.record.table().synthetic_columns_by_name, function(column_name, column) {
       var signal = column.definition.call(self.record);
-      self.synthetic_fields_by_column_name[column_name] = new Model.SyntheticField(self, column, signal);
+      self.synthetic_fields_by_column_name[column_name] = new Monarch.Model.SyntheticField(self, column, signal);
     });
   },
 
   new_pending_fieldset: function() {
-    return new Model.PendingFieldset(this);
+    return new Monarch.Model.PendingFieldset(this);
   },
 
   field: function(column) {

@@ -1,4 +1,4 @@
-constructor("Model.ConcreteField", Model.Field, {
+constructor("Monarch.Model.ConcreteField", Monarch.Model.Field, {
   initialize: function(fieldset, column) {
     this.fieldset = fieldset;
     this.column = column;
@@ -6,7 +6,7 @@ constructor("Model.ConcreteField", Model.Field, {
   },
 
   clone_pending_field: function(fieldset) {
-    var pending_field = new Model.ConcreteField(fieldset, this.column);
+    var pending_field = new Monarch.Model.ConcreteField(fieldset, this.column);
     pending_field._value = this._value;
     pending_field.pending = true;
     return pending_field;

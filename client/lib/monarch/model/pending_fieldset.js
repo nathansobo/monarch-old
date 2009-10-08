@@ -1,4 +1,4 @@
-constructor("Model.PendingFieldset", Model.Fieldset, {
+constructor("Monarch.Model.PendingFieldset", Monarch.Model.Fieldset, {
   initialize: function(primary_fieldset) {
     this.record = primary_fieldset.record;
     this.fields_by_column_name = {};

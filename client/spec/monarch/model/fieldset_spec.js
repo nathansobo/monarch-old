@@ -1,13 +1,13 @@
 //= require "../../monarch_spec_helper"
 
 Screw.Unit(function(c) { with(c) {
-  describe("Model.Fieldset", function() {
+  describe("Monarch.Model.Fieldset", function() {
     use_example_domain_model();
 
     var record, fieldset;
     before(function() {
       record = new Blog();
-      fieldset = new Model.Fieldset(record);
+      fieldset = new Monarch.Model.Fieldset(record);
     });
 
     describe("#initialize(record)", function() {
@@ -15,12 +15,12 @@ Screw.Unit(function(c) { with(c) {
         var name_field = fieldset.field('name');
         var user_id_field = fieldset.field('user_id');
 
-//        console.debug(Model.ConcreteField);
-        expect(name_field).to(be_an_instance_of, Model.ConcreteField);
+//        console.debug(Monarch.Model.ConcreteField);
+        expect(name_field).to(be_an_instance_of, Monarch.Model.ConcreteField);
 //        expect(name_field.fieldset).to(equal, fieldset);
 //        expect(name_field.column).to(equal, Blog.name);
 //
-//        expect(user_id_field).to(be_an_instance_of, Model.ConcreteField);
+//        expect(user_id_field).to(be_an_instance_of, Monarch.Model.ConcreteField);
 //        expect(user_id_field.fieldset).to(equal, fieldset);
 //        expect(user_id_field.column).to(equal, Blog.user_id);
       });

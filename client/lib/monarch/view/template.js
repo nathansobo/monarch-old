@@ -1,4 +1,4 @@
-constructor("View.Template", Xml.Template, {
+constructor("Monarch.View.Template", Monarch.Xml.Template, {
   constructor_properties: {
     to_view: function(properties) {
       return new this().to_view(properties);
@@ -12,7 +12,7 @@ constructor("View.Template", Xml.Template, {
   },
 
   to_jquery: function(properties) {
-    var builder = new View.Builder(this);
+    var builder = new Monarch.View.Builder(this);
     this.builder = builder;
     this.content(properties);
     this.builder = null;

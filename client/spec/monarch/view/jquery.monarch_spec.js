@@ -5,7 +5,7 @@ Screw.Unit(function(c) { with(c) {
     var view;
 
     before(function() {
-      view = View.build(function(b) {
+      view = Monarch.View.build(function(b) {
         b.div(function() {
           b.div({id: "foo"});
           b.div({id: "bar"});

@@ -1,4 +1,4 @@
-constructor("View.Builder", Xml.Builder, {
+constructor("Monarch.View.Builder", Monarch.Xml.Builder, {
   constructor_properties: {
     supported_tags: [
       'acronym', 'address', 'area', 'b', 'base', 'bdo', 'big', 'blockquote', 'body',

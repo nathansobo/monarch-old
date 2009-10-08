@@ -1,4 +1,4 @@
-constructor("Xml.CloseTag", {
+constructor("Monarch.Xml.CloseTag", {
   constructor_properties: {
     initialize: function() {
       this.generate_event_methods();

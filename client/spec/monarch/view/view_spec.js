@@ -1,7 +1,7 @@
 //= require "../../monarch_spec_helper"
 
 Screw.Unit(function(c) { with(c) {
-  describe("Views constructed with View.Template#to_view", function() {
+  describe("Views constructed with Monarch.View.Template#to_view", function() {
     after(function() {
       delete window['TestTemplate'];
     });
@@ -10,7 +10,7 @@ Screw.Unit(function(c) { with(c) {
       var view, model;
 
       before(function() {
-        ModuleSystem.constructor("TestTemplate", View.Template, {
+        ModuleSystem.constructor("TestTemplate", Monarch.View.Template, {
           content: function() { with(this.builder) {
             div(function() {
               input({name: "foo", value: "Foo"}).ref('foo');
@@ -102,7 +102,7 @@ Screw.Unit(function(c) { with(c) {
       var view, view_properties;
 
       before(function() {
-        ModuleSystem.constructor("TestTemplate", View.Template, {
+        ModuleSystem.constructor("TestTemplate", Monarch.View.Template, {
           content: function() { with(this.builder) {
             div("Hello");
           }},

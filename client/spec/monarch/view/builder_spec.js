@@ -1,10 +1,10 @@
 //= require "../../monarch_spec_helper"
 
 Screw.Unit(function(c) { with(c) {
-  describe("View.Builder", function() {
+  describe("Monarch.View.Builder", function() {
     var builder;
     before(function() {
-      builder = new View.Builder();
+      builder = new Monarch.View.Builder();
     });
 
     describe("#a", function() {
@@ -29,7 +29,7 @@ Screw.Unit(function(c) { with(c) {
 
     describe("#subview", function() {
       before(function() {
-        ModuleSystem.constructor("ExampleSubviewTemplate", View.Template, {
+        ModuleSystem.constructor("ExampleSubviewTemplate", Monarch.View.Template, {
           content: function(props) { with (this.builder) {
             div({'class': "subview"}, function() {
               h1("Subview " + props.subview_number);

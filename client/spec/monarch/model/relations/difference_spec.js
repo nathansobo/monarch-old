@@ -1,7 +1,7 @@
 //= require "../../../monarch_spec_helper"
 
 Screw.Unit(function(c) { with(c) {
-  describe("Model.Relations.Difference", function() {
+  describe("Monarch.Model.Relations.Difference", function() {
     use_local_fixtures();
     
     var left_operand, right_operand, difference;
@@ -11,7 +11,7 @@ Screw.Unit(function(c) { with(c) {
       expect(left_operand.records()).to_not(be_empty);
       expect(right_operand.records()).to_not(be_empty);
 
-      difference = new Model.Relations.Difference(left_operand, right_operand);
+      difference = new Monarch.Model.Relations.Difference(left_operand, right_operand);
     });
 
 

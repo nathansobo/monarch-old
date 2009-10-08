@@ -1,4 +1,4 @@
-constructor("Model.Relations.Difference", Model.Relations.Relation, {
+constructor("Monarch.Model.Relations.Difference", Monarch.Model.Relations.Relation, {
   initialize: function(left_operand, right_operand) {
     this.left_operand = left_operand;
     this.right_operand = right_operand;

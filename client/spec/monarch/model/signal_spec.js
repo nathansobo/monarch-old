@@ -1,7 +1,7 @@
 //= require "../../monarch_spec_helper"
 
 Screw.Unit(function(c) { with(c) {
-  describe("Model.Signal", function() {
+  describe("Monarch.Model.Signal", function() {
     use_local_fixtures();
     var field, source, signal, transformer;
 
@@ -12,7 +12,7 @@ Screw.Unit(function(c) { with(c) {
     });
 
     before(function() {
-      signal = new Model.Signal(source, transformer);
+      signal = new Monarch.Model.Signal(source, transformer);
     });
 
     scenario("when the #source is a Field", function() {
@@ -84,7 +84,7 @@ Screw.Unit(function(c) { with(c) {
     describe("#signal", function() {
       it("returns a Signal based on the receiver", function() {
         var secondary_signal = signal.signal();
-        expect(secondary_signal instanceof Model.Signal).to(be_true);
+        expect(secondary_signal instanceof Monarch.Model.Signal).to(be_true);
         expect(secondary_signal.source).to(equal, signal);
       });
     });

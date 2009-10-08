@@ -1,11 +1,11 @@
 //= require "../../monarch_spec_helper"
 
 Screw.Unit(function(c) { with(c) {
-  describe("Http.RepositoryUpdateFuture", function() {
+  describe("Monarch.Http.RepositoryUpdateFuture", function() {
     var future, event_type;
 
     before(function() {
-      future = new Http.RepositoryUpdateFuture();
+      future = new Monarch.Http.RepositoryUpdateFuture();
     });
 
     scenario("#before_events", function() {

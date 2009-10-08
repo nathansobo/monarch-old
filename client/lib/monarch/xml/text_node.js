@@ -1,4 +1,4 @@
-constructor("Xml.TextNode", {
+constructor("Monarch.Xml.TextNode", {
   initialize: function(text) {
     this.text = text;
   },

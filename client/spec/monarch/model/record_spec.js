@@ -1,19 +1,19 @@
 //= require "../../monarch_spec_helper"
 
 Screw.Unit(function(c) { with(c) {
-  describe("Model.Record", function() {
+  describe("Monarch.Model.Record", function() {
     use_local_fixtures();
 
     describe("when a subsconstructor is declared", function() {
       it("associates the subconstructor with a Table whose #global_name is the underscored subconstructor name", function() {
         var table = Blog.table;
-        expect(table.constructor).to(equal, Model.Relations.Table);
+        expect(table.constructor).to(equal, Monarch.Model.Relations.Table);
         expect(table.global_name).to(equal, "blogs");
         expect(table.record_constructor).to(equal, Blog);
       });
 
       it("automatically gives the subconstructor an 'id' Column with a type of 'string'", function() {
-        expect(Blog.id).to(be_an_instance_of, Model.Column);
+        expect(Blog.id).to(be_an_instance_of, Monarch.Model.Column);
         expect(Blog.id.name).to(equal, "id");
         expect(Blog.id.type).to(equal, "string");
       });
@@ -26,7 +26,7 @@ Screw.Unit(function(c) { with(c) {
     describe(".column(name, type)", function() {
       before(function() {
         delete window['Blog'];
-        ModuleSystem.constructor("Blog", Model.Record);
+        ModuleSystem.constructor("Blog", Monarch.Model.Record);
         Blog.column("user_id", "string");
       });
 
@@ -87,7 +87,7 @@ Screw.Unit(function(c) { with(c) {
           User.has_many('blogs', { order_by: "name desc" });
           var user = User.local_create({id: "jerry"});
           var ordering = user.blogs();
-          expect(ordering.constructor).to(equal, Model.Relations.Ordering);
+          expect(ordering.constructor).to(equal, Monarch.Model.Relations.Ordering);
           expect(ordering.order_by_columns[0].column).to(equal, Blog.name);
           expect(ordering.order_by_columns[0].direction).to(equal, "desc");
         });
@@ -98,7 +98,7 @@ Screw.Unit(function(c) { with(c) {
           User.has_many('blogs', { order_by: ["name desc", "user_id"]});
           var user = User.local_create({id: "jerry"});
           var ordering = user.blogs();
-          expect(ordering.constructor).to(equal, Model.Relations.Ordering);
+          expect(ordering.constructor).to(equal, Monarch.Model.Relations.Ordering);
           expect(ordering.order_by_columns.length).to(equal, 2);
           expect(ordering.order_by_columns[0].column).to(equal, Blog.name);
           expect(ordering.order_by_columns[0].direction).to(equal, "desc");

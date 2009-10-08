@@ -1,4 +1,4 @@
-constructor("View.History", {
+constructor("Monarch.View.History", {
   on_change: function(callback) {
     jQuery.historyInit(callback);
   },

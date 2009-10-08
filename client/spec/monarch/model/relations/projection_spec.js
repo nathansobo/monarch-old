@@ -1,14 +1,14 @@
 //= require "../../../monarch_spec_helper"
 
 Screw.Unit(function(c) { with(c) {
-  describe("Model.Relations.Projection", function() {
+  describe("Monarch.Model.Relations.Projection", function() {
     use_local_fixtures();
     
     var operand, projected_columns, projection;
     before(function() {
       operand = Blog.table;
-      projected_columns = [new Model.ProjectedColumn(Blog.user_id), Blog.name.as('blog_name')];
-      projection = new Model.Relations.Projection(operand, projected_columns);
+      projected_columns = [new Monarch.Model.ProjectedColumn(Blog.user_id), Blog.name.as('blog_name')];
+      projection = new Monarch.Model.Relations.Projection(operand, projected_columns);
     });
 
 

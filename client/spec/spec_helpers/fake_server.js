@@ -76,7 +76,7 @@ constructor("FakeServer", {
 
 constructor("FakeServer.FakeRequest", {
   initialize: function(type, url, data) {
-    this.future = new Http.AjaxFuture();
+    this.future = new Monarch.Http.AjaxFuture();
     this.type = type;
     this.url = url;
     this.data = data;
@@ -102,7 +102,7 @@ constructor("FakeServer.FakeFetch", {
     this.url = url;
     this.relations = relations;
     this.fixture_repository = fixture_repository;
-    this.future = new Http.RepositoryUpdateFuture();
+    this.future = new Monarch.Http.RepositoryUpdateFuture();
   },
 
   simulate_success: function() {
@@ -143,7 +143,7 @@ constructor("FakeServer.FakeCreate", {
     this.url = url;
     this.relation = relation;
     this.field_values = field_values;
-    this.future = new Http.RepositoryUpdateFuture();
+    this.future = new Monarch.Http.RepositoryUpdateFuture();
   },
 
   simulate_success: function() {

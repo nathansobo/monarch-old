@@ -1,11 +1,11 @@
 //= require "../../monarch_spec_helper"
 
 Screw.Unit(function(c) { with(c) {
-  describe("View.Template", function() {
+  describe("Monarch.View.Template", function() {
     var template;
 
     before(function() {
-      ModuleSystem.constructor("ExampleTemplate", View.Template, {
+      ModuleSystem.constructor("ExampleTemplate", Monarch.View.Template, {
         content: function(props) { with(this.builder) {
           div({'id': "root"}, function() {
             dl(function() {

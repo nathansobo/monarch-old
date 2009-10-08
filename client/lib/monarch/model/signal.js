@@ -1,4 +1,4 @@
-constructor("Model.Signal", {
+constructor("Monarch.Model.Signal", {
   initialize: function(source, optional_transformer) {
     this.source = source;
     this.transformer = optional_transformer;
@@ -24,7 +24,7 @@ constructor("Model.Signal", {
   },
 
   signal: function() {
-    return new Model.Signal(this);
+    return new Monarch.Model.Signal(this);
   },
 
   on_update: function(callback) {

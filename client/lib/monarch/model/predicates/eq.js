@@ -1,4 +1,4 @@
-constructor("Model.Predicates.Eq", {
+constructor("Monarch.Model.Predicates.Eq", {
   initialize: function(left_operand, right_operand) {
     this.left_operand = left_operand;
     this.right_operand = right_operand;
@@ -23,9 +23,9 @@ constructor("Model.Predicates.Eq", {
   },
 
   column_operand: function() {
-    if (this.left_operand instanceof Model.Column) {
+    if (this.left_operand instanceof Monarch.Model.Column) {
       return this.left_operand;
-    } else if (this.right_operand instanceof Model.Column) {
+    } else if (this.right_operand instanceof Monarch.Model.Column) {
       return this.right_operand;
     } else {
       throw new Error("No operands are columns on this predicate");
@@ -33,9 +33,9 @@ constructor("Model.Predicates.Eq", {
   },
 
   scalar_operand: function() {
-    if (!(this.left_operand instanceof Model.Column)) {
+    if (!(this.left_operand instanceof Monarch.Model.Column)) {
       return this.left_operand;
-    } else if (!(this.right_operand instanceof Model.Column)) {
+    } else if (!(this.right_operand instanceof Monarch.Model.Column)) {
       return this.right_operand;
     } else {
       throw new Error("No operands are scalars on this predicate");
@@ -43,7 +43,7 @@ constructor("Model.Predicates.Eq", {
   },
 
   operand_wire_representation: function(operand) {
-    if (operand instanceof Model.Column) {
+    if (operand instanceof Monarch.Model.Column) {
       return operand.wire_representation();
     } else {
       return {

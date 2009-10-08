@@ -1,4 +1,4 @@
-constructor("Model.Relations.Relation", {
+constructor("Monarch.Model.Relations.Relation", {
   has_operands: true,
 
   initialize_events_system: function() {
@@ -12,15 +12,15 @@ constructor("Model.Relations.Relation", {
   },
 
   where: function(predicate) {
-    return new Model.Relations.Selection(this, predicate);
+    return new Monarch.Model.Relations.Selection(this, predicate);
   },
 
   order_by: function() {
     var self = this;
     var order_by_columns = Util.map(Util.to_array(arguments), function(order_by_column) {
-      if (order_by_column instanceof Model.OrderByColumn) {
+      if (order_by_column instanceof Monarch.Model.OrderByColumn) {
         return order_by_column;
-      } else if (order_by_column instanceof Model.Column) {
+      } else if (order_by_column instanceof Monarch.Model.Column) {
         return order_by_column.asc();
       } else if (typeof order_by_column == "string") {
         var parts = order_by_column.split(/ +/);
@@ -36,24 +36,24 @@ constructor("Model.Relations.Relation", {
       }
     });
 
-    return new Model.Relations.Ordering(this, order_by_columns);
+    return new Monarch.Model.Relations.Ordering(this, order_by_columns);
   },
 
   project: function() {
     var projected_columns = Util.map(Util.to_array(arguments), function(arg) {
-      if (arg instanceof Model.ProjectedColumn) {
+      if (arg instanceof Monarch.Model.ProjectedColumn) {
         return arg;
-      } else if (arg instanceof Model.Column) {
-        return new Model.ProjectedColumn(arg);
+      } else if (arg instanceof Monarch.Model.Column) {
+        return new Monarch.Model.ProjectedColumn(arg);
       } else {
         throw new Error("#project takes Columns or ProjectedColumns only");
       }
     });
-    return new Model.Relations.Projection(this, projected_columns);
+    return new Monarch.Model.Relations.Projection(this, projected_columns);
   },
 
   difference: function(right_operand) {
-    return new Model.Relations.Difference(this, right_operand);
+    return new Monarch.Model.Relations.Difference(this, right_operand);
   },
 
   each: function(fn) {

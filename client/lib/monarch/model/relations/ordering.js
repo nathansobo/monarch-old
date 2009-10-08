@@ -1,4 +1,4 @@
-constructor("Model.Relations.Ordering", Model.Relations.Relation, {
+constructor("Monarch.Model.Relations.Ordering", Monarch.Model.Relations.Relation, {
   initialize: function(operand, order_by_columns) {
     this.operand = operand;
     this.order_by_columns = order_by_columns;
@@ -30,7 +30,7 @@ constructor("Model.Relations.Ordering", Model.Relations.Relation, {
   },
 
   evaluate_in_repository: function(repository) {
-    return new Model.Relations.Ordering(this.operand.evaluate_in_repository(repository), this.order_by_columns);
+    return new Monarch.Model.Relations.Ordering(this.operand.evaluate_in_repository(repository), this.order_by_columns);
   },
 
   primary_table: function() {

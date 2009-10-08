@@ -1,4 +1,4 @@
-constructor("Model.Column", {
+constructor("Monarch.Model.Column", {
   initialize: function(table, name, type) {
     this.table = table;
     this.name = name;
@@ -6,15 +6,15 @@ constructor("Model.Column", {
   },
 
   eq: function(right_operand) {
-    return new Model.Predicates.Eq(this, right_operand);
+    return new Monarch.Model.Predicates.Eq(this, right_operand);
   },
 
   asc: function() {
-    return new Model.OrderByColumn(this, 'asc');
+    return new Monarch.Model.OrderByColumn(this, 'asc');
   },
 
   desc: function() {
-    return new Model.OrderByColumn(this, 'desc');
+    return new Monarch.Model.OrderByColumn(this, 'desc');
   },
 
   wire_representation: function() {
@@ -42,6 +42,6 @@ constructor("Model.Column", {
   },
 
   as: function(column_alias) {
-    return new Model.ProjectedColumn(this, column_alias);
+    return new Monarch.Model.ProjectedColumn(this, column_alias);
   }
 });

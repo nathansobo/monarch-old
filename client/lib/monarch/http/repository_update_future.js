@@ -1,4 +1,4 @@
-constructor("Http.RepositoryUpdateFuture", {
+constructor("Monarch.Http.RepositoryUpdateFuture", {
   initialize: function() {
     this.before_events_node = new SubscriptionNode();
     this.after_events_node = new SubscriptionNode();

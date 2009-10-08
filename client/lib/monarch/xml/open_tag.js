@@ -1,4 +1,4 @@
-constructor("Xml.OpenTag", {
+constructor("Monarch.Xml.OpenTag", {
   initialize: function(name, attributes) {
     this.name = name;
     this.attributes = attributes;

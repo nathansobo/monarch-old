@@ -1,4 +1,4 @@
-constructor("Model.ProjectionRecord", {
+constructor("Monarch.Model.ProjectionRecord", {
   constructor_properties: {
     initialize_field_readers: function() {
       var self = this;
@@ -26,7 +26,7 @@ constructor("Model.ProjectionRecord", {
   },
 
   evaluate: function(column_or_constant) {
-    if (column_or_constant instanceof Model.ProjectedColumn) {
+    if (column_or_constant instanceof Monarch.Model.ProjectedColumn) {
       return this.field(column_or_constant).value();
     } else {
       return column_or_constant;

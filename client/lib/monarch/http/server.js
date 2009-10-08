@@ -1,6 +1,6 @@
-constructor("Http.Server", {
+constructor("Monarch.Http.Server", {
   fetch: function(relations) {
-    var fetch_future = new Http.RepositoryUpdateFuture();
+    var fetch_future = new Monarch.Http.RepositoryUpdateFuture();
 
     start = new Date().getTime();
 
@@ -38,7 +38,7 @@ constructor("Http.Server", {
   },
 
   request: function(type, url, data) {
-    var future = new Http.AjaxFuture();
+    var future = new Monarch.Http.AjaxFuture();
     jQuery.ajax({
       url: url,
       type: type,

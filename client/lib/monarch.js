@@ -20,6 +20,6 @@
 //= require "monarch/xmpp"
 //= require "monarch/model"
 
-Server = new Http.Server();
-Repository = new Model.Repository();
-History = new View.History();
+Server = new Monarch.Http.Server();
+Repository = new Monarch.Model.Repository();
+History = new Monarch.View.History();

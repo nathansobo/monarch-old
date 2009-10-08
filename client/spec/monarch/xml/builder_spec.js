@@ -1,10 +1,10 @@
 //= require "../../monarch_spec_helper"
 
 Screw.Unit(function(c) { with(c) {
-  describe("Xml.Builder", function() {
+  describe("Monarch.Xml.Builder", function() {
     var builder;
     before(function() {
-      ModuleSystem.constructor("SampleBuilder", Xml.Builder, {
+      ModuleSystem.constructor("SampleBuilder", Monarch.Xml.Builder, {
         constructor_properties: {
           supported_tags: ["div", "p", "br"],
           self_closing_tags: { br: 1 }
@@ -188,7 +188,7 @@ Screw.Unit(function(c) { with(c) {
 
           it("returns the SelfClosingTag instruction", function() {
             var instruction = builder.tag("br")
-            expect(instruction.constructor).to(equal, Xml.SelfClosingTag);
+            expect(instruction.constructor).to(equal, Monarch.Xml.SelfClosingTag);
             expect(instruction.name).to(equal, "br");
           });
         });
@@ -201,10 +201,10 @@ Screw.Unit(function(c) { with(c) {
 
           it("returns the CloseTag instruction with a reference to the OpenTag instruction", function() {
             var instruction = builder.tag("div");
-            expect(instruction.constructor).to(equal, Xml.CloseTag);
+            expect(instruction.constructor).to(equal, Monarch.Xml.CloseTag);
             expect(instruction.name).to(equal, "div");
             var open_tag_instruction = instruction.open_tag_instruction;
-            expect(open_tag_instruction.constructor).to(equal, Xml.OpenTag);
+            expect(open_tag_instruction.constructor).to(equal, Monarch.Xml.OpenTag);
             expect(open_tag_instruction.name).to(equal, "div");
           });
         });
@@ -268,10 +268,10 @@ Screw.Unit(function(c) { with(c) {
           });
 
           it("returns the CloseTag instruction with a reference to the OpenTag instruction", function() {
-            expect(instruction.constructor).to(equal, Xml.CloseTag);
+            expect(instruction.constructor).to(equal, Monarch.Xml.CloseTag);
             expect(instruction.name).to(equal, "div");
             var open_tag_instruction = instruction.open_tag_instruction;
-            expect(open_tag_instruction.constructor).to(equal, Xml.OpenTag);
+            expect(open_tag_instruction.constructor).to(equal, Monarch.Xml.OpenTag);
             expect(open_tag_instruction.name).to(equal, "div");
           });
         });

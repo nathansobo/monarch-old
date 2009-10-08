@@ -1,7 +1,7 @@
-constructor("Model.Record", {
+constructor("Monarch.Model.Record", {
   constructor_properties: {
     extended: function(subconstructor) {
-      subconstructor.table = new Model.Relations.Table(this.determine_global_name(subconstructor), subconstructor);
+      subconstructor.table = new Monarch.Model.Relations.Table(this.determine_global_name(subconstructor), subconstructor);
       subconstructor.column("id", "string");
       subconstructor.relation_definitions = [];
       Repository.register_table(subconstructor.table);
@@ -114,7 +114,7 @@ constructor("Model.Record", {
   },
 
   initialize: function(field_values_by_column_name) {
-    this.primary_fieldset = new Model.Fieldset(this);
+    this.primary_fieldset = new Monarch.Model.Fieldset(this);
     this.active_fieldset = this.primary_fieldset;
     if (field_values_by_column_name) {
       this.active_fieldset.disable_update_events();
@@ -129,7 +129,7 @@ constructor("Model.Record", {
     this.fields_by_column_name = {};
     for (var attr_name in this.constructor.table.columns_by_name) {
       var column = this.constructor.table.columns_by_name[attr_name];
-      this.fields_by_column_name[attr_name] = new Model.ConcreteField(this, column);
+      this.fields_by_column_name[attr_name] = new Monarch.Model.ConcreteField(this, column);
     }
   },
 
@@ -164,7 +164,7 @@ constructor("Model.Record", {
   },
 
   push_update: function() {
-    var push_future = new Http.RepositoryUpdateFuture();
+    var push_future = new Monarch.Http.RepositoryUpdateFuture();
     var pending_fieldset = this.active_fieldset;
     this.restore_primary_fieldset();
 
@@ -190,7 +190,7 @@ constructor("Model.Record", {
 
   push_create: function() {
     var self = this;
-    var push_future = new Http.RepositoryUpdateFuture();
+    var push_future = new Monarch.Http.RepositoryUpdateFuture();
     Server.post(Repository.origin_url, {
       relation: this.table().wire_representation(),
       field_values: this.wire_representation()
@@ -244,7 +244,7 @@ constructor("Model.Record", {
   },
 
   evaluate: function(column_or_constant) {
-    if (column_or_constant instanceof Model.Column) {
+    if (column_or_constant instanceof Monarch.Model.Column) {
       return this.field(column_or_constant).value();
     } else {
       return column_or_constant;

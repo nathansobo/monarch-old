@@ -1,4 +1,4 @@
-constructor("Model.Relations.Projection", Model.Relations.Relation, {
+constructor("Monarch.Model.Relations.Projection", Monarch.Model.Relations.Relation, {
   initialize: function(operand, projected_columns) {
     var self = this;
     this.operand = operand;
@@ -7,7 +7,7 @@ constructor("Model.Relations.Projection", Model.Relations.Relation, {
       self.projected_columns_by_name[projected_column.name()] = projected_column;
     });
 
-    this.record_constructor = ModuleSystem.constructor(Model.ProjectionRecord);
+    this.record_constructor = ModuleSystem.constructor(Monarch.Model.ProjectionRecord);
 
     this.record_constructor.projected_columns_by_name = this.projected_columns_by_name;
     this.record_constructor.initialize_field_readers();

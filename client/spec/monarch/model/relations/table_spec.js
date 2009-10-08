@@ -1,12 +1,12 @@
 //= require "../../../monarch_spec_helper"
 
 Screw.Unit(function(c) { with(c) {
-  describe("Model.Relations.Table", function() {
+  describe("Monarch.Model.Relations.Table", function() {
     use_local_fixtures();
 
     var table;
     before(function() {
-      table = new Model.Relations.Table("programming_languages");
+      table = new Monarch.Model.Relations.Table("programming_languages");
     });
 
     describe("#define_column", function() {
@@ -17,7 +17,7 @@ Screw.Unit(function(c) { with(c) {
 
       it("adds a Column with the given name and type to #columns_by_name and returns it", function() {
         expect(column).to(equal, table.columns_by_name.family_id);
-        expect(column.constructor).to(equal, Model.Column);
+        expect(column.constructor).to(equal, Monarch.Model.Column);
         expect(column.name).to(equal, 'family_id');
         expect(column.type).to(equal, 'string');
       });

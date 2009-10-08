@@ -1,4 +1,4 @@
-constructor("Model.Relations.Selection", Model.Relations.Relation, {
+constructor("Monarch.Model.Relations.Selection", Monarch.Model.Relations.Relation, {
 
   initialize: function(operand, predicate) {
     this.operand = operand;
@@ -55,7 +55,7 @@ constructor("Model.Relations.Selection", Model.Relations.Relation, {
   },
 
   evaluate_in_repository: function(repository) {
-    return new Model.Relations.Selection(this.operand.evaluate_in_repository(repository), this.predicate);
+    return new Monarch.Model.Relations.Selection(this.operand.evaluate_in_repository(repository), this.predicate);
   },
 
   primary_table: function() {

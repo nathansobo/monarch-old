@@ -4,8 +4,8 @@
 //= require "view/templates"
 //= require "view/history"
 
-module("View", {
+module("Monarch.View", {
   build: function(content_fn) {
-    return View.Template.build(content_fn);
+    return Monarch.View.Template.build(content_fn);
   }
 });

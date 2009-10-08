@@ -1,3 +1,3 @@
-constructor("Xmpp.Template", Xml.Template, {
-  builder_constructor: Xmpp.Builder
+constructor("Monarch.Xmpp.Template", Monarch.Xml.Template, {
+  builder_constructor: Monarch.Xmpp.Builder
 });

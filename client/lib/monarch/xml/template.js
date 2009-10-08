@@ -1,4 +1,4 @@
-constructor("Xml.Template", {
+constructor("Monarch.Xml.Template", {
   constructor_properties: {
     to_jquery: function(properties) {
       return new this().to_jquery(properties);
@@ -13,7 +13,7 @@ constructor("Xml.Template", {
     }
   },
 
-  builder_constructor: Xml.Builder,
+  builder_constructor: Monarch.Xml.Builder,
 
   to_jquery: function(properties) {
     var builder = new this.builder_constructor(this);

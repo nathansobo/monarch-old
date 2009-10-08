@@ -8,7 +8,7 @@ Screw.Unit(function(c) { with(c) {
 
     before(function() {
       operand = User.table;
-      ordering = new Model.Relations.Ordering(operand, [order_by_column_1, order_by_column_2]);
+      ordering = new Monarch.Model.Relations.Ordering(operand, [order_by_column_1, order_by_column_2]);
     });
 
     describe("#records", function() {

@@ -1,4 +1,4 @@
-constructor("Model.SyntheticField", Model.Field, {
+constructor("Monarch.Model.SyntheticField", Monarch.Model.Field, {
   initialize: function(fieldset, column, signal) {
     this.fieldset = fieldset;
     this.signal = signal;

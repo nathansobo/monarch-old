@@ -1,4 +1,4 @@
-constructor("Model.ProjectedColumn", {
+constructor("Monarch.Model.ProjectedColumn", {
   initialize: function(column, column_alias) {
     this.column = column;
     this.column_alias = column_alias;
@@ -9,6 +9,6 @@ constructor("Model.ProjectedColumn", {
   },
 
   eq: function(right_operand) {
-    return new Model.Predicates.Eq(this, right_operand);
+    return new Monarch.Model.Predicates.Eq(this, right_operand);
   }
 });

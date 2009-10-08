@@ -1,4 +1,4 @@
-constructor("Model.Repository", {
+constructor("Monarch.Model.Repository", {
   initialize: function() {
     this.tables = {};
   },
@@ -47,7 +47,7 @@ constructor("Model.Repository", {
   },
 
   clone_schema: function() {
-    var clone = new Model.Repository();
+    var clone = new Monarch.Model.Repository();
     Util.each(this.tables, function(global_name, table) {
       clone.register_table(table.clone_schema());
     });

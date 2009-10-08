@@ -1,11 +1,11 @@
 //= require "../../monarch_spec_helper"
 
 Screw.Unit(function(c) { with(c) {
-  describe("Http.Server", function() {
+  describe("Monarch.Http.Server", function() {
     var server;
 
     before(function() {
-      server = new Http.Server();
+      server = new Monarch.Http.Server();
     });
 
 
@@ -183,7 +183,7 @@ Screw.Unit(function(c) { with(c) {
         expect(JSON.parse(ajax_options.data.corge)).to(equal, data.corge);
         expect(JSON.parse(ajax_options.data.grault)).to(equal, data.grault);
 
-        expect(future.constructor).to(equal, Http.AjaxFuture);
+        expect(future.constructor).to(equal, Monarch.Http.AjaxFuture);
 
         mock(future, 'handle_response');
 

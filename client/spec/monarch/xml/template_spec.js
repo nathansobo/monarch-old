@@ -1,11 +1,11 @@
 //= require "../../monarch_spec_helper"
 
 Screw.Unit(function(c) { with(c) {
-  describe("View.Template", function() {
+  describe("Monarch.View.Template", function() {
     var template;
 
     before(function() {
-      ModuleSystem.constructor("ExampleTemplate", Xml.Template, {
+      ModuleSystem.constructor("ExampleTemplate", Monarch.Xml.Template, {
         content: function(props) { with(this.builder) {
           tag('div', {id: 'root'});
         }}
@@ -27,7 +27,7 @@ Screw.Unit(function(c) { with(c) {
 
     describe(".build(content_fn)", function() {
       it("instantiates an anonymous Template with the given function as its content method (except it is passed the builder as a param), then returns the result of calling #to_jquery on it", function() {
-        var jquery_fragment = View.Template.build(function(b) { with(b) {
+        var jquery_fragment = Monarch.View.Template.build(function(b) { with(b) {
           tag('div', {id: "foo"}, function() {
             tag('div', "BAR", {id: "bar"});
           });

@@ -1,4 +1,4 @@
-constructor("Model.Relations.Table", Model.Relations.Relation, {
+constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Relation, {
   has_operands: false,
 
   initialize: function(global_name, record_constructor) {
@@ -13,11 +13,11 @@ constructor("Model.Relations.Table", Model.Relations.Relation, {
   },
 
   define_column: function(name, type) {
-    return this.columns_by_name[name] = new Model.Column(this, name, type);
+    return this.columns_by_name[name] = new Monarch.Model.Column(this, name, type);
   },
 
   define_synthetic_column: function(name, definition) {
-    return this.synthetic_columns_by_name[name] = new Model.SyntheticColumn(this, name, definition);
+    return this.synthetic_columns_by_name[name] = new Monarch.Model.SyntheticColumn(this, name, definition);
   },
 
   column: function(name) {
@@ -97,7 +97,7 @@ constructor("Model.Relations.Table", Model.Relations.Relation, {
   },
 
   clone_schema: function() {
-    var clone = new Model.Relations.Table(this.global_name, this.record_constructor);
+    var clone = new Monarch.Model.Relations.Table(this.global_name, this.record_constructor);
     clone.columns_by_name = this.columns_by_name;
     return clone;
   },
