@@ -59,6 +59,10 @@ module Util
       virtual_dependency_paths_from_physical_paths(physical_paths, virtual_dependency_paths)
     end
 
+    def physical_dependency_paths_from_load_path(relative_paths, virtual_dependency_paths = [])
+      virtual_dependency_paths_from_load_path(relative_paths, virtual_dependency_paths).map { |virtual_path| physicalize_path(virtual_path) }
+    end
+
     def virtual_dependency_paths_from_physical_paths(physical_paths, virtual_dependency_paths = [])
       physical_paths.each do |physical_path|
         js_asset = JsAsset.new(physical_path, self)
