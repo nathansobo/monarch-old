@@ -7,7 +7,7 @@ Monarch.constructor("Monarch.Http.Server", {
     start = new Date().getTime();
 
     Server.get(Repository.origin_url, {
-      relations: Util.map(relations, function(relation) {
+      relations: Monarch.Util.map(relations, function(relation) {
         return relation.wire_representation();
       })
     })
@@ -55,7 +55,7 @@ Monarch.constructor("Monarch.Http.Server", {
 
   stringify_json_data: function(data) {
     var stringified_data = {};
-    Util.each(data, function(key, value) {
+    Monarch.Util.each(data, function(key, value) {
       if (typeof value == "object") value = JSON.stringify(value);
       stringified_data[key] = value;
     });

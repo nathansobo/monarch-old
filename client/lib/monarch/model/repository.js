@@ -6,20 +6,20 @@ Monarch.constructor("Monarch.Model.Repository", {
   },
 
   pause_events: function() {
-    Util.each(this.tables, function(name, table) {
+    Monarch.Util.each(this.tables, function(name, table) {
       table.pause_events();
     });
   },
 
   resume_events: function() {
-    Util.each(this.tables, function(name, table) {
+    Monarch.Util.each(this.tables, function(name, table) {
       table.resume_events();
     });
   },
 
   update: function(dataset) {
     var self = this;
-    Util.each(dataset, function(table_name, table_dataset) {
+    Monarch.Util.each(dataset, function(table_name, table_dataset) {
       self.tables[table_name].update(table_dataset);
     });
   },
@@ -30,27 +30,27 @@ Monarch.constructor("Monarch.Model.Repository", {
 
   fixtures: function(fixture_definitions) {
     var self = this;
-    Util.each(fixture_definitions, function(table_name, fixtures) {
+    Monarch.Util.each(fixture_definitions, function(table_name, fixtures) {
       self.tables[table_name].fixtures(fixtures);
     });
   },
 
   load_fixtures: function(fixture_definitions) {
     if (fixture_definitions) this.fixtures(fixture_definitions);
-    Util.each(this.tables, function(global_name, table) {
+    Monarch.Util.each(this.tables, function(global_name, table) {
       table.load_fixtures();
     });
   },
 
   clear: function() {
-    Util.each(this.tables, function(global_name, table) {
+    Monarch.Util.each(this.tables, function(global_name, table) {
       table.clear();
     });
   },
 
   clone_schema: function() {
     var clone = new Monarch.Model.Repository();
-    Util.each(this.tables, function(global_name, table) {
+    Monarch.Util.each(this.tables, function(global_name, table) {
       clone.register_table(table.clone_schema());
     });
     return clone;

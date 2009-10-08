@@ -11,7 +11,7 @@ Monarch.constructor("Monarch.Model.Fieldset", {
 
     var self = this;
 
-    Util.each(table.columns_by_name, function(column_name, column) {
+    Monarch.Util.each(table.columns_by_name, function(column_name, column) {
       self.fields_by_column_name[column_name] = new Monarch.Model.ConcreteField(self, column);
     });
 
@@ -20,7 +20,7 @@ Monarch.constructor("Monarch.Model.Fieldset", {
 
   initialize_synthetic_fields: function() {
     var self = this;
-    Util.each(this.record.table().synthetic_columns_by_name, function(column_name, column) {
+    Monarch.Util.each(this.record.table().synthetic_columns_by_name, function(column_name, column) {
       var signal = column.definition.call(self.record);
       self.synthetic_fields_by_column_name[column_name] = new Monarch.Model.SyntheticField(self, column, signal);
     });
@@ -56,7 +56,7 @@ Monarch.constructor("Monarch.Model.Fieldset", {
   finish_batch_update: function() {
     var batched_updates = this.batched_updates;
     this.batched_updates = null;
-    if (this.update_events_enabled && Util.keys(batched_updates).length > 0) {
+    if (this.update_events_enabled && Monarch.Util.keys(batched_updates).length > 0) {
       this.record.table().record_updated(this.record, batched_updates);
     }
   },
@@ -78,7 +78,7 @@ Monarch.constructor("Monarch.Model.Fieldset", {
 
   wire_representation: function(only_dirty) {
     var wire_representation = {};
-    Util.each(this.fields_by_column_name, function(column_name, field) {
+    Monarch.Util.each(this.fields_by_column_name, function(column_name, field) {
       if (!only_dirty || field.dirty) wire_representation[column_name] = field.value_wire_representation();
     });
     return wire_representation;

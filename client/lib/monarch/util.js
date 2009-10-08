@@ -1,6 +1,6 @@
 (function(Monarch) {
 
-Monarch.module("Util", {
+Monarch.module("Monarch.Util", {
   each: function(array_or_hash, fn) {
     if (array_or_hash.length) {
       this.array_each(array_or_hash, fn);
@@ -56,7 +56,7 @@ Monarch.module("Util", {
     var keys = [];
     for (key in hash) keys.push(key);
     if (optional_each_function) {
-      Util.each(keys, optional_each_function);
+      Monarch.Util.each(keys, optional_each_function);
     }
     return keys;
   },
@@ -65,7 +65,7 @@ Monarch.module("Util", {
     var values = [];
     for (key in hash) values.push(hash[key]);
     if (optional_each_function) {
-      Util.each(values, optional_each_function);
+      Monarch.Util.each(values, optional_each_function);
     }
     return values;
   }

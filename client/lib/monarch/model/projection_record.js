@@ -4,7 +4,7 @@ Monarch.constructor("Monarch.Model.ProjectionRecord", {
   constructor_properties: {
     initialize_field_readers: function() {
       var self = this;
-      Util.each(this.projected_columns_by_name, function(name, projected_column) {
+      Monarch.Util.each(this.projected_columns_by_name, function(name, projected_column) {
         self.prototype[name] = function() {
           return this.field(projected_column).value();
         };

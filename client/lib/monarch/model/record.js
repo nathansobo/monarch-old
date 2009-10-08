@@ -138,7 +138,7 @@ Monarch.constructor("Monarch.Model.Record", {
   initialize_relations: function() {
     var self = this;
     this.relations_by_name = {};
-    Util.each(this.constructor.relation_definitions, function(relation_definition) {
+    Monarch.Util.each(this.constructor.relation_definitions, function(relation_definition) {
       self.relations_by_name[relation_definition.name] = relation_definition.definition.call(self);
     });
   },

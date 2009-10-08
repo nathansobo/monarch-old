@@ -42,21 +42,21 @@ Screw.Unit(function(c) { with(c) {
           div(function() {
             div({id: "hello"}, function() {
               p("Hello").on_build(function(element, view) {
-                hello_p_on_build_args = Util.to_array(arguments);
+                hello_p_on_build_args = Monarch.Util.to_array(arguments);
                 value_of_foo_when_hello_p_on_build_is_triggered = view.foo;
                 value_of_bar_when_hello_p_on_build_is_triggered = view.bar;
               });
             }).on_build(function() {
-              hello_div_on_build_args =  Util.to_array(arguments);
+              hello_div_on_build_args =  Monarch.Util.to_array(arguments);
             });
             br().on_build(function() {
               br_on_build_args = arguments;
             });
             p("Goodbye").on_build(function() {
-              goodbye_p_on_build_args = Util.to_array(arguments);
+              goodbye_p_on_build_args = Monarch.Util.to_array(arguments);
             });
           }).on_build(function() {
-            outer_div_on_build_args = Util.to_array(arguments);
+            outer_div_on_build_args = Monarch.Util.to_array(arguments);
           });
         }
       });

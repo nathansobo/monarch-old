@@ -10,7 +10,7 @@ Monarch.constructor("Monarch.SubscriptionBundle", {
   },
 
   destroy_all: function() {
-    Util.each(this.subscriptions, function(subscription) {
+    Monarch.Util.each(this.subscriptions, function(subscription) {
       subscription.destroy();
     });
     this.subscriptions = [];

@@ -19,7 +19,7 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
 
   order_by: function() {
     var self = this;
-    var order_by_columns = Util.map(Util.to_array(arguments), function(order_by_column) {
+    var order_by_columns = Monarch.Util.map(Monarch.Util.to_array(arguments), function(order_by_column) {
       if (order_by_column instanceof Monarch.Model.OrderByColumn) {
         return order_by_column;
       } else if (order_by_column instanceof Monarch.Model.Column) {
@@ -42,7 +42,7 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
   },
 
   project: function() {
-    var projected_columns = Util.map(Util.to_array(arguments), function(arg) {
+    var projected_columns = Monarch.Util.map(Monarch.Util.to_array(arguments), function(arg) {
       if (arg instanceof Monarch.Model.ProjectedColumn) {
         return arg;
       } else if (arg instanceof Monarch.Model.Column) {
@@ -59,11 +59,11 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
   },
 
   each: function(fn) {
-    Util.each(this.records(), fn);
+    Monarch.Util.each(this.records(), fn);
   },
 
   map: function(fn) {
-    return Util.map(this.records(), fn);
+    return Monarch.Util.map(this.records(), fn);
   },
 
   empty: function() {
@@ -122,7 +122,7 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
   },
 
   record_removed: function(record) {
-    Util.remove(this._records, record);
+    Monarch.Util.remove(this._records, record);
     this.on_remove_node.publish(record);
   },
 

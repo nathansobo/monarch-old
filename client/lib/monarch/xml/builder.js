@@ -13,9 +13,9 @@ Monarch.constructor("Monarch.Xml.Builder", {
     generate_tag_methods: function() {
       var self = this;
 
-      Util.each(this.supported_tags, function(tag_name) {
+      Monarch.Util.each(this.supported_tags, function(tag_name) {
         self.prototype[tag_name] = function() {
-          var tag_args = [tag_name].concat(Util.to_array(arguments));
+          var tag_args = [tag_name].concat(Monarch.Util.to_array(arguments));
           return this.tag.apply(this, tag_args);
         }
       });
@@ -36,7 +36,7 @@ Monarch.constructor("Monarch.Xml.Builder", {
   },
 
   extend_with_properties: function(jquery_fragment, properties) {
-    Util.keys(properties, function(key) {
+    Monarch.Util.keys(properties, function(key) {
       if (jquery_fragment[key]) jquery_fragment["_" + key] = jquery_fragment[key];
     });
     jQuery.extend(jquery_fragment, properties);
@@ -45,7 +45,7 @@ Monarch.constructor("Monarch.Xml.Builder", {
   post_process: function(jquery_fragment) {
     var self = this;
     this.jquery_fragment = jquery_fragment;
-    Util.each(this.instructions, function(instruction) {
+    Monarch.Util.each(this.instructions, function(instruction) {
       instruction.post_process(self);
     });
     if (!this.has_single_top_level_element()) {
@@ -56,7 +56,7 @@ Monarch.constructor("Monarch.Xml.Builder", {
 
   to_xml: function() {
     var xml = "";
-    Util.each(this.instructions, function(instruction) {
+    Monarch.Util.each(this.instructions, function(instruction) {
       xml += instruction.to_xml();
     });
     return xml;
@@ -95,11 +95,11 @@ Monarch.constructor("Monarch.Xml.Builder", {
   },
 
   parse_tag_arguments: function(args) {
-    var args = Util.to_array(args);
+    var args = Monarch.Util.to_array(args);
     var tag_arguments = {
       name: args.shift()
     }
-    Util.each(args, function(arg) {
+    Monarch.Util.each(args, function(arg) {
       if (typeof arg == "string") tag_arguments.text = arg;
       if (typeof arg == "object") tag_arguments.attributes = arg;
       if (typeof arg == "function") tag_arguments.body = arg;

@@ -14,7 +14,7 @@ Monarch.constructor("Monarch.Xml.CloseTag", {
 
     generate_event_methods: function() {
       var self = this;
-      Util.each(this.supported_events, function(event_name) {
+      Monarch.Util.each(this.supported_events, function(event_name) {
         self.generate_event_method(event_name);
       });
     },

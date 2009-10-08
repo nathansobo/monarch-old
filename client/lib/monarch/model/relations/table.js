@@ -70,7 +70,7 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
 
   update: function(dataset) {
     var self = this;
-    Util.each(dataset, function(id, attributes) {
+    Monarch.Util.each(dataset, function(id, attributes) {
       var extant_record = self.find(id);
       if (extant_record) {
         extant_record.local_update(attributes);
@@ -87,7 +87,7 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
   load_fixtures: function() {
     if (!this.fixture_definitions) return;
     var self = this;
-    Util.each(this.fixture_definitions, function(id, properties) {
+    Monarch.Util.each(this.fixture_definitions, function(id, properties) {
       var attributes = jQuery.extend({id: id}, properties)
       self.insert(new self.record_constructor(attributes));
     });

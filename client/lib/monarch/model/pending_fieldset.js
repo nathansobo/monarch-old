@@ -12,7 +12,7 @@ Monarch.constructor("Monarch.Model.PendingFieldset", Monarch.Model.Fieldset, {
 
   wire_representation: function() {
     var wire_representation = {};
-    Util.each(this.fields_by_column_name, function(column_name, field) {
+    Monarch.Util.each(this.fields_by_column_name, function(column_name, field) {
       if (field.dirty) wire_representation[column_name] = field.value_wire_representation();
     });
     return wire_representation;
@@ -20,7 +20,7 @@ Monarch.constructor("Monarch.Model.PendingFieldset", Monarch.Model.Fieldset, {
 
   update: function(field_values_by_column_name) {
     var self = this;
-    Util.each(field_values_by_column_name, function(column_name, field_value) {
+    Monarch.Util.each(field_values_by_column_name, function(column_name, field_value) {
       self.field(column_name).value(field_value);
     });
   },

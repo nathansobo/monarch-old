@@ -5,7 +5,7 @@ Monarch.constructor("Monarch.Model.Relations.Projection", Monarch.Model.Relation
     var self = this;
     this.operand = operand;
     this.projected_columns_by_name = {};
-    Util.each(projected_columns, function(projected_column) {
+    Monarch.Util.each(projected_columns, function(projected_column) {
       self.projected_columns_by_name[projected_column.name()] = projected_column;
     });
 

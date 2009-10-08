@@ -22,7 +22,7 @@ Screw.Unit(function(c) { with(c) {
         expect(difference_records).to_not(be_empty);
         expect(difference_records.length).to(equal, left_operand.size() - right_operand.size());
 
-        Util.each(difference_records, function(record) {
+        Monarch.Util.each(difference_records, function(record) {
           expect(right_operand.find(record.id())).to(be_null);
         });
       });

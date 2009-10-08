@@ -17,7 +17,7 @@ Monarch.constructor("Monarch.SubscriptionNode", {
   },
 
   unsubscribe: function(subscription) {
-    Util.remove(this.subscriptions, subscription);
+    Monarch.Util.remove(this.subscriptions, subscription);
     if (this.on_unsubscribe_node) this.on_unsubscribe_node.publish(subscription);
   },
 
@@ -31,7 +31,7 @@ Monarch.constructor("Monarch.SubscriptionNode", {
     if (this.paused) {
       this.delayed_events.push(publish_arguments)
     } else {
-      Util.each(this.subscriptions, function(subscription) {
+      Monarch.Util.each(this.subscriptions, function(subscription) {
         subscription.trigger(publish_arguments);
       })
     }
@@ -49,7 +49,7 @@ Monarch.constructor("Monarch.SubscriptionNode", {
   resume_events: function() {
     var self = this;
     this.paused = false;
-    Util.each(this.delayed_events, function(event) {
+    Monarch.Util.each(this.delayed_events, function(event) {
       self.publish.apply(self, event);
     });
     this.delayed_events = [];

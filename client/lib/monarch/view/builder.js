@@ -27,7 +27,7 @@ Monarch.constructor("Monarch.View.Builder", Monarch.Xml.Builder, {
   },
 
   a: function() {
-    var close_tag_instruction = this.tag.apply(this, ["a"].concat(Util.to_array(arguments)));
+    var close_tag_instruction = this.tag.apply(this, ["a"].concat(Monarch.Util.to_array(arguments)));
     var open_tag_instruction = close_tag_instruction.open_tag_instruction;
     if (open_tag_instruction.attributes && open_tag_instruction.attributes.local) {
       close_tag_instruction.click(function() {
@@ -56,7 +56,7 @@ Monarch.constructor("Monarch.View.Builder", Monarch.Xml.Builder, {
   },
 
   parse_subview_arguments: function(args) {
-    var args = Util.to_array(args);
+    var args = Monarch.Util.to_array(args);
     var subview_arguments = {};
 
     if (!args[1]) throw new Error("Undefined second argument for subview '" + args[0] + "'.");
