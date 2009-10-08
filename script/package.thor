@@ -4,7 +4,6 @@ require "thor"
 require "#{dir}/../server/lib/monarch"
 
 class Package < Thor
-
   desc "all", "Create a concatenated js file of the whole framework"
   def all
     concatenate(['monarch.js'], 'monarch.js')
@@ -41,7 +40,7 @@ class Package < Thor
     def concatenate(source_file_paths, outfile_name)
       create_pkg_dir
       paths_of_files_to_concatenate = ::Util::AssetManager.instance.physical_dependency_paths_from_load_path(source_file_paths)
-      system "cat #{paths_of_files_to_concatenate.join(' ')} > #{pkg_dir}/#{outfile_name}"
+      system "cat #{paths_of_files_to_concatenate.join(' ')} | grep -v '^//=' > #{pkg_dir}/#{outfile_name}"
     end
 
     def minify(source_file_paths, outfile_name)
