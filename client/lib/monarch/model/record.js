@@ -38,7 +38,7 @@ constructor("Monarch.Model.Record", {
     has_many: function(target_table_name, options) {
       var self = this;
       options = options || {};
-      var foreign_key_column_name = Inflection.singularize(this.table.global_name) + "_id";
+      var foreign_key_column_name = Monarch.Inflection.singularize(this.table.global_name) + "_id";
       this.relates_to_many(target_table_name, function() {
         var target_table = Repository.tables[target_table_name];
         var foreign_key_column = target_table.columns_by_name[foreign_key_column_name];
@@ -58,7 +58,7 @@ constructor("Monarch.Model.Record", {
     },
 
     determine_global_name: function(record_constructor) {
-      return Inflection.pluralize(Inflection.underscore(record_constructor.basename));
+      return Monarch.Inflection.pluralize(Monarch.Inflection.underscore(record_constructor.basename));
     },
 
     create: function(field_values) {
@@ -72,7 +72,7 @@ constructor("Monarch.Model.Record", {
     },
 
     human_name: function() {
-      return Inflection.humanize(this.basename);
+      return Monarch.Inflection.humanize(this.basename);
     },
 
     // delegate to table

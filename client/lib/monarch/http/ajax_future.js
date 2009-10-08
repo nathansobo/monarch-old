@@ -1,7 +1,7 @@
 constructor("Monarch.Http.AjaxFuture", {
   initialize: function() {
-    this.on_success_node = new SubscriptionNode();
-    this.on_failure_node = new SubscriptionNode();
+    this.on_success_node = new Monarch.SubscriptionNode();
+    this.on_failure_node = new Monarch.SubscriptionNode();
   },
 
   handle_response: function(response) {

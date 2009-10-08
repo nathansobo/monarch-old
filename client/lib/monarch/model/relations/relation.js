@@ -2,11 +2,11 @@ constructor("Monarch.Model.Relations.Relation", {
   has_operands: true,
 
   initialize_events_system: function() {
-    this.on_insert_node = new SubscriptionNode();
-    this.on_remove_node = new SubscriptionNode();
-    this.on_update_node = new SubscriptionNode();
+    this.on_insert_node = new Monarch.SubscriptionNode();
+    this.on_remove_node = new Monarch.SubscriptionNode();
+    this.on_update_node = new Monarch.SubscriptionNode();
     if (this.has_operands) {
-      this.operands_subscription_bundle = new SubscriptionBundle();
+      this.operands_subscription_bundle = new Monarch.SubscriptionBundle();
       this.unsubscribe_from_operands_when_this_relation_no_longer_has_subscribers();
     }
   },

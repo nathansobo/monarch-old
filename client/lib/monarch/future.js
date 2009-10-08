@@ -1,6 +1,6 @@
-constructor("Future", {
+constructor("Monarch.Future", {
   initialize: function() {
-    this.on_complete_node = new SubscriptionNode();
+    this.on_complete_node = new Monarch.SubscriptionNode();
   },
 
   on_complete: function(callback) {

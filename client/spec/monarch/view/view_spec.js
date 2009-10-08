@@ -10,7 +10,7 @@ Screw.Unit(function(c) { with(c) {
       var view, model;
 
       before(function() {
-        ModuleSystem.constructor("TestTemplate", Monarch.View.Template, {
+        Monarch.ModuleSystem.constructor("TestTemplate", Monarch.View.Template, {
           content: function() { with(this.builder) {
             div(function() {
               input({name: "foo", value: "Foo"}).ref('foo');
@@ -102,7 +102,7 @@ Screw.Unit(function(c) { with(c) {
       var view, view_properties;
 
       before(function() {
-        ModuleSystem.constructor("TestTemplate", Monarch.View.Template, {
+        Monarch.ModuleSystem.constructor("TestTemplate", Monarch.View.Template, {
           content: function() { with(this.builder) {
             div("Hello");
           }},

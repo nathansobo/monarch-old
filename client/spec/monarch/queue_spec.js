@@ -1,13 +1,13 @@
 //= require "../monarch_spec_helper"
 
 Screw.Unit(function(c) { with(c) {
-  describe("Queue", function() {
+  describe("Monarch.Queue", function() {
     var queue, fn_1, fn_2, fn_3;
 
     before(function() {
-      Queue.synchronous = false;
+      Monarch.Queue.synchronous = false;
       mock(window, 'setTimeout');
-      queue = new Queue(2, 2);
+      queue = new Monarch.Queue(2, 2);
 
       fn_1 = mock_function('fn 1');
       fn_2 = mock_function('fn 2');
@@ -21,7 +21,7 @@ Screw.Unit(function(c) { with(c) {
         queue.add(fn_3);
       });
 
-      context("when the Queue has not yet started", function() {
+      context("when the Monarch.Queue has not yet started", function() {
         it("processes each enqueued function, separating segments (based on #segment_size) with a setTimeout delay (based on #delay)", function() {
           queue.start();
           expect(queue.started).to(be_true);
@@ -41,7 +41,7 @@ Screw.Unit(function(c) { with(c) {
         });
       });
 
-      context("when the Queue has already been started", function() {
+      context("when the Monarch.Queue has already been started", function() {
         it("does not start it again", function() {
           queue.start();
           expect(queue.started).to(be_true);
@@ -61,9 +61,9 @@ Screw.Unit(function(c) { with(c) {
         });
       });
 
-      context("when Queue.synchronous is true", function() {
+      context("when Monarch.Queue.synchronous is true", function() {
         before(function() {
-          Queue.synchronous = true;
+          Monarch.Queue.synchronous = true;
         });
 
         it("does not call setTimeout between segments", function() {
@@ -107,7 +107,7 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("#add_time_critical", function() {
-      it("causes the Queue to yield immediately after executing the added function", function() {
+      it("causes the Monarch.Queue to yield immediately after executing the added function", function() {
         queue.add_time_critical(fn_1);
         queue.add(fn_2);
         queue.add(fn_3);

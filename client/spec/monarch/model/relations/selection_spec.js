@@ -73,21 +73,21 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("#on_insert", function() {
-      it("returns a Subscription with #on_insert_node as its #node", function() {
+      it("returns a Monarch.Subscription with #on_insert_node as its #node", function() {
         var subscription = selection.on_insert(function() {});
         expect(subscription.node).to(equal, selection.on_insert_node);
       });
     });
 
     describe("#on_remove", function() {
-      it("returns a Subscription with #on_remove_node as its #node", function() {
+      it("returns a Monarch.Subscription with #on_remove_node as its #node", function() {
         var subscription = selection.on_remove(function() {});
         expect(subscription.node).to(equal, selection.on_remove_node);
       });
     });
 
     describe("#on_update", function() {
-      it("returns a Subscription with #on_update_node as its #node", function() {
+      it("returns a Monarch.Subscription with #on_update_node as its #node", function() {
         var subscription = selection.on_update(function() {});
         expect(subscription.node).to(equal, selection.on_update_node);
       });
@@ -324,7 +324,7 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("subscription propagation", function() {
-      describe("when a Subscription is registered for the Selection, destroyed, and another Subscription is registered", function() {
+      describe("when a Monarch.Subscription is registered for the Selection, destroyed, and another Monarch.Subscription is registered", function() {
         var event_type;
 
         scenario("for on_insert callbacks", function() {

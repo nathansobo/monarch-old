@@ -1,11 +1,11 @@
 //= require "../monarch_spec_helper"
 
 Screw.Unit(function(c) { with(c) {
-  describe("ModuleSystem.Object", function() {
+  describe("Monarch.ModuleSystem.Object", function() {
     var object;
 
     before(function() {
-      ModuleSystem.constructor("Foo");
+      Monarch.ModuleSystem.constructor("Foo");
       Foo.constructor_delegate_target = {
         foo: mock_function('constructor foo', function() { return "foo_prime" }),
         bar: mock_function('constructor bar', function() { return "bar_prime" })
@@ -13,7 +13,7 @@ Screw.Unit(function(c) { with(c) {
     });
 
     after(function() {
-      delete ModuleSystem.Object.constructor_delegate_target;
+      delete Monarch.ModuleSystem.Object.constructor_delegate_target;
     });
 
     describe(".delegate_constructor_methods", function() {

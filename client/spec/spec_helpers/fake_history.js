@@ -15,7 +15,7 @@ Screw.Unit(function(c) {
 
 constructor("FakeHistory", {
   initialize: function() {
-    this.on_change_node = new SubscriptionNode();
+    this.on_change_node = new Monarch.SubscriptionNode();
     this.path = "";
   },
 

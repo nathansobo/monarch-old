@@ -1,4 +1,4 @@
-module("Inflection", {
+module("Monarch.Inflection", {
   plural: [
     [/(quiz)$/i,               "$1zes"  ],
     [/^(ox)$/i,                "$1en"   ],
@@ -79,22 +79,22 @@ module("Inflection", {
   },
 
   pluralize: function(word) {
-    for (var i = 0; i < Inflection.uncountable.length; i++) {
-      var uncountable = Inflection.uncountable[i];
+    for (var i = 0; i < Monarch.Inflection.uncountable.length; i++) {
+      var uncountable = Monarch.Inflection.uncountable[i];
       if (word.toLowerCase() == uncountable) {
         return uncountable;
       }
     }
-    for (var i = 0; i < Inflection.irregular.length; i++) {
-      var singular = Inflection.irregular[i][0];
-      var plural   = Inflection.irregular[i][1];
+    for (var i = 0; i < Monarch.Inflection.irregular.length; i++) {
+      var singular = Monarch.Inflection.irregular[i][0];
+      var plural   = Monarch.Inflection.irregular[i][1];
       if ((word.toLowerCase() == singular) || (word == plural)) {
         return plural;
       }
     }
-    for (var i = 0; i < Inflection.plural.length; i++) {
-      var regex          = Inflection.plural[i][0];
-      var replace_string = Inflection.plural[i][1];
+    for (var i = 0; i < Monarch.Inflection.plural.length; i++) {
+      var regex          = Monarch.Inflection.plural[i][0];
+      var replace_string = Monarch.Inflection.plural[i][1];
       if (regex.test(word)) {
         return word.replace(regex, replace_string);
       }
@@ -102,22 +102,22 @@ module("Inflection", {
   },
 
   singularize: function(word) {
-    for (var i = 0; i < Inflection.uncountable.length; i++) {
-      var uncountable = Inflection.uncountable[i];
+    for (var i = 0; i < Monarch.Inflection.uncountable.length; i++) {
+      var uncountable = Monarch.Inflection.uncountable[i];
       if (word.toLowerCase() == uncountable) {
         return uncountable;
       }
     }
-    for (var i = 0; i < Inflection.irregular.length; i++) {
-      var singular = Inflection.irregular[i][0];
-      var plural   = Inflection.irregular[i][1];
+    for (var i = 0; i < Monarch.Inflection.irregular.length; i++) {
+      var singular = Monarch.Inflection.irregular[i][0];
+      var plural   = Monarch.Inflection.irregular[i][1];
       if ((word.toLowerCase() == singular) || (word == plural)) {
         return plural;
       }
     }
-    for (var i = 0; i < Inflection.singular.length; i++) {
-      var regex          = Inflection.singular[i][0];
-      var replace_string = Inflection.singular[i][1];
+    for (var i = 0; i < Monarch.Inflection.singular.length; i++) {
+      var regex          = Monarch.Inflection.singular[i][0];
+      var replace_string = Monarch.Inflection.singular[i][1];
       if (regex.test(word)) {
         return word.replace(regex, replace_string);
       }

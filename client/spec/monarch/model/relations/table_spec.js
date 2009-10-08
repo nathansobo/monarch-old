@@ -59,14 +59,14 @@ Screw.Unit(function(c) { with(c) {
 
     describe("delta event callback registration methods", function() {
       describe("#on_insert(callback)", function() {
-        it("returns a Subscription for the #on_insert_node", function() {
+        it("returns a Monarch.Subscription for the #on_insert_node", function() {
           var subscription = User.table.on_insert(mock_function);
           expect(subscription.node).to(equal, User.table.on_insert_node);
         });
       });
 
       describe("#on_remove(callback)", function() {
-        it("returns a Subscription for the #on_remove_node", function() {
+        it("returns a Monarch.Subscription for the #on_remove_node", function() {
           var subscription = User.table.on_remove(function() {
           });
           expect(subscription.node).to(equal, User.table.on_remove_node);
@@ -74,7 +74,7 @@ Screw.Unit(function(c) { with(c) {
       });
 
       describe("#on_update(callback)", function() {
-        it("returns a Subscription for the #on_update_node", function() {
+        it("returns a Monarch.Subscription for the #on_update_node", function() {
           var subscription = User.table.on_update(function() {
           });
           expect(subscription.node).to(equal, User.table.on_update_node);

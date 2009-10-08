@@ -1,4 +1,4 @@
-constructor("SubscriptionNode", {
+constructor("Monarch.SubscriptionNode", {
   constructor_properties: {
     total_subscriptions: 0
   },
@@ -9,7 +9,7 @@ constructor("SubscriptionNode", {
   },
 
   subscribe: function(callback) {
-    var subscription = new Subscription(this, callback);
+    var subscription = new Monarch.Subscription(this, callback);
     this.subscriptions.push(subscription);
     return subscription;
   },
@@ -20,7 +20,7 @@ constructor("SubscriptionNode", {
   },
 
   on_unsubscribe: function(callback) {
-    if (!this.on_unsubscribe_node) this.on_unsubscribe_node = new SubscriptionNode();
+    if (!this.on_unsubscribe_node) this.on_unsubscribe_node = new Monarch.SubscriptionNode();
     return this.on_unsubscribe_node.subscribe(callback);
   },
 

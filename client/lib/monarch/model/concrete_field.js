@@ -2,7 +2,7 @@ constructor("Monarch.Model.ConcreteField", Monarch.Model.Field, {
   initialize: function(fieldset, column) {
     this.fieldset = fieldset;
     this.column = column;
-    this.on_update_node = new SubscriptionNode();
+    this.on_update_node = new Monarch.SubscriptionNode();
   },
 
   clone_pending_field: function(fieldset) {

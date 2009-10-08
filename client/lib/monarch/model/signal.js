@@ -2,7 +2,7 @@ constructor("Monarch.Model.Signal", {
   initialize: function(source, optional_transformer) {
     this.source = source;
     this.transformer = optional_transformer;
-    this.on_update_node = new SubscriptionNode();
+    this.on_update_node = new Monarch.SubscriptionNode();
 
     var self = this;
     this.source.on_update(function(new_value, old_value) {

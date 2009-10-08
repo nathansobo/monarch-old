@@ -5,7 +5,7 @@ Screw.Unit(function(c) { with(c) {
     var template;
 
     before(function() {
-      ModuleSystem.constructor("ExampleTemplate", Monarch.Xml.Template, {
+      Monarch.ModuleSystem.constructor("ExampleTemplate", Monarch.Xml.Template, {
         content: function(props) { with(this.builder) {
           tag('div', {id: 'root'});
         }}

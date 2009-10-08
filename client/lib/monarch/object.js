@@ -1,4 +1,4 @@
-constructor("ModuleSystem.Object", {
+constructor("Monarch.ModuleSystem.Object", {
   constructor_properties: {
     delegate_constructor_methods: function() {
       var args = Util.to_array(arguments);

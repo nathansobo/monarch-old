@@ -3,7 +3,7 @@ constructor("Monarch.Model.SyntheticField", Monarch.Model.Field, {
     this.fieldset = fieldset;
     this.signal = signal;
     this.column = column;
-    this.on_update_node = new SubscriptionNode();
+    this.on_update_node = new Monarch.SubscriptionNode();
 
     var self = this;
     this.signal.on_update(function(new_value, old_value) {

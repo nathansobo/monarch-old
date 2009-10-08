@@ -1,7 +1,7 @@
 Screw.Unit(function(c) {
   c.use_example_domain_model = function(between_before_and_after) {
     c.init(function() {
-      ModuleSystem.constructor("Blog", Monarch.Model.Record, {
+      Monarch.ModuleSystem.constructor("Blog", Monarch.Model.Record, {
         constructor_initialize: function() { with(this) {
           columns({
             name: "string",
@@ -21,7 +21,7 @@ Screw.Unit(function(c) {
         }
       });
 
-      ModuleSystem.constructor("User", Monarch.Model.Record, {
+      Monarch.ModuleSystem.constructor("User", Monarch.Model.Record, {
         constructor_initialize: function() { with(this) {
           columns({
             full_name: "string",

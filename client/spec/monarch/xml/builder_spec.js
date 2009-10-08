@@ -4,7 +4,7 @@ Screw.Unit(function(c) { with(c) {
   describe("Monarch.Xml.Builder", function() {
     var builder;
     before(function() {
-      ModuleSystem.constructor("SampleBuilder", Monarch.Xml.Builder, {
+      Monarch.ModuleSystem.constructor("SampleBuilder", Monarch.Xml.Builder, {
         constructor_properties: {
           supported_tags: ["div", "p", "br"],
           self_closing_tags: { br: 1 }

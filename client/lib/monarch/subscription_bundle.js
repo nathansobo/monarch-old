@@ -1,4 +1,4 @@
-constructor("SubscriptionBundle", {
+constructor("Monarch.SubscriptionBundle", {
   initialize: function() {
     this.subscriptions = [];
   },

@@ -1,4 +1,4 @@
-constructor("Subscription", {
+constructor("Monarch.Subscription", {
   initialize: function(node, callback) {
     this.node = node;
     this.callback = callback;

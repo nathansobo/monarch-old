@@ -5,7 +5,7 @@ Screw.Unit(function(c) { with(c) {
     var template;
 
     before(function() {
-      ModuleSystem.constructor("ExampleTemplate", Monarch.View.Template, {
+      Monarch.ModuleSystem.constructor("ExampleTemplate", Monarch.View.Template, {
         content: function(props) { with(this.builder) {
           div({'id': "root"}, function() {
             dl(function() {
@@ -39,7 +39,7 @@ Screw.Unit(function(c) { with(c) {
       });
 
       specify("the subtemplate's view_properties are merged with those of the supertemplate", function() {
-        ModuleSystem.constructor("ExampleSubtemplate", ExampleTemplate, {
+        Monarch.ModuleSystem.constructor("ExampleSubtemplate", ExampleTemplate, {
           view_properties: {
             age: "Unknown",
             name: "Joe"

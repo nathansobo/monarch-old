@@ -45,7 +45,7 @@ constructor("Monarch.Xml.CloseTag", {
   },
 
   on_build: function(callback) {
-    if (!this.on_build_node) this.on_build_node = new SubscriptionNode();
+    if (!this.on_build_node) this.on_build_node = new Monarch.SubscriptionNode();
     return this.on_build_node.subscribe(callback);
   },
 
