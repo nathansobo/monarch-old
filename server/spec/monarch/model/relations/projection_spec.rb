@@ -13,7 +13,15 @@ module Model
           ProjectedColumn.new(Blog[:user_id]),
           ProjectedColumn.new(BlogPost[:body])
         ]
-        @projection = Projection.new(operand, projected_columns)
+        @projection = Projection.new(operand, projected_columns) do
+          def foo; end
+        end
+      end
+
+      describe "#initialize" do
+        it "if a block is provided, class_evals it in the Projection singleton class" do
+          projection.should respond_to(:foo)
+        end
       end
 
       describe "#records" do

@@ -3,13 +3,15 @@ module Model
     class Projection < Relations::Relation
       attr_reader :operand, :projected_columns_by_name
 
-      def initialize(operand, projected_columns)
+      def initialize(operand, projected_columns, &block)
         @operand, @projected_columns = operand, projected_columns
 
         @projected_columns_by_name = ActiveSupport::OrderedHash.new
         projected_columns.each do |projected_column|
           projected_columns_by_name[projected_column.name] = projected_column
         end
+        
+        class_eval(&block)
       end
 
       def projected_columns

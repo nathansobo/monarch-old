@@ -19,6 +19,7 @@ module Model
       attr_writer :exposed_name
 
       delegate :composite?, :column, :to => :operand
+      delegate :include?, :to => :records
 
       def where(predicate)
         Selection.new(self, predicate)
@@ -28,11 +29,11 @@ module Model
         PartiallyConstructedInnerJoin.new(self, convert_to_table_if_needed(right_operand))
       end
 
-      def project(*args)
+      def project(*args, &block)
         if args.size == 1 && table_or_record_class?(args.first)
           TableProjection.new(self, convert_to_table_if_needed(args.first))
         else
-          Projection.new(self, convert_to_projected_columns_if_needed(args))
+          Projection.new(self, convert_to_projected_columns_if_needed(args), &block)
         end
       end
 

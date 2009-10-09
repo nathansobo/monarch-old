@@ -2,6 +2,16 @@ class Object
   def to_sql
     inspect
   end
+
+  def eigenclass
+    class << self
+      self
+    end
+  end
+
+  def class_eval(*args, &block)
+    eigenclass.class_eval(*args, &block)
+  end
 end
 
 class Symbol
