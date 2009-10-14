@@ -14,6 +14,14 @@ module Model
         @operand, @projected_table = operand, projected_table
       end
 
+      def composite?
+        false
+      end
+
+      def table
+        projected_table
+      end
+
       def record_class
         projected_table.record_class
       end

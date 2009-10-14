@@ -71,7 +71,7 @@ module Model
       end
 
       delegate :create, :where, :project, :join, :find, :columns_by_name,
-               :create_table, :drop_table, :clear_table, :records,
+               :create_table, :drop_table, :clear_table, :records, :find_or_create,
                :to => :table
     end
 

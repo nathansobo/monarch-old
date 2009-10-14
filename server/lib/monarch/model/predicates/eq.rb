@@ -34,6 +34,23 @@ module Model
         return false unless other_predicate.instance_of?(Eq)
         other_predicate.left_operand == left_operand && other_predicate.right_operand == right_operand
       end
+
+      def force_matching_field_values
+        { column_operand.name => scalar_operand }
+      end
+
+      protected
+      def column_operand
+        return left_operand if left_operand.instance_of?(Column)
+        return right_operand if right_operand.instance_of?(Column)
+        raise "No column operands"
+      end
+
+      def scalar_operand
+        return left_operand unless left_operand.instance_of?(Column)
+        return right_operand unless right_operand.instance_of?(Column)
+        raise "No scalar operands"
+      end
     end
   end
 end

@@ -66,6 +66,16 @@ module Model
         where(predicate).records.first
       end
 
+      def find_or_create(predicate)
+        extant_record = find(predicate)
+        if extant_record
+          extant_record
+        else
+          create(predicate.force_matching_field_values)
+        end
+      end
+
+
       def records
         Origin.read(self)
       end

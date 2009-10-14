@@ -18,7 +18,7 @@ module Http
       [status, headers, body]
     end
 
-    def body_as_json
+    def body_from_json
       JSON.parse(body)
     end
 

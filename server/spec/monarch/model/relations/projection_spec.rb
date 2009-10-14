@@ -48,7 +48,7 @@ module Model
       describe "#to_sql" do
         it "generates appropriate sql" do
           projection.to_sql.should == %{
-            select
+            select distinct
               blogs.title as blog_title,
               blog_posts.title as blog_post_title,
               blogs.user_id,

@@ -27,6 +27,8 @@ module Model
     def read_simple_relation(relation)
       table = relation.table
       connection[relation.to_sql].map do |field_values|
+
+
         id = field_values[:id]
         if record_from_id_map = table.identity_map[id]
           record_from_id_map

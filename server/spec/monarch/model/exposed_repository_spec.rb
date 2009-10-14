@@ -51,7 +51,7 @@ module Model
         record.signed_up_at.to_millis.should == new_signed_up_at.to_millis
         
         response.should be_ok
-        response.body_as_json.should == {
+        response.body_from_json.should == {
           'successful' => true,
           'data' => {
             'field_values' => {
@@ -79,7 +79,7 @@ module Model
         new_record = User.find(User[:full_name].eq('Sharon Ly The Great'))
 
         response.should be_ok
-        response.body_as_json.should == {
+        response.body_from_json.should == {
           'successful' => true,
           'data' => {
             'field_values' => {

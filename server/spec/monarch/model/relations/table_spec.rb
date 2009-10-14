@@ -65,6 +65,24 @@ module Model
         end
       end
 
+      describe "#find_or_create(predicate)" do
+        context "when a record matching the predicate exists in the table" do
+          it "returns the matching record" do
+            extant_record = User.find(User[:full_name].eq('Jan Nelson'))
+            extant_record.should_not be_nil
+            User.find_or_create(User[:full_name].eq('Jan Nelson')).should == extant_record
+          end
+        end
+
+        context "when NO record matching the predicate exists in the table"do
+          it "creates a record that matches the given predicate" do
+            User.find(User[:full_name].eq('Nathan Sobo')).should be_nil
+            new_record = User.find_or_create(User[:full_name].eq('Nathan Sobo'))
+            new_record.full_name.should == 'Nathan Sobo'
+          end
+        end
+      end
+
       describe "#records" do
         it "executes a select all SQL query against the database and returns Records corresponding to its results" do
           record_1_id = table.create(:body => "Quinoa", :blog_id => "grain").id

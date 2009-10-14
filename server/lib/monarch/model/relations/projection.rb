@@ -11,7 +11,7 @@ module Model
           projected_columns_by_name[projected_column.name] = projected_column
         end
         
-        class_eval(&block)
+        class_eval(&block) if block
       end
 
       def projected_columns
