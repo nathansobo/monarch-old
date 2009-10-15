@@ -13,11 +13,6 @@ Screw.Unit(function(c) { with(c) {
       use_example_domain_model();
       use_fake_server();
 
-//      before(function() {
-//        Server.posts = [];
-//        server.post = FakeServer.prototype.post;
-//      });
-
       it("instantiates a record without inserting it, posts its field values to the remote repository, then updates the record with the returned field values and inserts it", function() {
         var insert_callback = mock_function("insert callback");
         var update_callback = mock_function("update callback");
@@ -59,6 +54,98 @@ Screw.Unit(function(c) { with(c) {
 
         expect(before_events_callback).to(have_been_called, with_args(new_record));
         expect(after_events_callback).to(have_been_called, with_args(new_record));
+      });
+    });
+
+    describe("#update", function() {
+      use_local_fixtures();
+      use_fake_server();
+
+      it("performs a pending local update, then sends the changes to the server and commits the (potentially changed) field values from the result", function() {
+        Repository.origin_url = "/repo";
+
+        var record = Blog.find('recipes');
+        record.fancy_name = function(plain_name) {
+          this.name("Fancy " + plain_name);
+        };
+
+        var update_callback = mock_function("update callback");
+        Blog.on_update(update_callback);
+
+        var fun_profit_name_before_update = record.fun_profit_name();
+        var name_before_update = record.name();
+        var user_id_before_update = record.user_id();
+        var started_at_before_update = record.started_at();
+        var new_started_at = new Date();
+
+        var update_future = server.update(record, {
+          fancy_name: "Programming",
+          user_id: 'wil',
+          started_at: new_started_at
+        });
+
+        expect(record.fun_profit_name()).to(equal, fun_profit_name_before_update);
+        expect(record.name()).to(equal, name_before_update);
+        expect(record.user_id()).to(equal, user_id_before_update);
+        expect(record.started_at()).to(equal, started_at_before_update);
+        expect(update_callback).to_not(have_been_called);
+
+        var before_events_callback = mock_function('before events callback', function() {
+          expect(update_callback).to_not(have_been_called);
+        });
+        var after_events_callback = mock_function('after events callback', function() {
+          expect(update_callback).to(have_been_called, with_args(record, {
+            fun_profit_name: {
+              column: Blog.fun_profit_name,
+              old_value: fun_profit_name_before_update ,
+              new_value: "Fancy Programming Prime for Fun and Profit"
+            },
+            name: {
+              column: Blog.name,
+              old_value: name_before_update,
+              new_value: "Fancy Programming Prime"
+            },
+            user_id: {
+              column: Blog.user_id,
+              old_value: user_id_before_update,
+              new_value: "wil"
+            },
+            started_at: {
+              column: Blog.started_at,
+              old_value: started_at_before_update,
+              new_value: new_started_at
+            }
+          }));
+        });
+        update_future.before_events(before_events_callback);
+        update_future.after_events(after_events_callback);
+
+        expect(Server.puts.length).to(equal, 1);
+        var put = Server.puts.shift();
+
+        expect(put.url).to(equal, Repository.origin_url);
+        expect(put.data.id).to(equal, record.id());
+        expect(put.data.relation).to(equal, Blog.table.wire_representation());
+        expect(put.data.field_values).to(equal, {
+          name: "Fancy Programming",
+          user_id: "wil",
+          started_at: new_started_at.getTime()
+        });
+
+        put.simulate_success({
+          field_values: {
+            name: "Fancy Programming Prime", // server can change field values too
+            user_id: 'wil',
+            started_at: new_started_at.getTime()
+          }
+        });
+
+        expect(record.name()).to(equal, "Fancy Programming Prime");
+        expect(record.user_id()).to(equal, "wil");
+        expect(record.started_at()).to(equal, new_started_at);
+
+        expect(before_events_callback).to(have_been_called);
+        expect(after_events_callback).to(have_been_called);
       });
     });
 

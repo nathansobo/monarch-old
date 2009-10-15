@@ -146,9 +146,7 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   update: function(values_by_method_name) {
-    this.start_pending_changes();
-    this.local_update(values_by_method_name);
-    return this.push();
+    return Server.update(this, values_by_method_name);
   },
 
   start_pending_changes: function() {

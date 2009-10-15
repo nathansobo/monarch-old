@@ -27,6 +27,13 @@ Monarch.constructor("Monarch.Http.Server", {
     return record.push();
   },
 
+  update: function(record, values_by_method_name) {
+    record.start_pending_changes();
+    record.local_update(values_by_method_name);
+    return record.push();
+  },
+
+
   post: function(url, data) {
     return this.request('POST', url, data);
   },
