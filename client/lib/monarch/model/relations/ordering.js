@@ -31,6 +31,10 @@ Monarch.constructor("Monarch.Model.Relations.Ordering", Monarch.Model.Relations.
     return this.operand.create(field_values);
   },
 
+  local_create: function(field_values) {
+    return this.operand.local_create(field_values);
+  },
+
   evaluate_in_repository: function(repository) {
     return new Monarch.Model.Relations.Ordering(this.operand.evaluate_in_repository(repository), this.order_by_columns);
   },
@@ -44,8 +48,6 @@ Monarch.constructor("Monarch.Model.Relations.Ordering", Monarch.Model.Relations.
   },
 
   subscribe_to_operands: function() {
-    this.memoize_records();
-
     var self = this;
     this.operands_subscription_bundle.add(this.operand.on_insert(function(record) {
       self.record_inserted(record);

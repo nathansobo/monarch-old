@@ -44,6 +44,10 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
     return Server.create(this, field_values);
   },
 
+  local_create: function(field_values) {
+    return this.record_constructor.local_create(field_values);
+  },
+
   //TODO: replace with Selection-based find
   find: function(id) {
     return this.records_by_id[id];

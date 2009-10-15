@@ -139,7 +139,10 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
   },
 
   subscribe_to_operands_if_needed: function() {
-    if (this.has_operands && !this.has_subscribers()) this.subscribe_to_operands();
+    if (this.has_operands && !this.has_subscribers()) {
+      this.memoize_records();
+      this.subscribe_to_operands();
+    }
   },
 
   unsubscribe_from_operands_when_this_relation_no_longer_has_subscribers: function() {

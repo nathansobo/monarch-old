@@ -10,9 +10,10 @@ Monarch.constructor("Monarch.Model.Relations.Projection", Monarch.Model.Relation
     });
 
     this.record_constructor = Monarch.ModuleSystem.constructor(Monarch.Model.ProjectionRecord);
-
     this.record_constructor.projected_columns_by_name = this.projected_columns_by_name;
     this.record_constructor.initialize_field_readers();
+
+    this.initialize_events_system();
   },
 
   records: function() {

@@ -23,6 +23,10 @@ Monarch.constructor("Monarch.Model.Relations.Selection", Monarch.Model.Relations
     return this.operand.create(this.predicate.force_matching_field_values(field_values));
   },
 
+  local_create: function(field_values) {
+    return this.operand.local_create(this.predicate.force_matching_field_values(field_values));
+  },
+
   wire_representation: function() {
     return {
       type: "selection",
@@ -32,8 +36,6 @@ Monarch.constructor("Monarch.Model.Relations.Selection", Monarch.Model.Relations
   },
 
   subscribe_to_operands: function() {
-    this.memoize_records();
-
     var self = this;
     this.operands_subscription_bundle.add(this.operand.on_insert(function(record) {
       if (self.predicate.evaluate(record)) self.record_inserted(record);
