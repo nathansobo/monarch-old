@@ -36,9 +36,9 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
     this.record_inserted(record, options);
   },
 
-  remove: function(record) {
+  remove: function(record, options) {
     delete this.records_by_id[record.id()];
-    this.record_removed(record);
+    this.record_removed(record, options);
   },
 
   create: function(field_values) {

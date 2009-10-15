@@ -17,6 +17,7 @@ Monarch.constructor("FakeServer", {
   initialize: function() {
     this.posts = [];
     this.puts = [];
+    this.deletes = [];
     this.gets = [];
     this.fetches = [];
     this.creates = [];
@@ -71,6 +72,13 @@ Monarch.constructor("FakeServer", {
     this.last_put = fake_put;
     this.puts.push(fake_put);
     return fake_put.future;
+  },
+
+  delete_request: function(url, data) {
+    var fake_delete = new FakeServer.FakeRequest('DELETE', url, data)
+    this.last_delete = fake_delete;
+    this.deletes.push(fake_delete);
+    return fake_delete.future;
   }
 });
 

@@ -208,6 +208,26 @@ Monarch.constructor("Monarch.Model.Record", {
     return push_future;
   },
 
+  push_delete: function() {
+    var self = this;
+    var push_future = new Monarch.Http.RepositoryUpdateFuture();
+    Server.delete_request(Repository.origin_url, {
+      record: this.wire_representation()
+    })
+      .on_success(function() {
+        self.table().remove(self, {
+          before_events: function() {
+            push_future.trigger_before_events(self);
+          },
+          after_events: function() {
+            push_future.trigger_after_events(self);
+          }
+        });
+    });
+
+    return push_future;
+  },
+
   enable_update_events: function() {
     this.active_fieldset.enable_update_events();
   },

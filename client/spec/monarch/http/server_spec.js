@@ -8,7 +8,6 @@ Screw.Unit(function(c) { with(c) {
       server = new Monarch.Http.Server();
     });
 
-
     describe("#create(relation, field_values)", function() {
       use_example_domain_model();
       use_fake_server();
@@ -57,7 +56,7 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
-    describe("#update", function() {
+    describe("#update(record, field_values)", function() {
       use_local_fixtures();
       use_fake_server();
 
@@ -149,6 +148,42 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
+    describe("#remove(record)", function() {
+      use_local_fixtures();
+      use_fake_server();
+
+      it("sends the record to be deleted to the remote repository, then removes the local record on success", function() {
+        var remove_callback = mock_function("remove callback");
+        Blog.on_remove(remove_callback);
+
+        var record = Blog.find('recipes');
+        var remove_future = server.remove(record);
+
+        expect(Server.deletes.length).to(equal, 1);
+        var delete_request = Server.deletes.shift();
+        expect(delete_request.url).to(equal, Repository.origin_url);
+        expect(delete_request.data.record).to(equal, record.wire_representation());
+
+        var before_events_callback = mock_function("before events", function() {
+          expect(remove_callback).to_not(have_been_called);
+        });
+        var after_events_callback = mock_function("after events", function() {
+          expect(remove_callback).to(have_been_called, once);
+        });
+        remove_future.before_events(before_events_callback);
+        remove_future.after_events(after_events_callback);
+
+        delete_request.simulate_success();
+
+        expect(remove_callback).to(have_been_called, once);
+
+        var deleted_record = Blog.find('recipes');
+        expect(deleted_record).to(equal, null);
+
+        expect(before_events_callback).to(have_been_called);
+        expect(after_events_callback).to(have_been_called);
+      });
+    });
 
     describe("#fetch(origin_url, relations)", function() {
       use_example_domain_model();
