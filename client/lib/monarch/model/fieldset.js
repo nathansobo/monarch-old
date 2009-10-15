@@ -15,7 +15,7 @@ Monarch.constructor("Monarch.Model.Fieldset", {
       self.fields_by_column_name[column_name] = new Monarch.Model.ConcreteField(self, column);
     });
 
-    this.enable_update_events();
+    this.disable_update_events();
   },
 
   initialize_synthetic_fields: function() {

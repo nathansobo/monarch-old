@@ -119,9 +119,7 @@ Monarch.constructor("Monarch.Model.Record", {
     this.primary_fieldset = new Monarch.Model.Fieldset(this);
     this.active_fieldset = this.primary_fieldset;
     if (field_values_by_column_name) {
-      this.active_fieldset.disable_update_events();
       this.local_update(field_values_by_column_name);
-      this.active_fieldset.enable_update_events();
     }
     this.primary_fieldset.initialize_synthetic_fields();
     this.initialize_relations();
@@ -210,6 +208,14 @@ Monarch.constructor("Monarch.Model.Record", {
     });
 
     return push_future;
+  },
+
+  enable_update_events: function() {
+    this.active_fieldset.enable_update_events();
+  },
+
+  disable_update_events: function() {
+    this.active_fieldset.disable_update_events();
   },
 
   restore_primary_fieldset: function() {

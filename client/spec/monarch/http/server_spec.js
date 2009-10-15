@@ -20,7 +20,9 @@ Screw.Unit(function(c) { with(c) {
 
       it("instantiates a record without inserting it, posts its field values to the remote repository, then updates the record with the returned field values and inserts it", function() {
         var insert_callback = mock_function("insert callback");
+        var update_callback = mock_function("update callback");
         Blog.on_insert(insert_callback);
+        Blog.on_update(update_callback);
 
         var field_values = { crazy_name: "Dinosaurs", user_id: 'wil' };
         var create_future = server.create(Blog.table, field_values);
@@ -47,6 +49,9 @@ Screw.Unit(function(c) { with(c) {
             user_id: "wil"
           }
         });
+        
+        expect(update_callback).to_not(have_been_called);
+        expect(insert_callback).to(have_been_called, once);
 
         var new_record = Blog.find('dinosaurs');
         expect(new_record.name()).to(equal, "Recipes Modified By Server");
