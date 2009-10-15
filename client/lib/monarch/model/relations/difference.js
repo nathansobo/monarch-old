@@ -8,6 +8,8 @@ Monarch.constructor("Monarch.Model.Relations.Difference", Monarch.Model.Relation
   },
 
   records: function() {
+    if (this._records) return this._records;
+
     var self = this;
     var records = [];
     this.left_operand.each(function(record) {

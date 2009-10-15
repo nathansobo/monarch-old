@@ -50,13 +50,6 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
-    describe("#find(id)", function() {
-      it("returns the Record with the given id or null if none exists", function() {
-        var record = User.table.find('jan');
-        expect(record.id()).to(equal, 'jan');
-      });
-    });
-
     describe("delta event callback registration methods", function() {
       describe("#on_insert(callback)", function() {
         it("returns a Monarch.Subscription for the #on_insert_node", function() {

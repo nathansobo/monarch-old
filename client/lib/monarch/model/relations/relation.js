@@ -74,8 +74,12 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
     return this.records()[0];
   },
 
-  find: function(id) {
-    return this.where(this.column('id').eq(id)).first();
+  find: function(predicate_or_id) {
+    if (typeof predicate_or_id === "string") {
+      return this.where(this.column('id').eq(predicate_or_id)).first();
+    } else {
+      return this.where(predicate_or_id).first();
+    }
   },
 
   size: function() {

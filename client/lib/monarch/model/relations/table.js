@@ -48,9 +48,12 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
     return this.record_constructor.local_create(field_values);
   },
 
-  //TODO: replace with Selection-based find
-  find: function(id) {
-    return this.records_by_id[id];
+  find: function(predicate_or_id) {
+    if (typeof predicate_or_id === "string") {
+      return this.records_by_id[predicate_or_id];
+    } else {
+      return this.where(predicate_or_id).first();
+    }
   },
 
   wire_representation: function() {

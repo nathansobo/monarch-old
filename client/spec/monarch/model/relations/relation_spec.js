@@ -3,11 +3,12 @@
 Screw.Unit(function(c) { with(c) {
   describe("Monarch.Model.Relations.Relation (abstract superclass)", function() {
     use_local_fixtures();
-    var relation, insert, column_1, column_2;
+    var relation, insert, column_1, column_2, record;
 
     scenario("Table subclass", function() {
       init(function() {
         relation = Blog.table;
+        record = relation.first();
         insert = function(record) {
           Blog.table.insert(record);
         }
@@ -19,6 +20,7 @@ Screw.Unit(function(c) { with(c) {
     scenario("Selection subclass", function() {
       init(function() {
         relation = Blog.where(Blog.user_id.eq("jan"));
+        record = relation.first();
         insert = function(record) {
           Blog.table.insert(record);
         }
@@ -33,6 +35,22 @@ Screw.Unit(function(c) { with(c) {
         expect(relation.fetch()).to(equal, "mock future");
         expect(Server.fetch).to(have_been_called, once);
         expect(Server.fetch).to(have_been_called, with_args([relation]));
+      });
+    });
+
+    describe("#find(id)", function() {
+      context("when passed an id", function() {
+        it("returns the Record with the given id or null if none exists", function() {
+          var found_record = User.table.find(record.id());
+          expect(found_record).to(equal, record);
+        });
+      });
+
+      context("when passed a predicate", function() {
+        it("returns the first Record matching the predicate or null if none exists", function() {
+          var found_record = User.table.find(column_2.eq(record.field(column_2).value()));
+          expect(found_record).to(equal, record);
+        });
       });
     });
 

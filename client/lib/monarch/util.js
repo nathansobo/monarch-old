@@ -9,6 +9,29 @@ Monarch.module("Monarch.Util", {
     }
   },
 
+  detect: function(array_or_hash, fn) {
+    if (array_or_hash.length) {
+      return this.array_detect(array_or_hash, fn);
+    } else {
+      return this.hash_detect(array_or_hash, fn);
+    }
+  },
+
+  array_detect: function(array, fn) {
+    for(var i = 0; i < array.length; i++) {
+      var result = fn.call(array[i], array[i]);
+      if (result) return result;
+    }
+    return null;
+  },
+
+  hash_detect: function(hash, fn) {
+    for (key in hash) {
+      var value = fn.call(hash[key], key, hash[key]);
+      if (value) return value;
+    }
+    return null;
+  },
 
   index_of: function(array, element) {
     for(var i = 0; i < array.length; i++) {
@@ -50,6 +73,14 @@ Monarch.module("Monarch.Util", {
     if (record_index == -1) return null;
     array.splice(record_index, 1);
     return element;
+  },
+
+  is_empty: function(array_or_hash) {
+    if (array_or_hash.length) {
+      return array_or_hash.length == 0;
+    } else {
+      return this.keys(array_or_hash).length == 0;
+    }
   },
 
   keys: function(hash, optional_each_function) {
