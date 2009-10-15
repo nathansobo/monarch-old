@@ -38,17 +38,17 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
-    describe("#find(id)", function() {
+    describe("#find(id_or_predicate)", function() {
       context("when passed an id", function() {
         it("returns the Record with the given id or null if none exists", function() {
-          var found_record = User.table.find(record.id());
+          var found_record = relation.find(record.id());
           expect(found_record).to(equal, record);
         });
       });
 
       context("when passed a predicate", function() {
         it("returns the first Record matching the predicate or null if none exists", function() {
-          var found_record = User.table.find(column_2.eq(record.field(column_2).value()));
+          var found_record = relation.find(column_2.eq(record.field(column_2).value()));
           expect(found_record).to(equal, record);
         });
       });

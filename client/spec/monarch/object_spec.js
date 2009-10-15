@@ -13,6 +13,7 @@ Screw.Unit(function(c) { with(c) {
     });
 
     after(function() {
+      delete window.Foo;
       delete Monarch.ModuleSystem.Object.constructor_delegate_target;
     });
 
