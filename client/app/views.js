@@ -1,5 +1,0 @@
-//= require "views/application"
-//= require "views/login"
-//= require "views/signup"
-//= require "views/elections"
-//= require "views/error_list"
