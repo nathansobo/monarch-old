@@ -74,7 +74,7 @@ Monarch.constructor("FakeServer", {
     return fake_put.future;
   },
 
-  delete_request: function(url, data) {
+  delete_: function(url, data) {
     var fake_delete = new FakeServer.FakeRequest('DELETE', url, data)
     this.last_delete = fake_delete;
     this.deletes.push(fake_delete);

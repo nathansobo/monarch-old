@@ -33,8 +33,8 @@ Monarch.constructor("Monarch.Http.Server", {
     return record.push();
   },
 
-  remove: function(record) {
-    return record.push_delete();
+  destroy: function(record) {
+    return record.push_destroy();
   },
 
   post: function(url, data) {
@@ -49,7 +49,7 @@ Monarch.constructor("Monarch.Http.Server", {
     return this.request('PUT', url, data);
   },
 
-  delete_request: function(url, data) {
+  delete_: function(url, data) {
     return this.request('DELETE', url, data);
   },
 

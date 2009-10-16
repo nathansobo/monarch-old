@@ -208,10 +208,10 @@ Monarch.constructor("Monarch.Model.Record", {
     return push_future;
   },
 
-  push_delete: function() {
+  push_destroy: function() {
     var self = this;
     var push_future = new Monarch.Http.RepositoryUpdateFuture();
-    Server.delete_request(Repository.origin_url, {
+    Server.delete_(Repository.origin_url, {
       record: this.wire_representation()
     })
       .on_success(function() {

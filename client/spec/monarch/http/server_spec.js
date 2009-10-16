@@ -148,16 +148,16 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
-    describe("#remove(record)", function() {
+    describe("#destroy(record)", function() {
       use_local_fixtures();
       use_fake_server();
 
-      it("sends the record to be deleted to the remote repository, then removes the local record on success", function() {
+      it("sends the record to be deleted to the remote repository, then destroys the local record on success", function() {
         var remove_callback = mock_function("remove callback");
         Blog.on_remove(remove_callback);
 
         var record = Blog.find('recipes');
-        var remove_future = server.remove(record);
+        var destroy_future = server.destroy(record);
 
         expect(Server.deletes.length).to(equal, 1);
         var delete_request = Server.deletes.shift();
@@ -170,8 +170,8 @@ Screw.Unit(function(c) { with(c) {
         var after_events_callback = mock_function("after events", function() {
           expect(remove_callback).to(have_been_called, once);
         });
-        remove_future.before_events(before_events_callback);
-        remove_future.after_events(after_events_callback);
+        destroy_future.before_events(before_events_callback);
+        destroy_future.after_events(after_events_callback);
 
         delete_request.simulate_success();
 
