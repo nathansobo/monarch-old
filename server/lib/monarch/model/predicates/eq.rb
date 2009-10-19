@@ -27,7 +27,7 @@ module Model
       end
 
       def to_sql
-        "#{left_operand.to_sql} = #{right_operand.to_sql}"
+        "#{left_operand.to_sql} #{sql_operator} #{right_operand.to_sql}"
       end
 
       def ==(other_predicate)
@@ -40,6 +40,15 @@ module Model
       end
 
       protected
+
+      def sql_operator
+        if left_operand.nil? || right_operand.nil?
+          "is"
+        else
+          "="
+        end
+      end
+
       def column_operand
         return left_operand if left_operand.instance_of?(Column)
         return right_operand if right_operand.instance_of?(Column)
