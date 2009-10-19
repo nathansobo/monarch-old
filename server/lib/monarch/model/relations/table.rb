@@ -8,11 +8,7 @@ module Model
         @columns_by_name = ActiveSupport::OrderedHash.new
       end
 
-      def composite?
-        false
-      end
-
-      def constituent_tables
+      def joined_tables
         [self]
       end
 
@@ -45,6 +41,18 @@ module Model
       def column(name)
         name = name.to_sym if name.instance_of?(String)
         columns_by_name[name]
+      end
+
+      def build_record_from_database(field_values)
+        id = field_values[:id]
+        if record_from_id_map = identity_map[id]
+          record_from_id_map
+        else
+          record = record_class.unsafe_new(field_values)
+          record.mark_clean
+          identity_map[id] = record
+          record
+        end
       end
 
       def initialize_identity_map

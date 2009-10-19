@@ -1,7 +1,9 @@
 module Model
   module Relations
     class Projection < Relations::Relation
+
       attr_reader :operand, :projected_columns_by_name
+      delegate :joined_tables, :to => :operand
 
       def initialize(operand, projected_columns, &block)
         @operand, @projected_columns = operand, projected_columns
@@ -27,14 +29,10 @@ module Model
         operand.build_sql_query(sql_query)
       end
 
-      def composite?
-        true
+      def build_record_from_database(field_values)
+        record_class.new(field_values)
       end
-
-      def constituent_tables
-        operand.constituent_tables
-      end
-
+      
       def record_class
         return @record_class if @record_class
         @record_class = Class.new(ProjectionRecord)

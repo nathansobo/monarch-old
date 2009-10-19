@@ -1,15 +1,15 @@
 module Model
   class JoinRecord
     class << self
-      attr_accessor :constituent_tables
+      attr_accessor :joined_tables
     end
 
-    delegate :constituent_tables, :to => "self.class"
+    delegate :joined_tables, :to => "self.class"
     attr_reader :constituent_records_by_table, :relation
     
     def initialize(field_values)
       @constituent_records_by_table = {}
-      constituent_tables.each do |table|
+      joined_tables.each do |table|
         constituent_records_by_table[table] = build_constituent_record(table, field_values)
       end
     end

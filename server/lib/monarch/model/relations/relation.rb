@@ -18,7 +18,6 @@ module Model
       include ForwardsArrayMethodsToRecords
       attr_writer :exposed_name
 
-      delegate :composite?, :column, :to => :operand
       delegate :include?, :to => :records
 
       def where(predicate)
@@ -89,11 +88,6 @@ module Model
 
       def to_sql
         build_sql_query.to_sql
-      end
-
-      def table
-        raise "Can only call #table on non-composite relations" if composite?
-        constituent_tables.first
       end
 
       def add_to_relational_dataset(dataset)

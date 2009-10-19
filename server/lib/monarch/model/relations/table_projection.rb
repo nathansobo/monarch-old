@@ -9,17 +9,14 @@ module Model
         end
       end
 
+      delegate :column, :to => :projected_table
       attr_reader :operand, :projected_table
       def initialize(operand, projected_table)
         @operand, @projected_table = operand, projected_table
       end
 
-      def composite?
-        false
-      end
-
-      def table
-        projected_table
+      def build_record_from_database(field_values)
+        projected_table.build_record_from_database(field_values)
       end
 
       def record_class

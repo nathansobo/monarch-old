@@ -15,21 +15,21 @@ module Model
         @left_operand, @right_operand, @predicate = left_operand, right_operand, predicate
       end
 
-      def composite?
-        true
+      def build_record_from_database(field_values)
+        record_class.new(field_values)
       end
 
       def column(name)
         left_operand.column(name) || right_operand.column(name)
       end
 
-      def constituent_tables
-        left_operand.constituent_tables + right_operand.constituent_tables
+      def joined_tables
+        left_operand.joined_tables + right_operand.joined_tables
       end
 
       def record_class
         @record_class ||= Class.new(JoinRecord)
-        @record_class.constituent_tables = constituent_tables
+        @record_class.joined_tables = joined_tables
         @record_class
       end
 

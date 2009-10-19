@@ -15,35 +15,11 @@ module Model
     end
 
     def read(relation)
-      if relation.composite?
-        read_composite_relation(relation)
-      else
-        read_simple_relation(relation)
-      end
-    end
-
-    def read_composite_relation(relation)
       connection[relation.to_sql].map do |field_values|
-        relation.record_class.new(field_values)
+        relation.build_record_from_database(field_values)
       end
     end
 
-    def read_simple_relation(relation)
-      table = relation.table
-      connection[relation.to_sql].map do |field_values|
-
-
-        id = field_values[:id]
-        if record_from_id_map = table.identity_map[id]
-          record_from_id_map
-        else
-          record = relation.record_class.unsafe_new(field_values)
-          record.mark_clean
-          table.identity_map[id] = record
-          record
-        end
-      end
-    end
 
     def reload(record)
       table = record.table

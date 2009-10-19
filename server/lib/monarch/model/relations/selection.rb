@@ -9,23 +9,11 @@ module Model
         end
       end
 
-
       attr_reader :operand, :predicate
+      delegate :column, :joined_tables, :build_record_from_database, :to => :operand
 
       def initialize(operand, predicate)
         @operand, @predicate = operand, predicate
-      end
-
-      def constituent_tables
-        operand.constituent_tables
-      end
-
-      def table
-        operand.table
-      end
-
-      def record_class
-        operand.record_class
       end
 
       def build_sql_query(query=SqlQuery.new)
