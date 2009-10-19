@@ -20,6 +20,10 @@ module Model
         operand.constituent_tables
       end
 
+      def table
+        operand.table
+      end
+
       def record_class
         operand.record_class
       end
