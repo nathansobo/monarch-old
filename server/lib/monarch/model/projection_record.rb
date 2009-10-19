@@ -15,16 +15,12 @@ module Model
       end
     end
 
-    attr_reader :fields_by_projected_column
+    attr_reader :fields_by_projected_column, :relation
     delegate :projected_columns_by_name, :to => "self.class"
 
     def initialize(field_values)
       initialize_fields
       field_values.each do |projected_column_name, value|
-
-        p projected_column_name unless field(projected_column_name)
-
-
         field(projected_column_name).value = value
       end
     end

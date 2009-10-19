@@ -31,8 +31,6 @@ module Model
     describe "#put" do
       it "finds the record with the given 'id' in the given 'relation', then updates it with the given field values and returns all changed field values as its result" do
         record = User.find('jan')
-        record.should_not be_dirty
-
         new_signed_up_at = record.signed_up_at - 1.hours
 
         response = Http::Response.new(*exposed_repository.put({
@@ -89,6 +87,25 @@ module Model
               'signed_up_at' => signed_up_at.to_millis
             }
           }
+        }
+      end
+    end
+
+    describe "#delete" do
+      it "finds the record with the given 'id' in the given 'relation', then destroys it" do
+        User.find('jan').should_not be_nil
+
+        response = Http::Response.new(*exposed_repository.delete({
+          :relation => { "type" => "table", "name" => "users"}.to_json,
+          :id => "jan"
+        }))
+
+        User.find('jan').should be_nil
+
+
+        response.should be_ok
+        response.body_from_json.should == {
+          'successful' => true,
         }
       end
     end

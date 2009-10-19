@@ -5,7 +5,7 @@ module Model
     end
 
     delegate :constituent_tables, :to => "self.class"
-    attr_reader :constituent_records_by_table
+    attr_reader :constituent_records_by_table, :relation
     
     def initialize(field_values)
       @constituent_records_by_table = {}

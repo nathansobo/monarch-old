@@ -103,6 +103,10 @@ module Model
       dirty_field_values_by_column_name
     end
 
+    def destroy
+      Origin.destroy(table, id)
+    end
+
     def update_fields(field_values_by_column_name)
       field_values_by_column_name.each do |column_name, value|
         self.field(column_name).value = value

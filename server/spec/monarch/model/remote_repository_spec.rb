@@ -2,7 +2,7 @@ require File.expand_path("#{File.dirname(__FILE__)}/../../monarch_spec_helper")
 
 module Model
   describe RemoteRepository do
-    describe "#insert" do
+    describe "#insert(table, field_values)" do
       it "performs a database insert into the table corresponding to the given Table with the given field values" do
         id = Guid.new.to_s
 
@@ -19,7 +19,7 @@ module Model
       end
     end
 
-    describe "#update" do
+    describe "#update(table, field_values)" do
       it "performs a database update of the record in the table corresponding to the given Table based on the given field values" do
         dataset = Origin.connection[:blog_posts]
 
@@ -30,6 +30,17 @@ module Model
 
         retrieved_record = dataset[:id => "grain_quinoa"]
         retrieved_record.should == field_values
+      end
+    end
+
+    describe "#destroy(table, id)" do
+      it "deletes the indicated record in the database" do
+        dataset = Origin.connection[:blog_posts]
+        dataset[:id => "grain_quinoa"].should_not be_nil
+
+        Origin.destroy(BlogPost.table, "grain_quinoa")
+
+        dataset[:id => "grain_quinoa"].should be_nil
       end
     end
 

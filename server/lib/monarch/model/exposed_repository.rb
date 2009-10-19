@@ -34,6 +34,14 @@ module Model
       [200, headers, { :successful => true, :data => {:field_values => new_record.wire_representation}}.to_json]
     end
 
+    def delete(params)
+      id = params[:id]
+      relation = build_relation_from_wire_representation(JSON.parse(params[:relation]))
+      relation.destroy(id)
+
+      [200, headers, { :successful => true }.to_json]
+    end
+
     def headers
       { 'Content-Type' => 'application/json' }
     end

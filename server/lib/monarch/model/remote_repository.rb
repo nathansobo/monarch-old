@@ -10,6 +10,10 @@ module Model
       connection.from(table.global_name).filter(:id => field_values[:id]).update(field_values)
     end
 
+    def destroy(table, id)
+      connection.from(table.global_name).filter(:id => id).delete
+    end
+
     def read(relation)
       if relation.composite?
         read_composite_relation(relation)

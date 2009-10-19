@@ -62,7 +62,7 @@ module Model
       end
 
       def find(id_or_predicate)
-        predicate = (id_or_predicate.is_a?(Predicates::Predicate)? id_or_predicate : record_class[:id].eq(id_or_predicate))
+        predicate = (id_or_predicate.is_a?(Predicates::Predicate)? id_or_predicate : column(:id).eq(id_or_predicate))
         where(predicate).records.first
       end
 
@@ -75,6 +75,13 @@ module Model
         end
       end
 
+      def destroy(id)
+        Origin.destroy(self, id)
+      end
+
+      def first
+        records.first
+      end
 
       def records
         Origin.read(self)

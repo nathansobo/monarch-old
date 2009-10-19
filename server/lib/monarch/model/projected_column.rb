@@ -16,5 +16,9 @@ module Model
       as_suffix = column_alias ? " as #{column_alias}" : ""
       "#{column.to_sql}#{as_suffix}"
     end
+
+    def eq(right_operand)
+      Predicates::Eq.new(self, right_operand)
+    end
   end
 end

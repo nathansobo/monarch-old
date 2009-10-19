@@ -8,6 +8,7 @@ module Model
       before do
         @operand = Blog.join(BlogPost).on(BlogPost[:blog_id].eq(Blog[:id]))
         @projected_columns = [
+          ProjectedColumn.new(BlogPost[:id]),
           Blog[:title].as(:blog_title),
           BlogPost[:title].as(:blog_post_title),
           ProjectedColumn.new(Blog[:user_id]),
@@ -45,10 +46,25 @@ module Model
         end
       end
 
+      describe "#find(id)" do
+        it "finds the ProjectionRecord with the given id" do
+          operand_record = operand.first
+          blog = operand_record[Blog]
+          blog_post = operand_record[BlogPost]
+          projection_record = projection.find(blog_post.id)
+
+          projection_record.blog_post_title.should == blog_post.title
+          projection_record.blog_title.should == blog.title
+          projection_record.body.should == blog_post.body
+          projection_record.user_id.should == blog.user_id
+        end
+      end
+
       describe "#to_sql" do
         it "generates appropriate sql" do
           projection.to_sql.should == %{
             select distinct
+              blog_posts.id,
               blogs.title as blog_title,
               blog_posts.title as blog_post_title,
               blogs.user_id,
