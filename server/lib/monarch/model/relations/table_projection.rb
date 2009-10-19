@@ -15,17 +15,13 @@ module Model
         @operand, @projected_table = operand, projected_table
       end
 
-      def build_record_from_database(field_values)
-        projected_table.build_record_from_database(field_values)
-      end
-
-      def record_class
-        projected_table.record_class
-      end
-
       def build_sql_query(query=SqlQuery.new)
         query.projected_columns = projected_table.columns.map {|c| ProjectedColumn.new(c)}
         operand.build_sql_query(query)
+      end
+
+      def build_record_from_database(field_values)
+        projected_table.build_record_from_database(field_values)
       end
     end
   end

@@ -23,6 +23,13 @@ module Model
       def column(name)
         projected_columns_by_name[name]
       end
+      
+      def record_class
+        return @record_class if @record_class
+        @record_class = Class.new(ProjectionRecord)
+        @record_class.projected_columns = projected_columns
+        @record_class
+      end
 
       def build_sql_query(sql_query=SqlQuery.new)
         sql_query.projected_columns = projected_columns
@@ -31,13 +38,6 @@ module Model
 
       def build_record_from_database(field_values)
         record_class.new(field_values)
-      end
-      
-      def record_class
-        return @record_class if @record_class
-        @record_class = Class.new(ProjectionRecord)
-        @record_class.projected_columns = projected_columns
-        @record_class
       end
     end
   end

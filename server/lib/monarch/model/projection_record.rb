@@ -25,13 +25,6 @@ module Model
       end
     end
 
-    def initialize_fields
-      @fields_by_projected_column = {}
-      projected_columns_by_name.each do |name, projected_column|
-        fields_by_projected_column[projected_column] = Field.new(self, projected_column)
-      end
-    end
-
     def field(projected_column_or_name)
       if projected_column_or_name.instance_of?(ProjectedColumn)
         fields_by_projected_column[projected_column_or_name]
@@ -46,6 +39,14 @@ module Model
         wire_representation[column.name.to_s] = field.value_wire_representation
       end
       wire_representation
+    end
+
+    protected
+    def initialize_fields
+      @fields_by_projected_column = {}
+      projected_columns_by_name.each do |name, projected_column|
+        fields_by_projected_column[projected_column] = Field.new(self, projected_column)
+      end
     end
   end
 end

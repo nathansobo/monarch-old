@@ -17,8 +17,29 @@ module Model
       end
       include ForwardsArrayMethodsToRecords
       attr_writer :exposed_name
-
       delegate :include?, :to => :records
+
+      def records
+        Origin.read(self)
+      end
+
+      def find(id_or_predicate)
+        predicate = (id_or_predicate.is_a?(Predicates::Predicate)? id_or_predicate : column(:id).eq(id_or_predicate))
+        where(predicate).records.first
+      end
+
+      def find_or_create(predicate)
+        extant_record = find(predicate)
+        if extant_record
+          extant_record
+        else
+          create(predicate.force_matching_field_values)
+        end
+      end
+
+      def destroy(id)
+        Origin.destroy(self, id)
+      end
 
       def where(predicate)
         Selection.new(self, predicate)
@@ -36,6 +57,22 @@ module Model
         end
       end
 
+      def to_sql
+        build_sql_query.to_sql
+      end
+
+      def add_to_relational_dataset(dataset)
+        dataset[exposed_name] ||= {}
+        records.each do |record|
+          dataset[exposed_name][record.id] = record.wire_representation
+        end
+      end
+
+      def exposed_name
+        @exposed_name || operand.exposed_name
+      end
+
+      protected
       def table_or_record_class?(arg)
         arg.instance_of?(Table) || arg.instance_of?(Class)
       end
@@ -59,48 +96,7 @@ module Model
           end
         end.flatten
       end
-
-      def find(id_or_predicate)
-        predicate = (id_or_predicate.is_a?(Predicates::Predicate)? id_or_predicate : column(:id).eq(id_or_predicate))
-        where(predicate).records.first
-      end
-
-      def find_or_create(predicate)
-        extant_record = find(predicate)
-        if extant_record
-          extant_record
-        else
-          create(predicate.force_matching_field_values)
-        end
-      end
-
-      def destroy(id)
-        Origin.destroy(self, id)
-      end
-
-      def first
-        records.first
-      end
-
-      def records
-        Origin.read(self)
-      end
-
-      def to_sql
-        build_sql_query.to_sql
-      end
-
-      def add_to_relational_dataset(dataset)
-        dataset[exposed_name] ||= {}
-        records.each do |record|
-          dataset[exposed_name][record.id] = record.wire_representation
-        end
-      end
-
-      def exposed_name
-        @exposed_name || operand.exposed_name
-      end
-
+      
       class PartiallyConstructedInnerJoin
         attr_reader :left_operand, :right_operand
         def initialize(left_operand, right_operand)

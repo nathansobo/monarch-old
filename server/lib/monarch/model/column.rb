@@ -13,6 +13,14 @@ module Model
       @table, @name, @type = table, name, type
     end
 
+    def eq(right_operand)
+      Predicates::Eq.new(self, right_operand)
+    end
+
+    def as(column_alias)
+      ProjectedColumn.new(self, column_alias.to_sym)
+    end
+
     def ruby_type
       case type
       when :string
@@ -44,18 +52,6 @@ module Model
 
     def to_sql
       "#{table.global_name}.#{name}"
-    end
-
-    def to_aliased_sql
-      "#{to_sql} as #{table.global_name}__#{name}"
-    end
-
-    def eq(right_operand)
-      Predicates::Eq.new(self, right_operand)
-    end
-
-    def as(column_alias)
-      ProjectedColumn.new(self, column_alias.to_sym)
     end
 
     protected

@@ -111,6 +111,20 @@ module Model
     end
 
     describe "#build_relation_from_wire_representation" do
+      before do
+        publicize exposed_repository, :build_relation_from_wire_representation
+      end
+
+      it "delegates to Relation#from_wire_representation with self as the repository" do
+        representation = {
+          "type" => "table",
+          "name" => "blogs"
+        }
+        mock(Relations::Relation).from_wire_representation(representation, exposed_repository)
+        exposed_repository.build_relation_from_wire_representation(representation)
+      end
+
+
       it "resolves relation names to primitive Tables" do
         relation = exposed_repository.build_relation_from_wire_representation({
           "type" => "table",
@@ -120,18 +134,11 @@ module Model
       end
     end
 
-    describe "#build_relation_from_wire_representation" do
-      it "delegates to Relation#from_wire_representation with self as the repository" do
-        representation = {
-          "type" => "table",
-          "name" => "blogs"
-        }
-        mock(Relations::Relation).from_wire_representation(representation, exposed_repository)
-        exposed_repository.build_relation_from_wire_representation(representation)
-      end
-    end
-
     describe "#fetch" do
+      before do
+        publicize exposed_repository, :fetch
+      end
+
       it "populates a relational dataset with the contents of an array of wire representations of relations" do
         blogs_relation_representation = {
           "type" => "selection",

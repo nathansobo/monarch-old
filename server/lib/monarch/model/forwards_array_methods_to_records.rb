@@ -4,5 +4,9 @@ module Model
     def each(&block)
       records.each(&block)
     end
+
+    def first
+      records.first
+    end
   end
 end

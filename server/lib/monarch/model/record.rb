@@ -174,6 +174,19 @@ module Model
       field(column).value
     end
 
+    def table
+      self.class.table
+    end
+
+    def ==(other)
+      other.class == self.class && id == other.id
+    end
+
+    def inspect
+      field_values_by_column_name.inspect
+    end
+
+    protected
     def initialize_fields
       @fields_by_column = {}
       table.columns.each do |column|
@@ -186,24 +199,6 @@ module Model
       self.class.relation_definitions.each do |relation_name, definition|
         relations_by_name[relation_name] = instance_eval(&definition)
       end
-    end
-
-    def table
-      self.class.table
-    end
-
-    def ==(other)
-      other.class == self.class && id == other.id
-    end
-
-    def resolve_table_name(name)
-      relation = relations_by_name[name.to_sym]
-      raise "No relation with name #{name} found on #{inspect}" unless relation
-      relation
-    end
-
-    def inspect
-      field_values_by_column_name.inspect
     end
   end
 end

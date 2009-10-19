@@ -15,10 +15,6 @@ module Model
         @left_operand, @right_operand, @predicate = left_operand, right_operand, predicate
       end
 
-      def build_record_from_database(field_values)
-        record_class.new(field_values)
-      end
-
       def column(name)
         left_operand.column(name) || right_operand.column(name)
       end
@@ -37,6 +33,10 @@ module Model
         query.add_condition(predicate)
         left_operand.build_sql_query(query)
         right_operand.build_sql_query(query)
+      end
+
+      def build_record_from_database(field_values)
+        record_class.new(field_values)
       end
     end
   end

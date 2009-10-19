@@ -8,7 +8,7 @@ module Model
       before do
         @table = BlogPost.table
       end
-
+      
       describe "#initialize" do
         it "automatically has a string-valued :id column" do
           table.columns_by_name[:id].type.should == :string

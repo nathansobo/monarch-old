@@ -6,7 +6,7 @@ module Model
       describe "class methods" do
         describe ".from_wire_representation" do
           it "builds a Selection with an #operand resolved in the given repository" do
-            repository = User.find("jan")
+            repository = UserRepository.new(User.find("jan"))
             selection = Selection.from_wire_representation({
               "type" => "selection",
               "operand" => {
@@ -28,7 +28,7 @@ module Model
             }, repository)
 
             selection.class.should == Relations::Selection
-            selection.operand.should == repository.blog_posts
+            selection.operand.should == repository.resolve_table_name(:blog_posts)
             selection.predicate.class.should == Predicates::Eq
             selection.predicate.left_operand.should == BlogPost[:blog_id]
             selection.predicate.right_operand.should == "grain"

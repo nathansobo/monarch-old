@@ -12,6 +12,15 @@ module Model
       "#{select} #{projected_columns_sql} from #{from_tables_sql}#{where_clause_sql}"
     end
 
+    def add_from_table(table)
+      from_tables.push(table) unless from_tables.include?(table)
+    end
+
+    def add_condition(predicate)
+      conditions.push(predicate) unless conditions.include?(predicate)
+    end
+
+    protected
     def select
       if from_tables.size > 1
         "select distinct"
@@ -37,13 +46,6 @@ module Model
       from_tables.map {|s| s.global_name}.join(", ")
     end
 
-    def add_from_table(table)
-      from_tables.push(table) unless from_tables.include?(table)
-    end
-
-    def add_condition(predicate)
-      conditions.push(predicate) unless conditions.include?(predicate)
-    end
 
     def projected_columns
       return @projected_columns if @projected_columns

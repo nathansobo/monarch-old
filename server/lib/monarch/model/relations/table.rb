@@ -8,10 +8,6 @@ module Model
         @columns_by_name = ActiveSupport::OrderedHash.new
       end
 
-      def joined_tables
-        [self]
-      end
-
       def define_column(name, type)
         columns_by_name[name] = Column.new(self, name, type)
       end
@@ -20,8 +16,9 @@ module Model
         columns_by_name.values
       end
 
-      def insert(record)
-        Origin.insert(self, record.field_values_by_column_name)
+      def column(name)
+        name = name.to_sym if name.instance_of?(String)
+        columns_by_name[name]
       end
 
       def create(field_values = {})
@@ -33,14 +30,17 @@ module Model
         record
       end
 
+      def insert(record)
+        Origin.insert(self, record.field_values_by_column_name)
+      end
+
+      def joined_tables
+        [self]
+      end
+
       def build_sql_query(query=SqlQuery.new)
         query.add_from_table(self)
         query
-      end
-
-      def column(name)
-        name = name.to_sym if name.instance_of?(String)
-        columns_by_name[name]
       end
 
       def build_record_from_database(field_values)
@@ -73,12 +73,10 @@ module Model
         end
       end
 
-      #TODO: test
       def clear_table
         Origin.clear_table(global_name)
       end
 
-      #TODO: test
       def create_table
         columns_to_generate = columns
         Origin.create_table(global_name) do
@@ -88,7 +86,6 @@ module Model
         end
       end
 
-      #TODO: test
       def drop_table
         Origin.drop_table(global_name)
       end

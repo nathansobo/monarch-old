@@ -5,6 +5,7 @@ module Model
     attr_reader :query
     before do
       @query = SqlQuery.new
+      publicize query, :projected_columns_sql
     end
 
     describe "#to_sql" do

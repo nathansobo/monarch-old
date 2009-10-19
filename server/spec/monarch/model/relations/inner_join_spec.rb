@@ -7,7 +7,7 @@ module Model
       describe "class methods" do
         describe ".from_wire_representation" do
           it "builds an InnerJoin with its operands resolved in the given repository" do
-            repository = User.find("jan")
+            repository = UserRepository.new(User.find("jan"))
             representation = {
               "type" => "inner_join",
               "left_operand" => {
@@ -35,8 +35,8 @@ module Model
 
             join = InnerJoin.from_wire_representation(representation, repository)
             join.class.should == InnerJoin
-            join.left_operand.should == repository.blogs
-            join.right_operand.should == repository.blog_posts
+            join.left_operand.should == repository.resolve_table_name(:blogs)
+            join.right_operand.should == repository.resolve_table_name(:blog_posts)
             join.predicate.left_operand.should == Blog[:id]
             join.predicate.right_operand.should == BlogPost[:blog_id]
           end
