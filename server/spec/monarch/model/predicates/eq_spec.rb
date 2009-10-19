@@ -65,7 +65,6 @@ module Model
               Eq.new(BlogPost[:blog_id], nil).to_sql.should == %{blog_posts.blog_id is null}
             end
           end
-
         end
       end
     end

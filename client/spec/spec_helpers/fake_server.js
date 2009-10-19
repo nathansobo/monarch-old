@@ -21,6 +21,7 @@ Monarch.constructor("FakeServer", {
     this.gets = [];
     this.fetches = [];
     this.creates = [];
+    this.destroys = [];
     this.auto_fetch = false;
 
     this.Repository = Repository.clone_schema();
@@ -46,6 +47,17 @@ Monarch.constructor("FakeServer", {
       this.creates.push(fake_create);
     }
     return fake_create.future;
+  },
+
+  destroy: function(record) {
+    var fake_destroy = new FakeServer.FakeDestroy(Repository.origin_url, record);
+    if (this.auto_destroy) {
+      fake_destroy.simulate_success();
+    } else {
+      this.last_destroy = fake_destroy;
+      this.destroys.push(fake_destroy);
+    }
+    return fake_destroy.future;
   },
 
   simulate_fetch: function(relations) {
@@ -160,6 +172,22 @@ Monarch.constructor("FakeServer.FakeCreate", {
     var new_record = new this.relation.record_constructor(field_values);
 
     this.relation.insert(new_record, {
+      before_events: function() { self.future.trigger_before_events(new_record); },
+      after_events: function() { self.future.trigger_after_events(new_record); }
+    });
+  }
+});
+
+Monarch.constructor("FakeServer.FakeDestroy", {
+  initialize: function(url, record) {
+    this.url = url;
+    this.record = record;
+    this.future = new Monarch.Http.RepositoryUpdateFuture();
+  },
+
+  simulate_success: function() {
+    var self = this;
+    this.record.table().remove(this.record, {
       before_events: function() { self.future.trigger_before_events(new_record); },
       after_events: function() { self.future.trigger_after_events(new_record); }
     });
