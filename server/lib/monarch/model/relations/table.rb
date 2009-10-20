@@ -16,9 +16,13 @@ module Model
         columns_by_name.values
       end
 
-      def column(name)
-        name = name.to_sym if name.instance_of?(String)
-        columns_by_name[name]
+      def column(column_or_name)
+        case column_or_name
+        when String, Symbol
+          columns_by_name[column_or_name.to_sym]
+        when Column
+          column_or_name
+        end
       end
 
       def create(field_values = {})

@@ -1,5 +1,5 @@
 module Model
-  class Record
+  class Record < Tuple
     class << self
       include ForwardsArrayMethodsToRecords
 
@@ -62,10 +62,6 @@ module Model
         record
       end
 
-      def basename
-        name.split("::").last
-      end
-
       def relation_definitions
         @relation_definitions ||= ActiveSupport::OrderedHash.new
       end
@@ -82,6 +78,10 @@ module Model
     def initialize(field_values = {})
       unsafe_initialize(field_values.merge(:id => Guid.new.to_s))
       @dirty = true
+    end
+
+    def relation
+      table
     end
 
     def unsafe_initialize(field_values)
@@ -127,13 +127,6 @@ module Model
       fields.each { |field| field.mark_clean }
     end
 
-    def field_values_by_column_name
-      fields_by_column.inject({}) do |result, column_field_pair|
-        result[column_field_pair[0].name] = column_field_pair[1].value
-        result
-      end
-    end
-
     def dirty_field_values_by_column_name
       dirty_fields.inject({}) do |field_values, field|
         field_values[field.column.name] = field.value_wire_representation
@@ -141,29 +134,8 @@ module Model
       end
     end
 
-    def fields
-      fields_by_column.values
-    end
-
     def dirty_fields
       fields.select { |field| field.dirty? }
-    end
-
-    def field(column)
-      case column
-      when String, Symbol
-        fields_by_column[table.column(column)]
-      when Column
-        fields_by_column[column]
-      end
-    end
-
-    def wire_representation
-      wire_representation = {}
-      fields_by_column.each do |column, field|
-        wire_representation[column.name.to_s] = field.value_wire_representation
-      end
-      wire_representation
     end
 
     def set_field_value(column, value)
@@ -180,10 +152,6 @@ module Model
 
     def ==(other)
       other.class == self.class && id == other.id
-    end
-
-    def inspect
-      field_values_by_column_name.inspect
     end
 
     protected
