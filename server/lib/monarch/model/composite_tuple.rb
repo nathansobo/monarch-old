@@ -1,5 +1,5 @@
 module Model
-  class JoinRecord
+  class CompositeTuple
     class << self
       attr_accessor :joined_tables
     end

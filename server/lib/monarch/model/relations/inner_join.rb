@@ -24,7 +24,7 @@ module Model
       end
 
       def record_class
-        @record_class ||= Class.new(JoinRecord)
+        @record_class ||= Class.new(CompositeTuple)
         @record_class.joined_tables = joined_tables
         @record_class
       end
