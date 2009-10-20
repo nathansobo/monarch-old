@@ -5,8 +5,12 @@ module Model
 
       attr_accessor :table
       def inherited(subclass)
-        subclass.table = Repository.new_table(subclass.basename.underscore.pluralize.to_sym, subclass)
+        subclass.relation = Repository.new_table(subclass.basename.underscore.pluralize.to_sym, subclass)
         subclass.column(:id, :string)
+      end
+
+      def table
+        relation
       end
 
       def column(name, type)
@@ -15,12 +19,6 @@ module Model
         define_field_reader(column)
       end
 
-      def define_field_writer(column)
-        define_method("#{column.name}=") do |value|
-          set_field_value(column, value)
-        end
-      end
-      
       def relates_to_many(relation_name, &definition)
         relation_definitions[relation_name] = definition
         define_method(relation_name) do
@@ -64,25 +62,25 @@ module Model
       delegate :create, :where, :project, :join, :find, :columns_by_name, :[],
                :create_table, :drop_table, :clear_table, :records, :find_or_create,
                :to => :table
+
+      protected
+      def define_field_writer(column)
+        define_method("#{column.name}=") do |value|
+          set_field_value(column, value)
+        end
+      end
     end
 
     attr_reader :relations_by_name
-    attr_writer :dirty
     delegate :table, :to => "self.class"
 
     def initialize(field_values = {})
       unsafe_initialize(field_values.merge(:id => Guid.new.to_s))
-      @dirty = true
-    end
-
-    def relation
-      table
     end
 
     def unsafe_initialize(field_values)
       initialize_fields
       update(field_values)
-      @dirty = false
       initialize_relations
     end
 

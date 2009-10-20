@@ -8,6 +8,7 @@ module Model
         relation.columns.each { |column| define_field_reader(column) }
       end
 
+      protected
       def define_field_reader(column)
         define_method(column.name) do
           get_field_value(column)
