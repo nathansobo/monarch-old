@@ -38,9 +38,9 @@ module Model
       end
 
       describe "#create" do
-        it "instantiates an instance of #record_class with the given columns, #inserts it, and returns it in a non-dirty state" do
+        it "instantiates an instance of #tuple_class with the given columns, #inserts it, and returns it in a non-dirty state" do
           mock(table).insert(anything) do |record|
-            record.class.should == table.record_class
+            record.class.should == table.tuple_class
             record.body.should == "Brown Rice"
             record.blog_id.should == "grain"
           end
@@ -50,14 +50,14 @@ module Model
           record.should_not be_dirty
         end
 
-        context "if the #record_class defines a #before_create hook" do
+        context "if the #tuple_class defines a #before_create hook" do
           it "calls the after inserting the record" do
             mock.instance_of(BlogPost).before_create
             table.create(:body => "Couscous")
           end
         end
 
-        context "if the #record_class defines an #after_create hook" do
+        context "if the #tuple_class defines an #after_create hook" do
           it "calls the after inserting the record" do
             mock.instance_of(BlogPost).after_create
             table.create(:body => "Couscous")

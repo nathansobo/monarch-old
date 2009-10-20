@@ -1,10 +1,10 @@
 module Model
   module Relations
     class Table < Relation
-      attr_reader :global_name, :record_class, :columns_by_name
+      attr_reader :global_name, :tuple_class, :columns_by_name
 
-      def initialize(global_name, record_class)
-        @global_name, @record_class = global_name, record_class
+      def initialize(global_name, tuple_class)
+        @global_name, @tuple_class = global_name, tuple_class
         @columns_by_name = ActiveSupport::OrderedHash.new
       end
 
@@ -26,7 +26,7 @@ module Model
       end
 
       def create(field_values = {})
-        record = record_class.new(field_values)
+        record = tuple_class.new(field_values)
         record.before_create if record.respond_to?(:before_create)
         insert(record)
         record.mark_clean
@@ -52,7 +52,7 @@ module Model
         if record_from_id_map = identity_map[id]
           record_from_id_map
         else
-          record = record_class.unsafe_new(field_values)
+          record = tuple_class.unsafe_new(field_values)
           record.mark_clean
           identity_map[id] = record
           record
@@ -73,7 +73,7 @@ module Model
 
       def load_fixtures(fixtures)
         fixtures.each do |id, field_values|
-          insert(record_class.unsafe_new(field_values.merge(:id => id.to_s)))
+          insert(tuple_class.unsafe_new(field_values.merge(:id => id.to_s)))
         end
       end
 

@@ -23,11 +23,11 @@ module Model
         left_operand.tables + right_operand.tables
       end
 
-      def record_class
-        return @record_class if @record_class
-        @record_class = Class.new(CompositeTuple)
-        @record_class.relation = self
-        @record_class
+      def tuple_class
+        return @tuple_class if @tuple_class
+        @tuple_class = Class.new(CompositeTuple)
+        @tuple_class.relation = self
+        @tuple_class
       end
 
       def build_sql_query(query=SqlQuery.new)
@@ -37,7 +37,7 @@ module Model
       end
 
       def build_record_from_database(field_values)
-        record_class.new(field_values)
+        tuple_class.new(field_values)
       end
     end
   end

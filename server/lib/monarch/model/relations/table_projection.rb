@@ -4,7 +4,7 @@ module Model
       class << self
         def from_wire_representation(representation, repository)
           operand = Relation.from_wire_representation(representation["operand"], repository)
-          projected_table = repository.resolve_table_name(representation["projected_table"]).record_class.table
+          projected_table = repository.resolve_table_name(representation["projected_table"]).table
           new(operand, projected_table)
         end
       end

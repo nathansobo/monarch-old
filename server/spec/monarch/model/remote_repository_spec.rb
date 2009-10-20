@@ -58,7 +58,7 @@ module Model
       end
 
       context "when reading a Record that is not in the identity map" do
-        it "instantiates instances of the given Table's #record_class with the field values returned by the query and inserts them into the identity map" do
+        it "instantiates instances of the given Table's #tuple_class with the field values returned by the query and inserts them into the identity map" do
           Origin.connection[:blog_posts].delete
           Origin.connection[:blog_posts] << { :id => "1", :body => "Quinoa" }
           Origin.connection[:blog_posts] << { :id => "2", :body => "Barley" }

@@ -9,7 +9,7 @@ module Model
 
       it "adds its assigned .table to Repository #tables_by_name" do
         Repository.tables_by_name[:blog_posts].should == BlogPost.table
-        Repository.tables_by_name[:blog_posts].record_class.should == BlogPost
+        Repository.tables_by_name[:blog_posts].tuple_class.should == BlogPost
       end
 
       it "defines an :id Column on the subclass" do
