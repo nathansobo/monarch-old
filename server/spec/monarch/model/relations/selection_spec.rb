@@ -46,13 +46,13 @@ module Model
           @composite_selection = Selection.new(selection, predicate_2)
         end
 
-        describe "#records" do
+        describe "#all" do
           context "when #operand is a Table" do
             it "executes an appropriate SQL query against the database and returns Records corresponding to its results" do
-              BlogPost.table.records.detect {|t| t.blog_id == "grain"}.should_not be_nil
-              records = selection.records
-              records.should_not be_empty
-              records.each do |record|
+              BlogPost.table.all.detect {|t| t.blog_id == "grain"}.should_not be_nil
+              all = selection.all
+              all.should_not be_empty
+              all.each do |record|
                 record.blog_id.should == "grain"
               end
             end
@@ -60,7 +60,7 @@ module Model
 
           context "when #operand is a Selection" do
             it "executes an appropriate SQL query against the database and returns Records corresponding to its results" do
-              record = composite_selection.records.first
+              record = composite_selection.all.first
               record.should_not be_nil
               record.blog_id.should == "grain"
               record.body.should == "Barley"

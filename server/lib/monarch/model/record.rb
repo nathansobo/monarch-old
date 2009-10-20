@@ -29,7 +29,7 @@ module Model
       def relates_to_one(relation_name, &definition)
         relation_definitions[relation_name] = definition
         define_method relation_name do
-          relations_by_name[relation_name].records.first
+          relations_by_name[relation_name].all.first
         end
       end
 
@@ -60,7 +60,7 @@ module Model
       end
 
       delegate :create, :where, :project, :join, :find, :columns_by_name, :[],
-               :create_table, :drop_table, :clear_table, :records, :find_or_create,
+               :create_table, :drop_table, :clear_table, :all, :find_or_create,
                :to => :table
 
       protected

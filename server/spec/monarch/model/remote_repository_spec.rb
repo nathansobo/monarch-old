@@ -50,9 +50,9 @@ module Model
           record_in_id_map = BlogPost.find('grain_quinoa')
           BlogPost.table.identity_map['grain_quinoa'] = record_in_id_map
 
-          records = Origin.read(BlogPost.where(BlogPost[:id].eq("grain_quinoa")))
-          records.size.should == 1
-          record = records.first
+          all = Origin.read(BlogPost.where(BlogPost[:id].eq("grain_quinoa")))
+          all.size.should == 1
+          record = all.first
           record.should equal(record_in_id_map)
         end
       end
@@ -65,15 +65,15 @@ module Model
           BlogPost.table.identity_map['1'].should be_nil
           BlogPost.table.identity_map['2'].should be_nil
 
-          records = Origin.read(BlogPost.table)
-          records.size.should == 2
+          all = Origin.read(BlogPost.table)
+          all.size.should == 2
           
-          record_1 = records.find {|t| t.id == "1"}
+          record_1 = all.find {|t| t.id == "1"}
           record_1.should_not be_dirty
           record_1.body.should == "Quinoa"
           BlogPost.table.identity_map['1'].should == record_1
 
-          record_2 = records.find {|t| t.id == "2"}
+          record_2 = all.find {|t| t.id == "2"}
           record_2.should_not be_dirty
           record_2.body.should == "Barley"
           BlogPost.table.identity_map['2'].should == record_2

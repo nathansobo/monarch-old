@@ -220,24 +220,24 @@ module Model
         describe "#find" do
           context "when passed an id" do
             it "returns the first Record in a Selection where id is equal to the given id" do
-              BlogPost.table.find("grain_quinoa").should == BlogPost.table.where(BlogPost[:id].eq("grain_quinoa")).records.first
+              BlogPost.table.find("grain_quinoa").should == BlogPost.table.where(BlogPost[:id].eq("grain_quinoa")).all.first
             end
           end
 
           context "when passed a Predicate" do
             it "returns the first Record in the Relation that matches the Predicate" do
-              BlogPost.table.find(BlogPost[:body].eq("Millet")).should == BlogPost.where(BlogPost[:body].eq("Millet")).records.first
+              BlogPost.table.find(BlogPost[:body].eq("Millet")).should == BlogPost.where(BlogPost[:body].eq("Millet")).all.first
             end
           end
         end
 
         describe "#each" do
-          specify "delegates to #records of #table" do
-            records = []
-            stub(BlogPost.table).records { records }
+          specify "delegates to #all of #table" do
+            all = []
+            stub(BlogPost.table).all { all }
 
             block = lambda {}
-            mock(records).each(&block)
+            mock(all).each(&block)
             BlogPost.table.each(&block)
           end
         end

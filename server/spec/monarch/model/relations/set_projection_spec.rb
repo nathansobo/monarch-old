@@ -55,11 +55,11 @@ module Model
       end
 
       describe "instance methods" do
-        describe "#records" do
+        describe "#all" do
           it "executes an appropriate SQL query against the database and returns Records corresponding to its results" do
-            records = projection.records
-            records.should_not be_empty
-            records.each do |record|
+            all = projection.all
+            all.should_not be_empty
+            all.each do |record|
               record.class.should == Blog
             end
           end

@@ -25,18 +25,18 @@ module Model
         end
       end
 
-      describe "#records" do
+      describe "#all" do
         it "returns instances of ProjectionRecord that have reader methods for each column in the projection" do
-          operand_records = operand.records
+          operand_records = operand.all
           operand_records.should_not be_empty
-          records = projection.records
-          records.size.should == operand_records.size
+          all = projection.all
+          all.size.should == operand_records.size
 
           operand_records.each_with_index do |join_record, index|
             blog = join_record[Blog]
             blog_post = join_record[BlogPost]
 
-            projection_record = records[index]
+            projection_record = all[index]
 
             projection_record.blog_post_title.should == blog_post.title
             projection_record.blog_title.should == blog.title

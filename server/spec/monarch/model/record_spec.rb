@@ -35,8 +35,8 @@ module Model
         it "defines a Selection via .relates_to_many based on the given name" do
           blog = Blog.find("grain")
           blog_posts_relation = blog.blog_posts
-          blog_posts_relation.records.should_not be_empty
-          blog_posts_relation.records.each do |answer|
+          blog_posts_relation.all.should_not be_empty
+          blog_posts_relation.all.each do |answer|
             answer.blog_id.should == blog.id
           end
         end
@@ -84,12 +84,12 @@ module Model
       end
 
       describe "#each" do
-        specify "are forwarded to #records of #table" do
-          records = []
-          stub(BlogPost.table).records { records }
+        specify "are forwarded to #all of #table" do
+          all = []
+          stub(BlogPost.table).all { all }
 
           block = lambda {}
-          mock(records).each(&block)
+          mock(all).each(&block)
           BlogPost.each(&block)
         end
       end

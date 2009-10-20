@@ -52,10 +52,10 @@ module Model
           @join = InnerJoin.new(left_operand, right_operand, predicate)
         end
 
-        describe "#records" do
-          it "instantiates a CompositeTuple for each of the records returned by the join" do
-            composite_records = join.records
-            composite_records.size.should == BlogPost.records.size
+        describe "#all" do
+          it "instantiates a CompositeTuple for each of the all returned by the join" do
+            composite_records = join.all
+            composite_records.size.should == BlogPost.all.size
 
             composite_records.each do |composite_record|
               blog = composite_record[Blog]

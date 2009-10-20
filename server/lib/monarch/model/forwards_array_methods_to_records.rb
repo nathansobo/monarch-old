@@ -2,11 +2,11 @@
 module Model
   module ForwardsArrayMethodsToRecords
     def each(&block)
-      records.each(&block)
+      all.each(&block)
     end
 
     def first
-      records.first
+      all.first
     end
   end
 end

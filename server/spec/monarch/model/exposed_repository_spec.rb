@@ -209,7 +209,7 @@ module Model
         }
 
         dataset = exposed_repository.fetch([super_blog_posts_relation_representation])
-        expected_records = exposed_repository.resolve_table_name(:super_blog_posts).where(Blog[:user_id].eq('jan')).records
+        expected_records = exposed_repository.resolve_table_name(:super_blog_posts).where(Blog[:user_id].eq('jan')).all
         expected_records.should_not be_empty
 
         expected_records.each do |record|

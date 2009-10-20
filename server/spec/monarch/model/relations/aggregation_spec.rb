@@ -10,6 +10,12 @@ module Model
         @aggregation = Aggregation.new(operand, expressions)
       end
 
+      describe "#all" do
+        it "returns all for each column in the aggregation, which" do
+          
+        end
+      end
+
       describe "#to_sql" do
         it "returns sql with the appropriate aggregation functions in the select clause" do
           aggregation.to_sql.should == "select sum(users.age), max(users.signed_up_at) as max_signed_up_at from users"

@@ -17,15 +17,15 @@ module Model
       end
       include ForwardsArrayMethodsToRecords
       attr_writer :exposed_name
-      delegate :include?, :to => :records
+      delegate :include?, :to => :all
 
-      def records
+      def all
         Origin.read(self)
       end
 
       def find(id_or_predicate)
         predicate = (id_or_predicate.is_a?(Predicates::Predicate)? id_or_predicate : column(:id).eq(id_or_predicate))
-        where(predicate).records.first
+        where(predicate).all.first
       end
 
       def find_or_create(predicate)
@@ -69,7 +69,7 @@ module Model
 
       def add_to_relational_dataset(dataset)
         dataset[exposed_name] ||= {}
-        records.each do |record|
+        all.each do |record|
           dataset[exposed_name][record.id] = record.wire_representation
         end
       end

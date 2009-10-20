@@ -83,7 +83,7 @@ module Model
         end
       end
 
-      describe "#records" do
+      describe "#all" do
         it "executes a select all SQL query against the database and returns Records corresponding to its results" do
           record_1_id = table.create(:body => "Quinoa", :blog_id => "grain").id
           record_2_id = table.create(:body => "White Rice", :blog_id => "grain").id
@@ -91,17 +91,17 @@ module Model
 
           mock.proxy(Origin).read(table)
 
-          records = table.records
+          all = table.all
 
-          retrieved_record_1 = records.find {|t| t.id == record_1_id }
+          retrieved_record_1 = all.find {|t| t.id == record_1_id }
           retrieved_record_1.body.should == "Quinoa"
           retrieved_record_1.blog_id.should == "grain"
 
-          retrieved_record_2 = records.find {|t| t.id == record_2_id }
+          retrieved_record_2 = all.find {|t| t.id == record_2_id }
           retrieved_record_2.body.should == "White Rice"
           retrieved_record_2.blog_id.should == "grain"
 
-          retrieved_record_3 = records.find {|t| t.id == record_3_id }
+          retrieved_record_3 = all.find {|t| t.id == record_3_id }
           retrieved_record_3.body.should == "Pearled Barley"
           retrieved_record_3.blog_id.should == "grain"
         end
