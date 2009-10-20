@@ -21,11 +21,6 @@ module Model
 
     describe "class methods" do
       describe ".column" do
-        it "delegates column definition to .table" do
-          mock(BlogPost.table).define_column(:foo, :string)
-          BlogPost.column(:foo, :string)
-        end
-
         it "defines named instance methods that call #set_field_value and #get_field_value" do
           record = BlogPost.new
 
@@ -106,14 +101,6 @@ module Model
       end
 
       describe "#initialize" do
-        it "assigns #fields_by_column to a hash with a Field object for every column declared in the table" do
-          BlogPost.table.columns.each do |column|
-            field = record.fields_by_column[column]
-            field.column.should == column
-            field.record.should == record
-          end
-        end
-
         it "assigns the Field values in the given hash" do
           record.get_field_value(BlogPost[:body]).should == "Quinoa"
           record.get_field_value(BlogPost[:blog_id]).should == "grain"
@@ -231,6 +218,7 @@ module Model
 
       describe "#field_values_by_column_name" do
         it "returns a hash with the values of all fields indexed by Column name" do
+          publicize record, :fields_by_column
           expected_hash = {}
           record.fields_by_column.each do |column, field|
             expected_hash[column.name] = field.value

@@ -1,13 +1,35 @@
 module Model
   class Tuple
     class << self
-      attr_accessor :relation
+      attr_reader :relation
+
+      def relation=(relation)
+        @relation = relation
+        relation.columns.each { |column| define_field_reader(column) }
+      end
+
+      def define_field_reader(column)
+        define_method(column.name) do
+          get_field_value(column)
+        end
+      end
     end
     delegate :relation, :to => "self.class"
     delegate :column, :to => :relation
 
+    def initialize(field_values)
+      initialize_fields
+      field_values.each do |projected_column_name, value|
+        field(projected_column_name).value = value
+      end
+    end
+
     def get_field_value(column_or_name)
       field(column_or_name).value
+    end
+
+    def set_field_value(column_or_name, value)
+      field(column_or_name).value = value
     end
 
     def field(column_or_name)
@@ -38,6 +60,7 @@ module Model
     end
 
     protected
+    attr_reader :fields_by_column
     def initialize_fields
       @fields_by_column = {}
       relation.columns.each do |column|

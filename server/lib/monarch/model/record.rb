@@ -11,21 +11,16 @@ module Model
 
       def column(name, type)
         column = table.define_column(name, type)
+        define_field_writer(column)
+        define_field_reader(column)
+      end
 
-        define_method("#{name}=".to_sym) do |value|
+      def define_field_writer(column)
+        define_method("#{column.name}=") do |value|
           set_field_value(column, value)
         end
-
-        define_method(name) do
-          get_field_value(column)
-        end
       end
-
-      def [](column_name)
-        raise "Column #{column_name} not found" unless table.columns_by_name.has_key?(column_name)
-        table.columns_by_name[column_name]
-      end
-
+      
       def relates_to_many(relation_name, &definition)
         relation_definitions[relation_name] = definition
         define_method(relation_name) do
@@ -66,12 +61,12 @@ module Model
         @relation_definitions ||= ActiveSupport::OrderedHash.new
       end
 
-      delegate :create, :where, :project, :join, :find, :columns_by_name,
+      delegate :create, :where, :project, :join, :find, :columns_by_name, :[],
                :create_table, :drop_table, :clear_table, :records, :find_or_create,
                :to => :table
     end
 
-    attr_reader :fields_by_column, :relations_by_name
+    attr_reader :relations_by_name
     attr_writer :dirty
     delegate :table, :to => "self.class"
 
@@ -103,15 +98,15 @@ module Model
       dirty_field_values_by_column_name
     end
 
-    def destroy
-      Origin.destroy(table, id)
-    end
-
     def update_fields(field_values_by_column_name)
       field_values_by_column_name.each do |column_name, value|
         self.field(column_name).value = value
       end
       dirty_field_values_by_column_name
+    end
+
+    def destroy
+      Origin.destroy(table, id)
     end
 
     def save
@@ -138,30 +133,11 @@ module Model
       fields.select { |field| field.dirty? }
     end
 
-    def set_field_value(column, value)
-      field(column).value = value
-    end
-
-    def get_field_value(column)
-      field(column).value
-    end
-
-    def table
-      self.class.table
-    end
-
     def ==(other)
       other.class == self.class && id == other.id
     end
 
     protected
-    def initialize_fields
-      @fields_by_column = {}
-      table.columns.each do |column|
-        fields_by_column[column] = Field.new(self, column)
-      end
-    end
-
     def initialize_relations
       @relations_by_name = {}
       self.class.relation_definitions.each do |relation_name, definition|

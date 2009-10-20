@@ -37,6 +37,12 @@ module Model
         end
       end
 
+      def [](column_or_name)
+        column = column(column_or_name)
+        raise "No column name #{column_or_name}" unless column
+        column
+      end
+
       def destroy(id)
         Origin.destroy(self, id)
       end

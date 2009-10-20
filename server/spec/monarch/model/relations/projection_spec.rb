@@ -3,18 +3,18 @@ require File.expand_path("#{File.dirname(__FILE__)}/../../../monarch_spec_helper
 module Model
   module Relations
     describe Projection do
-      attr_reader :projection, :operand, :projected_columns
+      attr_reader :projection, :operand, :columns
 
       before do
         @operand = Blog.join(BlogPost).on(BlogPost[:blog_id].eq(Blog[:id]))
-        @projected_columns = [
+        @columns = [
           ProjectedColumn.new(BlogPost[:id]),
           Blog[:title].as(:blog_title),
           BlogPost[:title].as(:blog_post_title),
           ProjectedColumn.new(Blog[:user_id]),
           ProjectedColumn.new(BlogPost[:body])
         ]
-        @projection = Projection.new(operand, projected_columns) do
+        @projection = Projection.new(operand, columns) do
           def foo; end
         end
       end
