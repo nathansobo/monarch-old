@@ -68,6 +68,13 @@ module Model
           end
         end
 
+        describe "#create(field_values)" do
+          it "introduces an additional field value to match its predicate if needed" do
+            mock(operand).create(:blog_id => "grain", :body => "Barley", :title => "Barely Barley")
+            composite_selection.create(:title => "Barely Barley")
+          end
+        end
+
         describe "#to_sql" do
           context "when #operand is a Table" do
             it "generates a query with an appropriate where clause" do

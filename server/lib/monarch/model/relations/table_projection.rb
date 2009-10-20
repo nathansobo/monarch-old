@@ -16,7 +16,7 @@ module Model
       end
 
       def build_sql_query(query=SqlQuery.new)
-        query.projected_columns = projected_table.columns.map {|c| ProjectedColumn.new(c)}
+        query.select_clause_columns = projected_table.columns.map {|c| ProjectedColumn.new(c)}
         operand.build_sql_query(query)
       end
 

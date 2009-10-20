@@ -35,8 +35,8 @@ module Model
         other_predicate.left_operand == left_operand && other_predicate.right_operand == right_operand
       end
 
-      def force_matching_field_values
-        { column_operand.name => scalar_operand }
+      def force_matching_field_values(field_values={})
+        field_values.merge(column_operand.name => scalar_operand)
       end
 
       protected

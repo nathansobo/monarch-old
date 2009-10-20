@@ -32,7 +32,7 @@ module Model
       end
 
       def build_sql_query(sql_query=SqlQuery.new)
-        sql_query.projected_columns = projected_columns
+        sql_query.select_clause_columns = projected_columns
         operand.build_sql_query(sql_query)
       end
 
