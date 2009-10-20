@@ -19,13 +19,14 @@ module Model
         left_operand.column(name) || right_operand.column(name)
       end
 
-      def joined_tables
-        left_operand.joined_tables + right_operand.joined_tables
+      def tables
+        left_operand.tables + right_operand.tables
       end
 
       def record_class
-        @record_class ||= Class.new(CompositeTuple)
-        @record_class.joined_tables = joined_tables
+        return @record_class if @record_class
+        @record_class = Class.new(CompositeTuple)
+        @record_class.relation = self
         @record_class
       end
 

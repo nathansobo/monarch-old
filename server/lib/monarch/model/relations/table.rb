@@ -38,7 +38,7 @@ module Model
         Origin.insert(self, record.field_values_by_column_name)
       end
 
-      def joined_tables
+      def tables
         [self]
       end
 

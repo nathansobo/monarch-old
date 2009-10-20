@@ -10,7 +10,7 @@ module Model
       end
 
       attr_reader :operand, :predicate
-      delegate :column, :joined_tables, :build_record_from_database, :to => :operand
+      delegate :column, :tables, :build_record_from_database, :to => :operand
 
       def initialize(operand, predicate)
         @operand, @predicate = operand, predicate

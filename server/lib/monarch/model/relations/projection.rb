@@ -3,7 +3,7 @@ module Model
     class Projection < Relations::Relation
 
       attr_reader :operand, :projected_columns_by_name
-      delegate :joined_tables, :to => :operand
+      delegate :tables, :to => :operand
 
       def initialize(operand, columns, &block)
         @operand, @columns = operand, columns
