@@ -166,15 +166,17 @@ Monarch.constructor("FakeServer.FakeCreate", {
     this.future = new Monarch.Http.RepositoryUpdateFuture();
   },
 
-  simulate_success: function() {
+  simulate_success: function(server_field_values) {
     var self = this;
-    var field_values = jQuery.extend({}, this.field_values, {id: (this.constructor.id_counter++).toString()});
+    if (!server_field_values) server_field_values = {};
+    var field_values = jQuery.extend({}, this.field_values, {id: (this.constructor.id_counter++).toString()}, server_field_values);
     var new_record = new this.relation.record_constructor(field_values);
 
     this.relation.insert(new_record, {
       before_events: function() { self.future.trigger_before_events(new_record); },
       after_events: function() { self.future.trigger_after_events(new_record); }
     });
+    this.record = new_record;
   }
 });
 
