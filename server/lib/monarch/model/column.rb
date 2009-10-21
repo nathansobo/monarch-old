@@ -34,6 +34,8 @@ module Model
 
     def convert_value_for_storage(value)
       case type
+      when :integer
+        value.to_i
       when :datetime
         convert_datetime_value_for_storage(value)
       else
@@ -61,6 +63,8 @@ module Model
         value
       when Integer
         Time.at(value / 1000)
+      when String
+        Sequel.string_to_datetime(value)
       end
     end
   end

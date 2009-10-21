@@ -33,6 +33,10 @@ module Model
       field(column_or_name).value = value
     end
 
+    def [](column_index)
+      field(column_index).value
+    end
+
     def field(column_or_name)
       fields_by_column[column(column_or_name)]
     end
