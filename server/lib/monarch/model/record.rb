@@ -33,11 +33,11 @@ module Model
         end
       end
 
-      def has_many(relation_name)
+      def has_many(relation_name, &block)
         relates_to_many(relation_name) do
           target_class = relation_name.to_s.singularize.classify.constantize
           foreign_key_column = target_class["#{self.class.basename.underscore}_id".to_sym]
-          target_class.where(foreign_key_column.eq(id))
+          target_class.where(foreign_key_column.eq(id), &block)
         end
       end
 

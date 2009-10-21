@@ -11,7 +11,8 @@ module Model
       end
 
       attr_reader :left_operand, :right_operand, :predicate
-      def initialize(left_operand, right_operand, predicate)
+      def initialize(left_operand, right_operand, predicate, &block)
+        super(&block)
         @left_operand, @right_operand, @predicate = left_operand, right_operand, predicate
       end
 

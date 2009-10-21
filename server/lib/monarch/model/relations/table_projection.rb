@@ -11,7 +11,8 @@ module Model
 
       delegate :column, :to => :projected_table
       attr_reader :operand, :projected_table
-      def initialize(operand, projected_table)
+      def initialize(operand, projected_table, &block)
+        super(&block)
         @operand, @projected_table = operand, projected_table
       end
 

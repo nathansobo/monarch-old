@@ -12,11 +12,12 @@ module Model
       attr_reader :operand, :predicate
       delegate :column, :tables, :build_record_from_database, :to => :operand
 
-      def initialize(operand, predicate)
+      def initialize(operand, predicate, &block)
+        super(&block)
         @operand, @predicate = operand, predicate
       end
 
-      def create(field_values)
+      def create(field_values={})
         operand.create(predicate.force_matching_field_values(field_values))
       end
 

@@ -21,6 +21,22 @@ module Model
       ProjectedColumn.new(self, column_alias.to_sym)
     end
 
+    def max
+      AggregationExpression.new('max', self)
+    end
+
+    def min
+      AggregationExpression.new('min', self)
+    end
+
+    def sum
+      AggregationExpression.new('sum', self)
+    end
+
+    def count
+      AggregationExpression.new('count', self)
+    end
+
     def ruby_type
       case type
       when :string

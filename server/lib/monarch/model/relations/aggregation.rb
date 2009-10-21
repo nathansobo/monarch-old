@@ -3,12 +3,17 @@ module Model
     class Aggregation < Relation
       attr_reader :operand, :expressions_by_name
 
-      def initialize(operand, expressions)
+      def initialize(operand, expressions, &block)
+        super(&block)
         @operand = operand
         @expressions_by_name = ActiveSupport::OrderedHash.new
         expressions.each do |expression|
           expressions_by_name[expression.name] = expression
         end
+      end
+
+      def value
+        all.first[0]
       end
 
       def expressions

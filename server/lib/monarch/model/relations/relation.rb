@@ -19,6 +19,10 @@ module Model
       attr_writer :exposed_name
       delegate :include?, :to => :all
 
+      def initialize(&block)
+        class_eval(&block) if block
+      end
+
       def all
         Origin.read(self)
       end
@@ -47,20 +51,24 @@ module Model
         Origin.destroy(self, id)
       end
 
-      def where(predicate)
-        Selection.new(self, predicate)
+      def where(predicate, &block)
+        Selection.new(self, predicate, &block)
       end
 
-      def join(right_operand)
-        PartiallyConstructedInnerJoin.new(self, convert_to_table_if_needed(right_operand))
+      def join(right_operand, &block)
+        PartiallyConstructedInnerJoin.new(self, convert_to_table_if_needed(right_operand), &block)
       end
 
       def project(*args, &block)
         if args.size == 1 && table_or_record_class?(args.first)
-          TableProjection.new(self, convert_to_table_if_needed(args.first))
+          TableProjection.new(self, convert_to_table_if_needed(args.first), &block)
         else
           Projection.new(self, convert_to_projected_columns_if_needed(args), &block)
         end
+      end
+
+      def aggregate(*args, &block)
+        Aggregation.new(self, args, &block)
       end
 
       def to_sql

@@ -6,12 +6,12 @@ module Model
       delegate :tables, :to => :operand
 
       def initialize(operand, columns, &block)
+        super(&block)
         @operand, @columns = operand, columns
         @projected_columns_by_name = ActiveSupport::OrderedHash.new
         columns.each do |projected_column|
           projected_columns_by_name[projected_column.name] = projected_column
         end
-        class_eval(&block) if block
       end
 
       def columns
