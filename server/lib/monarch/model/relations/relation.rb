@@ -87,6 +87,10 @@ module Model
         @exposed_name || operand.exposed_name
       end
 
+      def size
+        all.size
+      end
+
       protected
       def table_or_record_class?(arg)
         arg.instance_of?(Table) || arg.instance_of?(Class)
