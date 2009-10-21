@@ -20,11 +20,11 @@ module Model
       end
     end
 
-
     def reload(record)
       table = record.table
       query = table.where(table.column(:id).eq(record.id)).to_sql
       field_values = connection[query].first
+      raise "Record '#{record.id}' not found during reload" unless field_values
       record.update_fields(field_values)
     end
 

@@ -190,8 +190,8 @@ Monarch.constructor("FakeServer.FakeDestroy", {
   simulate_success: function() {
     var self = this;
     this.record.table().remove(this.record, {
-      before_events: function() { self.future.trigger_before_events(new_record); },
-      after_events: function() { self.future.trigger_after_events(new_record); }
+      before_events: function() { self.future.trigger_before_events(self.record); },
+      after_events: function() { self.future.trigger_after_events(self.record); }
     });
   }
 });

@@ -86,6 +86,7 @@ module Model
 
     def reload
       Origin.reload(self)
+      self
     end
 
     def update(values_by_method_name)

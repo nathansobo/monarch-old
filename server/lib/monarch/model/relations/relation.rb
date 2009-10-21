@@ -19,6 +19,7 @@ module Model
       attr_writer :exposed_name
       delegate :include?, :to => :all
 
+
       def initialize(&block)
         class_eval(&block) if block
       end
@@ -48,7 +49,7 @@ module Model
       end
 
       def destroy(id)
-        Origin.destroy(self, id)
+        find(id).destroy
       end
 
       def where(predicate, &block)
