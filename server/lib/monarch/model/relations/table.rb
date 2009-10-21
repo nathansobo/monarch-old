@@ -8,8 +8,8 @@ module Model
         @columns_by_name = ActiveSupport::OrderedHash.new
       end
 
-      def define_column(name, type)
-        columns_by_name[name] = Column.new(self, name, type)
+      def define_column(name, type, options={})
+        columns_by_name[name] = Column.new(self, name, type, options)
       end
 
       def columns

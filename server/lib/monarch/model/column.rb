@@ -7,10 +7,11 @@ module Model
       end
     end
 
-    attr_reader :table, :name, :type
+    attr_reader :table, :name, :type, :default_value
 
-    def initialize(table, name, type)
+    def initialize(table, name, type, options={})
       @table, @name, @type = table, name, type
+      @default_value = options[:default]
     end
 
     def eq(right_operand)

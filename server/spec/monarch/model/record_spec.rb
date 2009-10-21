@@ -109,6 +109,11 @@ module Model
         it "assigns #id to a new guid" do
           record.id.should_not be_nil
         end
+
+        it "assigns a field to its column's declared default if no value is assigned" do
+          record = BlogPost.create(:blog_id => "grain", :created_at => 1254162750000)
+          record.body.should == BlogPost[:body].default_value
+        end
       end
 
       describe "#reload" do

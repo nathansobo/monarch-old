@@ -13,8 +13,8 @@ module Model
         relation
       end
 
-      def column(name, type)
-        column = table.define_column(name, type)
+      def column(name, type, options={})
+        column = table.define_column(name, type, options)
         define_field_writer(column)
         define_field_reader(column)
       end
@@ -75,7 +75,7 @@ module Model
     delegate :table, :to => "self.class"
 
     def initialize(field_values = {})
-      unsafe_initialize(field_values.merge(:id => Guid.new.to_s))
+      unsafe_initialize(default_field_values.merge(field_values).merge(:id => Guid.new.to_s))
     end
 
     def unsafe_initialize(field_values)
@@ -141,6 +141,14 @@ module Model
       self.class.relation_definitions.each do |relation_name, definition|
         relations_by_name[relation_name] = instance_eval(&definition)
       end
+    end
+
+    def default_field_values
+      defaults = {}
+      table.columns.each do |column|
+        defaults[column.name] = column.default_value if column.default_value
+      end
+      defaults
     end
   end
 end
