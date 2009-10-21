@@ -122,7 +122,6 @@ Monarch.constructor("Monarch.Model.Record", {
       this.local_update(field_values_by_column_name);
     }
     this.primary_fieldset.initialize_synthetic_fields();
-    this.initialize_relations();
   },
 
   initialize_fields_by_column_name: function() {
@@ -195,7 +194,6 @@ Monarch.constructor("Monarch.Model.Record", {
     })
       .on_success(function(data) {
         self.local_update(data.field_values);
-        self.initialize_relations();
         self.table().insert(self, {
           before_events: function() {
             push_future.trigger_before_events(self);
