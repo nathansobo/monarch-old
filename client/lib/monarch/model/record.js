@@ -195,6 +195,7 @@ Monarch.constructor("Monarch.Model.Record", {
     })
       .on_success(function(data) {
         self.local_update(data.field_values);
+        self.initialize_relations();
         self.table().insert(self, {
           before_events: function() {
             push_future.trigger_before_events(self);

@@ -12,7 +12,7 @@ Screw.Unit(function(c) { with(c) {
       use_example_domain_model();
       use_fake_server();
 
-      it("instantiates a record without inserting it, posts its field values to the remote repository, then updates the record with the returned field values and inserts it", function() {
+      it("instantiates a record without inserting it, posts its field values to the remote repository, then updates the record with the returned field values, reinitializes its relations, and inserts it", function() {
         var insert_callback = mock_function("insert callback");
         var update_callback = mock_function("update callback");
         Blog.on_insert(insert_callback);
@@ -50,7 +50,9 @@ Screw.Unit(function(c) { with(c) {
         var new_record = Blog.find('dinosaurs');
         expect(new_record.name()).to(equal, "Recipes Modified By Server");
         expect(new_record.user_id()).to(equal, "wil");
-
+        
+        expect(new_record.blog_posts().predicate.right_operand).to(equal, new_record.id());
+        
         expect(before_events_callback).to(have_been_called, with_args(new_record));
         expect(after_events_callback).to(have_been_called, with_args(new_record));
       });
