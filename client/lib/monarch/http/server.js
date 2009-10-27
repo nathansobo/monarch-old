@@ -1,6 +1,10 @@
 (function(Monarch, jQuery) {
 
 Monarch.constructor("Monarch.Http.Server", {
+  initialize: function() {
+    this._next_echo_id = 0;
+  },
+
   fetch: function(relations) {
     var fetch_future = new Monarch.Http.RepositoryUpdateFuture();
 
@@ -22,27 +26,25 @@ Monarch.constructor("Monarch.Http.Server", {
     return fetch_future;
   },
 
+  next_echo_id: function() {
+    return "echo_" + this._next_echo_id++;
+  },
+
   create: function(relation, field_values) {
     var create_future = new Monarch.Http.RepositoryUpdateFuture();
     var record = new relation.record_constructor(field_values);
     var table = record.table();
 
-    var create_command = {
-      relation: table.wire_representation(),
-      field_values: record.wire_representation(),
-      echo_id: "hard_coded_echo_id"
-    }
-
-    if (this.batch_in_progress) {
-      this.batched_creates.push(create_command);
-      return create_future;
-    }
-
+    var global_create_hash = {};
+    var table_create_hash = {};
+    global_create_hash[table.global_name] = table_create_hash;
+    table_create_hash[this.next_echo_id()] = record.wire_representation();
+    
     this.post(Repository.origin_url, {
-      creates: [create_command]
+      create: global_create_hash
     })
       .on_success(function(data) {
-        var field_values = Monarch.Util.values(data.creates[table.global_name])[0];
+        var field_values = Monarch.Util.values(data.create[table.global_name])[0];
         record.local_update(field_values);
         table.insert(record, {
           before_events: function() {

@@ -29,20 +29,20 @@ module Model
     end
 
     describe "#post" do
-      context "when called with a 'creates' parameter containing a single create operation" do
+      context "when called with a 'create' parameter containing a single create operation" do
         it "calls #create on the indicated 'relation' with the given 'field_values', then returns all field values as its result" do
           signed_up_at = Time.now
 
           response = Http::Response.new(*exposed_repository.post({
-            :creates => [{
-              'relation' => { "type" => "table", "name" => "users"},
-              'field_values' => {
-                'great_name' => "Sharon Ly",
-                'age' => 25,
-                'signed_up_at' => signed_up_at.to_millis
-              },
-              'echo_id' => "sample_echo_id"
-            }].to_json
+            :create => {
+              'users' => {
+                'echo_0' => {
+                  'great_name' => "Sharon Ly",
+                  'age' => 25,
+                  'signed_up_at' => signed_up_at.to_millis
+                }
+              }
+            }.to_json
           }))
 
           new_record = User.find(User[:full_name].eq('Sharon Ly The Great'))
@@ -51,10 +51,9 @@ module Model
           response.body_from_json.should == {
             'successful' => true,
             'data' => {
-              'creates' => {
+              'create' => {
                 'users' => {
-                  new_record.id => {
-                    'echo_id' => 'sample_echo_id',
+                  'echo_0' => {
                     'id' => new_record.id,
                     'full_name' => "Sharon Ly The Great",
                     'age' => 25,

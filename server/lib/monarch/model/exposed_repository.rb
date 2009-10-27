@@ -16,8 +16,8 @@ module Model
     end
 
     def post(params)
-      if params[:creates]
-        handle_creates(JSON.parse(params[:creates]))
+      if params[:create]
+        handle_create(JSON.parse(params[:create]))
       elsif params[:updates]
         handle_updates(JSON.parse(params[:updates]))
       elsif params[:destroys]
@@ -38,16 +38,19 @@ module Model
     
     protected
 
-    def handle_creates(creates)
-      create = creates.first
-      relation = build_relation_from_wire_representation(create['relation'])
-      field_values = create['field_values']
+    def handle_create(create_commands_by_table)
+      table_name = create_commands_by_table.keys.first
+      create_commands_by_echo_id = create_commands_by_table.values.first
+      echo_id = create_commands_by_echo_id.keys.first
+      field_values = create_commands_by_echo_id.values.first
+
+      relation = resolve_table_name(table_name)
       new_record = relation.create(field_values)
 
       data = {
-        'creates' => {
+        'create' => {
           new_record.table.global_name => {
-            new_record.id => new_record.wire_representation.merge('echo_id' => create['echo_id'])
+            echo_id => new_record.wire_representation
           }
         }
       }
