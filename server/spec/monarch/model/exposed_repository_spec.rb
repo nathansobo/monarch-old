@@ -51,11 +51,16 @@ module Model
           response.body_from_json.should == {
             'successful' => true,
             'data' => {
-              'field_values' => {
-                'id' => new_record.id,
-                'full_name' => "Sharon Ly The Great",
-                'age' => 25,
-                'signed_up_at' => signed_up_at.to_millis
+              'creates' => {
+                'users' => {
+                  new_record.id => {
+                    'echo_id' => 'sample_echo_id',
+                    'id' => new_record.id,
+                    'full_name' => "Sharon Ly The Great",
+                    'age' => 25,
+                    'signed_up_at' => signed_up_at.to_millis
+                  }
+                }
               }
             }
           }
@@ -88,9 +93,13 @@ module Model
           response.body_from_json.should == {
             'successful' => true,
             'data' => {
-              'field_values' => {
-                'full_name' => "Jan Christian Nelson The Great",
-                'signed_up_at' => new_signed_up_at.to_millis
+              'updates' => {
+                'users' => {
+                  'jan' => {
+                    'full_name' => "Jan Christian Nelson The Great",
+                    'signed_up_at' => new_signed_up_at.to_millis
+                  }
+                }
               }
             }
           }

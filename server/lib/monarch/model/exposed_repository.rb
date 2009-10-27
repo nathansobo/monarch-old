@@ -16,9 +16,13 @@ module Model
     end
 
     def post(params)
-      handle_creates(JSON.parse(params[:creates])) if params[:creates]
-      handle_updates(JSON.parse(params[:updates])) if params[:updates]
-      handle_destroys(JSON.parse(params[:destroys])) if params[:destroys]
+      if params[:creates]
+        handle_creates(JSON.parse(params[:creates]))
+      elsif params[:updates]
+        handle_updates(JSON.parse(params[:updates]))
+      elsif params[:destroys]
+        handle_destroys(JSON.parse(params[:destroys]))  
+      end
     end
 
     def resolve_table_name(name)
@@ -40,7 +44,15 @@ module Model
       field_values = create['field_values']
       new_record = relation.create(field_values)
 
-      [200, headers, { :successful => true, :data => {:field_values => new_record.wire_representation}}.to_json]
+      data = {
+        'creates' => {
+          new_record.table.global_name => {
+            new_record.id => new_record.wire_representation.merge(:echo_id => create['echo_id'])
+          }
+        }
+      }
+
+      [200, headers, { :successful => true, :data => data}.to_json]
     end
 
     def handle_updates(updates)
@@ -52,7 +64,15 @@ module Model
       updated_field_values = record.update(field_values)
       record.save
 
-      [200, headers, { :successful => true, :data => {:field_values => updated_field_values}}.to_json]
+      data = {
+        'updates' => {
+          record.table.global_name => {
+            record.id => updated_field_values
+          }
+        }
+      }
+
+      [200, headers, { :successful => true, :data => data}.to_json]
     end
 
     def handle_destroys(destroys)

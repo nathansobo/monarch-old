@@ -24,13 +24,59 @@ Monarch.constructor("Monarch.Http.Server", {
 
   create: function(relation, field_values) {
     var record = new relation.record_constructor(field_values);
-    return record.push();
+    var table = record.table();
+    var create_future = new Monarch.Http.RepositoryUpdateFuture();
+
+    Server.post(Repository.origin_url, {
+      creates: [{relation: table.wire_representation(), field_values: record.wire_representation(), echo_id: "hard_coded_echo_id"}]
+    })
+      .on_success(function(data) {
+        var field_values = Monarch.Util.values(data.creates[table.global_name])[0];
+        record.local_update(field_values);
+        table.insert(record, {
+          before_events: function() {
+            create_future.trigger_before_events(record);
+          },
+          after_events: function() {
+            create_future.trigger_after_events(record);
+          }
+        });
+    });
+
+    return create_future;
   },
 
   update: function(record, values_by_method_name) {
+    var push_future = new Monarch.Http.RepositoryUpdateFuture();
+    var table = record.table();
+
     record.start_pending_changes();
     record.local_update(values_by_method_name);
-    return record.push();
+    var pending_fieldset = record.active_fieldset;
+    record.restore_primary_fieldset();
+
+    Server.post(Repository.origin_url, {
+      updates: [{
+        id: record.id(),
+        relation: table.wire_representation(),
+        field_values: pending_fieldset.wire_representation()
+      }]
+    })
+      .on_success(function(data) {
+        var field_values = data.updates[table.global_name][record.id()];
+        pending_fieldset.update(field_values);
+        pending_fieldset.commit({
+          before_events: function() {
+            push_future.trigger_before_events();
+          },
+          after_events: function() {
+            push_future.trigger_after_events();
+          }
+        });
+      });
+
+    return push_future;
+
   },
 
   destroy: function(record) {

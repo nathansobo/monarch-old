@@ -152,62 +152,6 @@ Monarch.constructor("Monarch.Model.Record", {
     this.active_fieldset = this.active_fieldset.new_pending_fieldset();
   },
 
-  push: function() {
-    if (this.id()) {
-      return this.push_update();
-    } else {
-      return this.push_create();
-    }
-  },
-
-  push_update: function() {
-    var push_future = new Monarch.Http.RepositoryUpdateFuture();
-    var pending_fieldset = this.active_fieldset;
-    this.restore_primary_fieldset();
-
-    Server.post(Repository.origin_url, {
-      updates: [{
-        id: this.id(),
-        relation: this.table().wire_representation(),
-        field_values: pending_fieldset.wire_representation()
-      }]
-    })
-      .on_success(function(data) {
-        pending_fieldset.update(data.field_values);
-        pending_fieldset.commit({
-          before_events: function() {
-            push_future.trigger_before_events();
-          },
-          after_events: function() {
-            push_future.trigger_after_events();
-          }
-        });
-      });
-
-    return push_future;
-  },
-
-  push_create: function() {
-    var self = this;
-    var push_future = new Monarch.Http.RepositoryUpdateFuture();
-    Server.post(Repository.origin_url, {
-      creates: [{relation: this.table().wire_representation(), field_values: this.wire_representation(), echo_id: "hard_coded_echo_id"}]
-    })
-      .on_success(function(data) {
-        self.local_update(data.field_values);
-        self.table().insert(self, {
-          before_events: function() {
-            push_future.trigger_before_events(self);
-          },
-          after_events: function() {
-            push_future.trigger_after_events(self);
-          }
-        });
-    });
-
-    return push_future;
-  },
-
   push_destroy: function() {
     var self = this;
     var push_future = new Monarch.Http.RepositoryUpdateFuture();

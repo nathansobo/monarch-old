@@ -37,10 +37,15 @@ Screw.Unit(function(c) { with(c) {
         create_future.after_events(after_events_callback);
 
         post.simulate_success({
-          field_values: {
-            id: "dinosaurs",
-            name: "Recipes Modified By Server",
-            user_id: "wil"
+          creates: {
+            blogs: {
+              dinosaurs: {
+                id: "dinosaurs",
+                name: "Recipes Modified By Server",
+                user_id: "wil",
+                echo_id: "hard_coded_echo_id"
+              }
+            }
           }
         });
         
@@ -139,10 +144,14 @@ Screw.Unit(function(c) { with(c) {
         })
 
         post.simulate_success({
-          field_values: {
-            name: "Fancy Programming Prime", // server can change field values too
-            user_id: 'wil',
-            started_at: new_started_at.getTime()
+          updates: {
+            blogs: {
+              recipes: {
+                name: "Fancy Programming Prime", // server can change field values too
+                user_id: 'wil',
+                started_at: new_started_at.getTime()
+              }
+            }
           }
         });
 
