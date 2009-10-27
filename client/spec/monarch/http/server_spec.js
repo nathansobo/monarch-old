@@ -24,8 +24,8 @@ Screw.Unit(function(c) { with(c) {
         expect(Server.posts.length).to(equal, 1);
         var post = Server.posts.shift();
         expect(post.url).to(equal, Repository.origin_url);
-        expect(post.data.relation).to(equal, Blog.table.wire_representation());
-        expect(post.data.field_values).to(equal, new Blog(field_values).wire_representation());
+
+        expect(post.data.creates).to(equal, [{relation: Blog.table.wire_representation(), field_values: new Blog(field_values).wire_representation(), echo_id: "hard_coded_echo_id"}]);
 
         var before_events_callback = mock_function("before events", function() {
           expect(insert_callback).to_not(have_been_called);

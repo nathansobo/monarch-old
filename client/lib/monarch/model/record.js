@@ -189,8 +189,7 @@ Monarch.constructor("Monarch.Model.Record", {
     var self = this;
     var push_future = new Monarch.Http.RepositoryUpdateFuture();
     Server.post(Repository.origin_url, {
-      relation: this.table().wire_representation(),
-      field_values: this.wire_representation()
+      creates: [{relation: this.table().wire_representation(), field_values: this.wire_representation(), echo_id: "hard_coded_echo_id"}]
     })
       .on_success(function(data) {
         self.local_update(data.field_values);

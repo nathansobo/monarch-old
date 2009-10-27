@@ -62,32 +62,37 @@ module Model
     end
 
     describe "#post" do
-      it "calls #create on the indicated 'relation' with the given 'field_values', then returns all field values as its result" do
-        signed_up_at = Time.now
+      context "when called with a 'creates' param containing a single create operation" do
+        it "calls #create on the indicated 'relation' with the given 'field_values', then returns all field values as its result" do
+          signed_up_at = Time.now
 
-        response = Http::Response.new(*exposed_repository.post({
-          :relation => { "type" => "table", "name" => "users"}.to_json,
-          :field_values => {
-            :great_name => "Sharon Ly",
-            :age => 25,
-            :signed_up_at => signed_up_at.to_millis
-          }.to_json
-        }))
+          response = Http::Response.new(*exposed_repository.post({
+            :creates => [{
+              'relation' => { "type" => "table", "name" => "users"},
+              'field_values' => {
+                'great_name' => "Sharon Ly",
+                'age' => 25,
+                'signed_up_at' => signed_up_at.to_millis
+              },
+              'echo_id' => "sample_echo_id"
+            }].to_json
+          }))
 
-        new_record = User.find(User[:full_name].eq('Sharon Ly The Great'))
+          new_record = User.find(User[:full_name].eq('Sharon Ly The Great'))
 
-        response.should be_ok
-        response.body_from_json.should == {
-          'successful' => true,
-          'data' => {
-            'field_values' => {
-              'id' => new_record.id,
-              'full_name' => "Sharon Ly The Great",
-              'age' => 25,
-              'signed_up_at' => signed_up_at.to_millis
+          response.should be_ok
+          response.body_from_json.should == {
+            'successful' => true,
+            'data' => {
+              'field_values' => {
+                'id' => new_record.id,
+                'full_name' => "Sharon Ly The Great",
+                'age' => 25,
+                'signed_up_at' => signed_up_at.to_millis
+              }
             }
           }
-        }
+        end
       end
     end
 

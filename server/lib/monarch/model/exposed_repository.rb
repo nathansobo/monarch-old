@@ -27,8 +27,10 @@ module Model
     end
 
     def post(params)
-      relation = build_relation_from_wire_representation(JSON.parse(params[:relation]))
-      field_values = JSON.parse(params[:field_values])
+      creates = JSON.parse(params[:creates])
+      create = creates.first
+      relation = build_relation_from_wire_representation(create['relation'])
+      field_values = create['field_values']
       new_record = relation.create(field_values)
       
       [200, headers, { :successful => true, :data => {:field_values => new_record.wire_representation}}.to_json]
