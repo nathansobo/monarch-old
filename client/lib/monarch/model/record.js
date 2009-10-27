@@ -165,10 +165,12 @@ Monarch.constructor("Monarch.Model.Record", {
     var pending_fieldset = this.active_fieldset;
     this.restore_primary_fieldset();
 
-    Server.put(Repository.origin_url, {
-      id: this.id(),
-      relation: this.table().wire_representation(),
-      field_values: pending_fieldset.wire_representation()
+    Server.post(Repository.origin_url, {
+      updates: [{
+        id: this.id(),
+        relation: this.table().wire_representation(),
+        field_values: pending_fieldset.wire_representation()
+      }]
     })
       .on_success(function(data) {
         pending_fieldset.update(data.field_values);
@@ -209,9 +211,11 @@ Monarch.constructor("Monarch.Model.Record", {
   push_destroy: function() {
     var self = this;
     var push_future = new Monarch.Http.RepositoryUpdateFuture();
-    Server.delete_(Repository.origin_url, {
-      relation: this.table().wire_representation(),
-      id: this.id()
+    Server.post(Repository.origin_url, {
+      destroys: [{
+        relation: this.table().wire_representation(),
+        id: this.id()
+      }]
     })
       .on_success(function() {
         self.table().remove(self, {

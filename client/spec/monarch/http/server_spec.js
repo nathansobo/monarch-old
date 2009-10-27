@@ -121,19 +121,24 @@ Screw.Unit(function(c) { with(c) {
         update_future.before_events(before_events_callback);
         update_future.after_events(after_events_callback);
 
-        expect(Server.puts.length).to(equal, 1);
-        var put = Server.puts.shift();
+        expect(Server.posts.length).to(equal, 1);
+        var post = Server.posts.shift();
 
-        expect(put.url).to(equal, Repository.origin_url);
-        expect(put.data.id).to(equal, record.id());
-        expect(put.data.relation).to(equal, Blog.table.wire_representation());
-        expect(put.data.field_values).to(equal, {
-          name: "Fancy Programming",
-          user_id: "wil",
-          started_at: new_started_at.getTime()
-        });
+        expect(post.url).to(equal, Repository.origin_url);
 
-        put.simulate_success({
+        expect(post.data).to(equal, {
+          updates: [{
+            id: record.id(),
+            relation: Blog.table.wire_representation(),
+            field_values: {
+              name: "Fancy Programming",
+              user_id: "wil",
+              started_at: new_started_at.getTime()
+            }
+          }]
+        })
+
+        post.simulate_success({
           field_values: {
             name: "Fancy Programming Prime", // server can change field values too
             user_id: 'wil',
@@ -161,11 +166,13 @@ Screw.Unit(function(c) { with(c) {
         var record = Blog.find('recipes');
         var destroy_future = server.destroy(record);
 
-        expect(Server.deletes.length).to(equal, 1);
-        var delete_request = Server.deletes.shift();
-        expect(delete_request.url).to(equal, Repository.origin_url);
-        expect(delete_request.data.relation).to(equal, record.table().wire_representation());
-        expect(delete_request.data.id).to(equal, record.id());
+        expect(Server.posts.length).to(equal, 1);
+        var post = Server.posts.shift();
+        expect(post.url).to(equal, Repository.origin_url);
+
+        expect(post.data).to(equal, {
+          destroys: [{relation: record.table().wire_representation(), id: record.id()}]
+        });
 
         var before_events_callback = mock_function("before events", function() {
           expect(remove_callback).to_not(have_been_called);
@@ -176,12 +183,11 @@ Screw.Unit(function(c) { with(c) {
         destroy_future.before_events(before_events_callback);
         destroy_future.after_events(after_events_callback);
 
-        delete_request.simulate_success();
+        post.simulate_success();
 
         expect(remove_callback).to(have_been_called, once);
 
-        var deleted_record = Blog.find('recipes');
-        expect(deleted_record).to(equal, null);
+        expect(Blog.find('recipes')).to(be_null);
 
         expect(before_events_callback).to(have_been_called);
         expect(after_events_callback).to(have_been_called);

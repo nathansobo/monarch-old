@@ -15,33 +15,10 @@ module Model
       [200, headers, { :successful => true, :data => fetch(relation_wire_representations)}.to_json]
     end
 
-    def put(params)
-      id = params[:id]
-      relation = build_relation_from_wire_representation(JSON.parse(params[:relation]))
-      field_values = JSON.parse(params[:field_values])
-      record = relation.find(id)
-      updated_field_values = record.update(field_values)
-      record.save
-
-      [200, headers, { :successful => true, :data => {:field_values => updated_field_values}}.to_json]
-    end
-
     def post(params)
-      creates = JSON.parse(params[:creates])
-      create = creates.first
-      relation = build_relation_from_wire_representation(create['relation'])
-      field_values = create['field_values']
-      new_record = relation.create(field_values)
-      
-      [200, headers, { :successful => true, :data => {:field_values => new_record.wire_representation}}.to_json]
-    end
-
-    def delete(params)
-      id = params[:id]
-      relation = build_relation_from_wire_representation(JSON.parse(params[:relation]))
-      relation.destroy(id)
-
-      [200, headers, { :successful => true }.to_json]
+      handle_creates(JSON.parse(params[:creates])) if params[:creates]
+      handle_updates(JSON.parse(params[:updates])) if params[:updates]
+      handle_destroys(JSON.parse(params[:destroys])) if params[:destroys]
     end
 
     def resolve_table_name(name)
@@ -56,6 +33,36 @@ module Model
     end
     
     protected
+
+    def handle_creates(creates)
+      create = creates.first
+      relation = build_relation_from_wire_representation(create['relation'])
+      field_values = create['field_values']
+      new_record = relation.create(field_values)
+
+      [200, headers, { :successful => true, :data => {:field_values => new_record.wire_representation}}.to_json]
+    end
+
+    def handle_updates(updates)
+      update = updates.first
+      id = update['id']
+      relation = build_relation_from_wire_representation(update['relation'])
+      field_values = update['field_values']
+      record = relation.find(id)
+      updated_field_values = record.update(field_values)
+      record.save
+
+      [200, headers, { :successful => true, :data => {:field_values => updated_field_values}}.to_json]
+    end
+
+    def handle_destroys(destroys)
+      destroy = destroys.first
+      id = destroy['id']
+      relation = build_relation_from_wire_representation(destroy['relation'])
+      relation.destroy(id)
+
+      [200, headers, { :successful => true }.to_json]
+    end
 
     def headers
       { 'Content-Type' => 'application/json' }

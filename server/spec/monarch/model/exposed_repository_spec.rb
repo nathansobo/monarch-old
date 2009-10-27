@@ -28,41 +28,8 @@ module Model
       end
     end
 
-    describe "#put" do
-      it "finds the record with the given 'id' in the given 'relation', then updates it with the given field values and returns all changed field values as its result" do
-        record = User.find('jan')
-        new_signed_up_at = record.signed_up_at - 1.hours
-
-        response = Http::Response.new(*exposed_repository.put({
-          :relation => { "type" => "table", "name" => "users"}.to_json,
-          :id => "jan",
-          :field_values => {
-            :great_name => "Jan Christian Nelson",
-            :age => record.age,
-            :signed_up_at => new_signed_up_at.to_millis
-          }.to_json
-        }))
-
-        record.reload
-        record.full_name.should == "Jan Christian Nelson The Great"
-        record.age.should == 31
-        record.signed_up_at.to_millis.should == new_signed_up_at.to_millis
-        
-        response.should be_ok
-        response.body_from_json.should == {
-          'successful' => true,
-          'data' => {
-            'field_values' => {
-              'full_name' => "Jan Christian Nelson The Great",
-              'signed_up_at' => new_signed_up_at.to_millis
-            }
-          }
-        }
-      end
-    end
-
     describe "#post" do
-      context "when called with a 'creates' param containing a single create operation" do
+      context "when called with a 'creates' parameter containing a single create operation" do
         it "calls #create on the indicated 'relation' with the given 'field_values', then returns all field values as its result" do
           signed_up_at = Time.now
 
@@ -94,26 +61,64 @@ module Model
           }
         end
       end
-    end
 
-    describe "#delete" do
-      it "finds the record with the given 'id' in the given 'relation', then destroys it" do
-        User.find('jan').should_not be_nil
+      context "when called with an 'updates' parameter containing a single update operation" do
+        it "finds the record with the given 'id' in the given 'relation', then updates it with the given field values and returns all changed field values as its result" do
+          record = User.find('jan')
+          new_signed_up_at = record.signed_up_at - 1.hours
 
-        response = Http::Response.new(*exposed_repository.delete({
-          :relation => { "type" => "table", "name" => "users"}.to_json,
-          :id => "jan"
-        }))
+          response = Http::Response.new(*exposed_repository.post({
+            :updates => [{
+              'relation' => { "type" => "table", "name" => "users"},
+              'id' => "jan",
+              'field_values' => {
+                'great_name' => "Jan Christian Nelson",
+                'age' => record.age,
+                'signed_up_at' => new_signed_up_at.to_millis
+              }
+            }].to_json
+          }))
 
-        User.find('jan').should be_nil
+          record.reload
+          record.full_name.should == "Jan Christian Nelson The Great"
+          record.age.should == 31
+          record.signed_up_at.to_millis.should == new_signed_up_at.to_millis
+
+          response.should be_ok
+          response.body_from_json.should == {
+            'successful' => true,
+            'data' => {
+              'field_values' => {
+                'full_name' => "Jan Christian Nelson The Great",
+                'signed_up_at' => new_signed_up_at.to_millis
+              }
+            }
+          }
+        end
+      end
+
+      context "when called with an 'destroys' parameter containing a single destroy operation" do
+        it "finds the record with the given 'id' in the given 'relation', then destroys it" do
+          User.find('jan').should_not be_nil
+
+          response = Http::Response.new(*exposed_repository.post({
+            :destroys => [{
+              'relation' => { "type" => "table", "name" => "users"},
+              'id' => "jan"
+            }].to_json
+          }))
+
+          User.find('jan').should be_nil
 
 
-        response.should be_ok
-        response.body_from_json.should == {
-          'successful' => true,
-        }
+          response.should be_ok
+          response.body_from_json.should == {
+            'successful' => true,
+          }
+        end
       end
     end
+
 
     describe "#build_relation_from_wire_representation" do
       before do
