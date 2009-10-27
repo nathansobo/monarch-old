@@ -47,12 +47,12 @@ module Model
       data = {
         'creates' => {
           new_record.table.global_name => {
-            new_record.id => new_record.wire_representation.merge(:echo_id => create['echo_id'])
+            new_record.id => new_record.wire_representation.merge('echo_id' => create['echo_id'])
           }
         }
       }
 
-      [200, headers, { :successful => true, :data => data}.to_json]
+      [200, headers, { 'successful' => true, 'data' => data}.to_json]
     end
 
     def handle_updates(updates)
@@ -72,16 +72,25 @@ module Model
         }
       }
 
-      [200, headers, { :successful => true, :data => data}.to_json]
+      [200, headers, { 'successful' => true, 'data' => data}.to_json]
     end
 
     def handle_destroys(destroys)
       destroy = destroys.first
+
+
       id = destroy['id']
       relation = build_relation_from_wire_representation(destroy['relation'])
+      record = relation.find(id)
       relation.destroy(id)
 
-      [200, headers, { :successful => true }.to_json]
+      data = {
+        'destroys' => {
+          record.table.global_name => [id]  
+        }
+      }
+
+      [200, headers, { 'successful' => true, 'data' => data }.to_json]
     end
 
     def headers

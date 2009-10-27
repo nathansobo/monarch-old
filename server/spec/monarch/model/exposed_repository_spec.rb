@@ -122,7 +122,12 @@ module Model
 
           response.should be_ok
           response.body_from_json.should == {
-            'successful' => true,
+            'data' => {
+              'destroys' => {
+                'users' => ['jan']
+              }
+            },
+            'successful' => true
           }
         end
       end
