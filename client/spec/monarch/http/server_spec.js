@@ -393,6 +393,32 @@ Screw.Unit(function(c) { with(c) {
 
         server.finish_batch();
 
+        expect(server.posts.length).to(equal, 1);
+        var post = server.posts.shift();
+
+        expect(post.url).to(Repository.origin_url);
+        expect(post.data).to(equal, {
+          creates: {
+            users: {
+              echo_0: { full_name: "Stephanie Wambach" }
+            },
+            blogs: {
+              echo_1: { name: "Bandwidth to Burn", fun_profit_name: "Bandwidth to Burn for Fun and Profit" }
+            }
+          },
+          updates: {
+            users: {
+              jan: { full_name: "Jan Christian Nelson" }
+            },
+            blogs: {
+              recipes: { name: "Disgusting Recipes Involving Pork", fun_profit_name: "Disgusting Recipes Involving Pork for Fun and Profit" }
+            }
+          },
+          destroys: {
+            users: ['wil'],
+            blogs: ['motorcycle']
+          }
+        });
       });
     });
 

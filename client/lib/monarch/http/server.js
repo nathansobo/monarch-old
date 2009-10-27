@@ -24,14 +24,22 @@ Monarch.constructor("Monarch.Http.Server", {
 
   create: function(relation, field_values) {
     var create_future = new Monarch.Http.RepositoryUpdateFuture();
-
-    if (this.batch_in_progress) return create_future;
-
     var record = new relation.record_constructor(field_values);
     var table = record.table();
 
+    var create_command = {
+      relation: table.wire_representation(),
+      field_values: record.wire_representation(),
+      echo_id: "hard_coded_echo_id"
+    }
+
+    if (this.batch_in_progress) {
+      this.batched_creates.push(create_command);
+      return create_future;
+    }
+
     this.post(Repository.origin_url, {
-      creates: [{relation: table.wire_representation(), field_values: record.wire_representation(), echo_id: "hard_coded_echo_id"}]
+      creates: [create_command]
     })
       .on_success(function(data) {
         var field_values = Monarch.Util.values(data.creates[table.global_name])[0];
@@ -51,22 +59,25 @@ Monarch.constructor("Monarch.Http.Server", {
 
   update: function(record, values_by_method_name) {
     var update_future = new Monarch.Http.RepositoryUpdateFuture();
-
-    if (this.batch_in_progress) return update_future;
-
     var table = record.table();
-
     record.start_pending_changes();
     record.local_update(values_by_method_name);
     var pending_fieldset = record.active_fieldset;
+
     record.restore_primary_fieldset();
+    var update_command = {
+      id: record.id(),
+      relation: table.wire_representation(),
+      field_values: pending_fieldset.wire_representation()
+    };
+
+    if (this.batch_in_progress) {
+      this.batched_updates.push(update_command);
+      return update_future;
+    }
 
     this.post(Repository.origin_url, {
-      updates: [{
-        id: record.id(),
-        relation: table.wire_representation(),
-        field_values: pending_fieldset.wire_representation()
-      }]
+      updates: [update_command]
     })
       .on_success(function(data) {
         var field_values = data.updates[table.global_name][record.id()];
@@ -87,17 +98,21 @@ Monarch.constructor("Monarch.Http.Server", {
 
   destroy: function(record) {
     var destroy_future = new Monarch.Http.RepositoryUpdateFuture();
-
-    if (this.batch_in_progress) return destroy_future;
-
     var self = this;
     var table = record.table();
 
+    var destroy_command = {
+      relation: table.wire_representation(),
+      id: record.id()
+    }
+
+    if (this.batch_in_progress) {
+      this.batched_destroys.push(destroy_command);
+      return destroy_future;
+    }
+
     this.post(Repository.origin_url, {
-      destroys: [{
-        relation: table.wire_representation(),
-        id: record.id()
-      }]
+      destroys: [destroy_command]
     })
       .on_success(function() {
         table.remove(record, {
@@ -115,10 +130,18 @@ Monarch.constructor("Monarch.Http.Server", {
 
   start_batch: function() {
     this.batch_in_progress = true;
+    this.batched_creates = [];
+    this.batched_updates = [];
+    this.batched_destroys = [];
   },
 
   finish_batch: function() {
-    
+    this.batch_in_progress = false;
+
+
+
+
+
   },
 
   post: function(url, data) {
