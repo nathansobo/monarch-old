@@ -23,9 +23,12 @@ Monarch.constructor("Monarch.Http.Server", {
   },
 
   create: function(relation, field_values) {
+    var create_future = new Monarch.Http.RepositoryUpdateFuture();
+
+    if (this.batch_in_progress) return create_future;
+
     var record = new relation.record_constructor(field_values);
     var table = record.table();
-    var create_future = new Monarch.Http.RepositoryUpdateFuture();
 
     this.post(Repository.origin_url, {
       creates: [{relation: table.wire_representation(), field_values: record.wire_representation(), echo_id: "hard_coded_echo_id"}]
@@ -47,7 +50,10 @@ Monarch.constructor("Monarch.Http.Server", {
   },
 
   update: function(record, values_by_method_name) {
-    var push_future = new Monarch.Http.RepositoryUpdateFuture();
+    var update_future = new Monarch.Http.RepositoryUpdateFuture();
+
+    if (this.batch_in_progress) return update_future;
+
     var table = record.table();
 
     record.start_pending_changes();
@@ -67,21 +73,24 @@ Monarch.constructor("Monarch.Http.Server", {
         pending_fieldset.update(field_values);
         pending_fieldset.commit({
           before_events: function() {
-            push_future.trigger_before_events();
+            update_future.trigger_before_events();
           },
           after_events: function() {
-            push_future.trigger_after_events();
+            update_future.trigger_after_events();
           }
         });
       });
 
-    return push_future;
+    return update_future;
 
   },
 
   destroy: function(record) {
-    var self = this;
     var destroy_future = new Monarch.Http.RepositoryUpdateFuture();
+
+    if (this.batch_in_progress) return destroy_future;
+
+    var self = this;
     var table = record.table();
 
     this.post(Repository.origin_url, {
@@ -105,7 +114,7 @@ Monarch.constructor("Monarch.Http.Server", {
   },
 
   start_batch: function() {
-
+    this.batch_in_progress = true;
   },
 
   finish_batch: function() {
