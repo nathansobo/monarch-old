@@ -152,29 +152,6 @@ Monarch.constructor("Monarch.Model.Record", {
     this.active_fieldset = this.active_fieldset.new_pending_fieldset();
   },
 
-  push_destroy: function() {
-    var self = this;
-    var push_future = new Monarch.Http.RepositoryUpdateFuture();
-    Server.post(Repository.origin_url, {
-      destroys: [{
-        relation: this.table().wire_representation(),
-        id: this.id()
-      }]
-    })
-      .on_success(function() {
-        self.table().remove(self, {
-          before_events: function() {
-            push_future.trigger_before_events(self);
-          },
-          after_events: function() {
-            push_future.trigger_after_events(self);
-          }
-        });
-    });
-
-    return push_future;
-  },
-
   local_update: function(values_by_method_name, options) {
     if (!options) options = {};
     this.active_fieldset.begin_batch_update();

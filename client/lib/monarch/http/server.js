@@ -6,7 +6,7 @@ Monarch.constructor("Monarch.Http.Server", {
 
     start = new Date().getTime();
 
-    Server.get(Repository.origin_url, {
+    this.get(Repository.origin_url, {
       relations: Monarch.Util.map(relations, function(relation) {
         return relation.wire_representation();
       })
@@ -27,7 +27,7 @@ Monarch.constructor("Monarch.Http.Server", {
     var table = record.table();
     var create_future = new Monarch.Http.RepositoryUpdateFuture();
 
-    Server.post(Repository.origin_url, {
+    this.post(Repository.origin_url, {
       creates: [{relation: table.wire_representation(), field_values: record.wire_representation(), echo_id: "hard_coded_echo_id"}]
     })
       .on_success(function(data) {
@@ -55,7 +55,7 @@ Monarch.constructor("Monarch.Http.Server", {
     var pending_fieldset = record.active_fieldset;
     record.restore_primary_fieldset();
 
-    Server.post(Repository.origin_url, {
+    this.post(Repository.origin_url, {
       updates: [{
         id: record.id(),
         relation: table.wire_representation(),
@@ -80,7 +80,36 @@ Monarch.constructor("Monarch.Http.Server", {
   },
 
   destroy: function(record) {
-    return record.push_destroy();
+    var self = this;
+    var destroy_future = new Monarch.Http.RepositoryUpdateFuture();
+    var table = record.table();
+
+    this.post(Repository.origin_url, {
+      destroys: [{
+        relation: table.wire_representation(),
+        id: record.id()
+      }]
+    })
+      .on_success(function() {
+        table.remove(record, {
+          before_events: function() {
+            destroy_future.trigger_before_events(record);
+          },
+          after_events: function() {
+            destroy_future.trigger_after_events(record);
+          }
+        });
+      });
+
+    return destroy_future;
+  },
+
+  start_batch: function() {
+
+  },
+
+  finish_batch: function() {
+    
   },
 
   post: function(url, data) {
