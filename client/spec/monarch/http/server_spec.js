@@ -308,6 +308,7 @@ Screw.Unit(function(c) { with(c) {
     describe("#start_batch() and #finish_batch()", function() {
       use_local_fixtures();
       var jan, wil, recipes, motorcycle, records_from_insert_events, records_from_update_events, records_from_remove_events, original_global_server;
+      var insert_callback, update_callback, remove_callback, before_events_callback, after_events_callback;
 
       before(function() {
         server.posts = [];
@@ -317,86 +318,112 @@ Screw.Unit(function(c) { with(c) {
         wil = User.find('wil');
         recipes = Blog.find('recipes');
         motorcycle = Blog.find('motorcycle');
-        records_from_insert_events = [];
-        records_from_update_events = [];
-        records_from_remove_events = [];
 
-        User.on_insert(function(user) {
-          records_from_insert_events.push(user);
-        });
-        User.on_update(function(user) {
-          records_from_update_events.push(user);
-        });
-        User.on_remove(function(user) {
-          records_from_remove_events.push(user);
-        });
-        Blog.on_insert(function(blog) {
-          records_from_insert_events.push(blog);
-        });
-        Blog.on_update(function(blog) {
-          records_from_update_events.push(blog);
-        });
-        Blog.on_remove(function(blog) {
-          records_from_update_events.push(blog);
-        });
+        insert_callback = mock_function("insert_callback");
+        update_callback = mock_function("update_callback");
+        remove_callback = mock_function("remove_callback");
+
+        User.on_insert(insert_callback);
+        User.on_update(update_callback);
+        User.on_remove(remove_callback);
+        Blog.on_insert(insert_callback);
+        Blog.on_update(update_callback);
+        Blog.on_remove(remove_callback);
       });
 
+      function expect_no_events_to_have_fired() {
+        expect(insert_callback).to_not(have_been_called);
+        expect(update_callback).to_not(have_been_called);
+        expect(remove_callback).to_not(have_been_called);
+      }
+
+      function expect_all_events_to_have_fired() {
+        expect(insert_callback).to(have_been_called, twice);
+        expect(update_callback).to(have_been_called, twice);
+        expect(remove_callback).to(have_been_called, twice);
+      }
+
       they("cause all mutations occurring between the calls to be batched together in a single web request, firing the appropriate callbacks for all of them once they are complete", function() {
+        var before_events_callback_count = 0;
+        var after_events_callback_count = 0;
+
         server.start_batch();
 
         server.create(User.table, {full_name: "Stephanie Wambach"})
           .before_events(function(user) {
             expect(user.id()).to(equal, "stephanie");
             expect(user.full_name()).to(equal, "Stephanie Anne Wambach");
-            expect(Util.contains(records_from_insert_events, user)).to(be_false);
+            expect_no_events_to_have_fired();
+            before_events_callback_count++;
           })
           .after_events(function(user) {
             expect(user.id()).to(equal, "stephanie");
-            expect(Util.contains(records_from_insert_events, user)).to(be_true);
+            expect_all_events_to_have_fired();
+            after_events_callback_count++;
           });
 
         server.create(Blog.table, {name: "Bandwidth to Burn"})
           .before_events(function(blog) {
             expect(blog.id()).to(equal, "bandwidth");
-            expect(Util.contains(records_from_insert_events, blog)).to(be_false);
+            expect_no_events_to_have_fired();
+            before_events_callback_count++;
           })
           .after_events(function(blog) {
             expect(blog.id()).to(equal, "bandwidth");
-            expect(Util.contains(records_from_insert_events, blog)).to(be_true);
+            expect_all_events_to_have_fired();
+            after_events_callback_count++;
           });
 
         server.update(jan, {full_name: "Jan Christian Nelson"})
-          .before_events(function() {
-            expect(Util.contains(records_from_update_events, jan)).to(be_false);
+          .before_events(function(record) {
+            expect(record).to(equal, jan);
+            expect_no_events_to_have_fired();
+            before_events_callback_count++;
           })
-          .after_events(function() {
-            expect(Util.contains(records_from_update_events, jan)).to(be_true);
+          .after_events(function(record) {
+            expect(record).to(equal, jan);
+            expect_all_events_to_have_fired();
+            after_events_callback_count++;
           });
 
         server.update(recipes, {name: "Disgusting Recipes Involving Pork"})
-          .before_events(function() {
-            expect(Util.contains(records_from_update_events, recipes)).to(be_false);
+          .before_events(function(record) {
+            expect(record).to(equal, recipes);
+            expect_no_events_to_have_fired();
+            before_events_callback_count++;
           })
-          .after_events(function() {
-            expect(Util.contains(records_from_update_events, recipes)).to(be_true);
+          .after_events(function(record) {
+            expect(record).to(equal, recipes);
+            expect_all_events_to_have_fired();
+            after_events_callback_count++;
           });
 
         server.destroy(wil)
-          .before_events(function() {
-            expect(Util.contains(records_from_remove_events, wil)).to(be_false);
+          .before_events(function(record) {
+            expect(record).to(equal, wil);
+            expect_no_events_to_have_fired();
+            before_events_callback_count++;
           })
-          .after_events(function() {
-            expect(Util.contains(records_from_remove_events, wil)).to(be_true);
+          .after_events(function(record) {
+            expect(record).to(equal, wil);
+            expect_all_events_to_have_fired();
+            after_events_callback_count++;
           });
 
         server.destroy(motorcycle)
-          .before_events(function() {
-            expect(Util.contains(records_from_remove_events, motorcycle)).to(be_false);
+          .before_events(function(record) {
+            expect(record).to(equal, motorcycle);
+            expect_no_events_to_have_fired();
+            before_events_callback_count++;
           })
-          .after_events(function() {
-            expect(Util.contains(records_from_remove_events, motorcycle)).to(be_true);
+          .after_events(function(record) {
+            expect(record).to(equal, motorcycle);
+            expect_all_events_to_have_fired();
+            after_events_callback_count++;
           });
 
+        expect(before_events_callback_count).to(equal, 0);
+        expect(after_events_callback_count).to(equal, 0);
         expect(server.posts).to(be_empty);
 
         server.finish_batch();
@@ -404,7 +431,7 @@ Screw.Unit(function(c) { with(c) {
         expect(server.posts.length).to(equal, 1);
         var post = server.posts.shift();
 
-        expect(post.url).to(Repository.origin_url);
+        expect(post.url).to(equal, Repository.origin_url);
         expect(post.data).to(equal, {
           operations: {
             users: {
@@ -413,12 +440,29 @@ Screw.Unit(function(c) { with(c) {
               wil: null
             },
             blogs: {
-              create_1: { name: "Bandwidth to Burn", fun_profit_name: "Bandwidth to Burn for Fun and Profit" },
-              recipes: { name: "Disgusting Recipes Involving Pork", fun_profit_name: "Disgusting Recipes Involving Pork for Fun and Profit" },
+              create_1: { name: "Bandwidth to Burn" },
+              recipes: { name: "Disgusting Recipes Involving Pork" },
               motorcycle: null
             }
           }
         });
+
+        post.simulate_success({
+          users: {
+            create_0: { id: "stephanie", full_name: "Stephanie Anne Wambach" },
+            jan: { full_name: "Jan Christian Nelson" },
+            wil: null
+          },
+          blogs: {
+            create_1: { id: "bandwidth", name: "Bandwidth to Burn" },
+            recipes: { name: "Disgusting Recipes Involving Pork" },
+            motorcycle: null
+          }
+        });
+
+        expect(before_events_callback_count).to(equal, 6);
+        expect(after_events_callback_count).to(equal, 6);
+        expect(server.pending_commands).to(equal, {});
       });
     });
 

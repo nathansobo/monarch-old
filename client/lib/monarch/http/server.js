@@ -100,6 +100,7 @@ Monarch.constructor("Monarch.Http.Server", {
 
   finish_batch: function() {
     this.batch_in_progress = false;
+    this.perform_pending_mutations();
   },
 
   post: function(url, data) {
