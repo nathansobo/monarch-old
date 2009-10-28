@@ -122,6 +122,53 @@ module Model
           }
         end
       end
+
+      context "when called with multiple operations" do
+        it "performs all operations" do
+          signed_up_at = Time.now
+          User.find('jan').should_not be_nil
+
+          response = Http::Response.new(*exposed_repository.post({
+            :operations => {
+              'users' => {
+                'create_0' => {
+                  'full_name' => "Jake Frautschi",
+                  'age' => 27,
+                  'signed_up_at' => signed_up_at.to_millis
+                },
+                "jan" => {
+                  'age' => 101
+                },
+                'wil' => nil
+              }
+            }.to_json
+          }))
+
+          jake = User.find(User[:full_name].eq("Jake Frautschi"))
+          jake.should_not be_nil
+          User.find("jan").age.should == 101
+          User.find('wil').should be_nil
+
+          response.should be_ok
+          response.body_from_json.should == {
+            'data' => {
+              'users' => {
+                'create_0' => {
+                  'id' => jake.id,
+                  'full_name' => "Jake Frautschi",
+                  'age' => 27,
+                  'signed_up_at' => signed_up_at.to_millis
+                },
+                "jan" => {
+                  'age' => 101
+                },
+                'wil' => nil
+              }
+            },
+            'successful' => true
+          }
+        end
+      end
     end
 
 
