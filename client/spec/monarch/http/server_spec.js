@@ -305,131 +305,122 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
-//    describe("#start_batch() and #finish_batch()", function() {
-//      use_local_fixtures();
-//      var jan, wil, recipes, motorcycle, records_from_insert_events, records_from_update_events, records_from_remove_events, original_global_server;
-//
-//      before(function() {
-//        server.posts = [];
-//        server.post = FakeServer.prototype.post;
-//
-//        jan = User.find('jan');
-//        wil = User.find('wil');
-//        recipes = Blog.find('recipes');
-//        motorcycle = Blog.find('motorcycle');
-//        records_from_insert_events = [];
-//        records_from_update_events = [];
-//        records_from_remove_events = [];
-//
-//        User.on_insert(function(user) {
-//          records_from_insert_events.push(user);
-//        });
-//        User.on_update(function(user) {
-//          records_from_update_events.push(user);
-//        });
-//        User.on_remove(function(user) {
-//          records_from_remove_events.push(user);
-//        });
-//        Blog.on_insert(function(blog) {
-//          records_from_insert_events.push(blog);
-//        });
-//        Blog.on_update(function(blog) {
-//          records_from_update_events.push(blog);
-//        });
-//        Blog.on_remove(function(blog) {
-//          records_from_update_events.push(blog);
-//        });
-//      });
-//
-//      they("cause all mutations occurring between the calls to be batched together in a single web request, firing the appropriate callbacks for all of them once they are complete", function() {
-//        server.start_batch();
-//
-//        server.create(User.table, {full_name: "Stephanie Wambach"})
-//          .before_events(function(user) {
-//            expect(user.id()).to(equal, "stephanie");
-//            expect(user.full_name()).to(equal, "Stephanie Anne Wambach");
-//            expect(Util.contains(records_from_insert_events, user)).to(be_false);
-//          })
-//          .after_events(function(user) {
-//            expect(user.id()).to(equal, "stephanie");
-//            expect(Util.contains(records_from_insert_events, user)).to(be_true);
-//          });
-//
-//        server.create(Blog.table, {name: "Bandwidth to Burn"})
-//          .before_events(function(blog) {
-//            expect(blog.id()).to(equal, "bandwidth");
-//            expect(Util.contains(records_from_insert_events, blog)).to(be_false);
-//          })
-//          .after_events(function(blog) {
-//            expect(blog.id()).to(equal, "bandwidth");
-//            expect(Util.contains(records_from_insert_events, blog)).to(be_true);
-//          });
-//
-//        server.update(jan, {full_name: "Jan Christian Nelson"})
-//          .before_events(function() {
-//            expect(Util.contains(records_from_update_events, jan)).to(be_false);
-//          })
-//          .after_events(function() {
-//            expect(Util.contains(records_from_update_events, jan)).to(be_true);
-//          });
-//
-//        server.update(recipes, {name: "Disgusting Recipes Involving Pork"})
-//          .before_events(function() {
-//            expect(Util.contains(records_from_update_events, recipes)).to(be_false);
-//          })
-//          .after_events(function() {
-//            expect(Util.contains(records_from_update_events, recipes)).to(be_true);
-//          });
-//
-//        server.destroy(wil)
-//          .before_events(function() {
-//            expect(Util.contains(records_from_remove_events, wil)).to(be_false);
-//          })
-//          .after_events(function() {
-//            expect(Util.contains(records_from_remove_events, wil)).to(be_true);
-//          });
-//
-//        server.destroy(motorcycle)
-//          .before_events(function() {
-//            expect(Util.contains(records_from_remove_events, motorcycle)).to(be_false);
-//          })
-//          .after_events(function() {
-//            expect(Util.contains(records_from_remove_events, motorcycle)).to(be_true);
-//          });
-//
-//
-//        expect(server.posts).to(be_empty);
-//
-//        server.finish_batch();
-//
-//        expect(server.posts.length).to(equal, 1);
-//        var post = server.posts.shift();
-//
-//        expect(post.url).to(Repository.origin_url);
-//        expect(post.data).to(equal, {
-//          creates: {
-//            users: {
-//              echo_0: { full_name: "Stephanie Wambach" }
-//            },
-//            blogs: {
-//              echo_1: { name: "Bandwidth to Burn", fun_profit_name: "Bandwidth to Burn for Fun and Profit" }
-//            }
-//          },
-//          updates: {
-//            users: {
-//              jan: { full_name: "Jan Christian Nelson" }
-//            },
-//            blogs: {
-//              recipes: { name: "Disgusting Recipes Involving Pork", fun_profit_name: "Disgusting Recipes Involving Pork for Fun and Profit" }
-//            }
-//          },
-//          destroys: {
-//            users: ['wil'],
-//            blogs: ['motorcycle']
-//          }
-//        });
-//      });
-//    });
+    describe("#start_batch() and #finish_batch()", function() {
+      use_local_fixtures();
+      var jan, wil, recipes, motorcycle, records_from_insert_events, records_from_update_events, records_from_remove_events, original_global_server;
+
+      before(function() {
+        server.posts = [];
+        server.post = FakeServer.prototype.post;
+
+        jan = User.find('jan');
+        wil = User.find('wil');
+        recipes = Blog.find('recipes');
+        motorcycle = Blog.find('motorcycle');
+        records_from_insert_events = [];
+        records_from_update_events = [];
+        records_from_remove_events = [];
+
+        User.on_insert(function(user) {
+          records_from_insert_events.push(user);
+        });
+        User.on_update(function(user) {
+          records_from_update_events.push(user);
+        });
+        User.on_remove(function(user) {
+          records_from_remove_events.push(user);
+        });
+        Blog.on_insert(function(blog) {
+          records_from_insert_events.push(blog);
+        });
+        Blog.on_update(function(blog) {
+          records_from_update_events.push(blog);
+        });
+        Blog.on_remove(function(blog) {
+          records_from_update_events.push(blog);
+        });
+      });
+
+      they("cause all mutations occurring between the calls to be batched together in a single web request, firing the appropriate callbacks for all of them once they are complete", function() {
+        server.start_batch();
+
+        server.create(User.table, {full_name: "Stephanie Wambach"})
+          .before_events(function(user) {
+            expect(user.id()).to(equal, "stephanie");
+            expect(user.full_name()).to(equal, "Stephanie Anne Wambach");
+            expect(Util.contains(records_from_insert_events, user)).to(be_false);
+          })
+          .after_events(function(user) {
+            expect(user.id()).to(equal, "stephanie");
+            expect(Util.contains(records_from_insert_events, user)).to(be_true);
+          });
+
+        server.create(Blog.table, {name: "Bandwidth to Burn"})
+          .before_events(function(blog) {
+            expect(blog.id()).to(equal, "bandwidth");
+            expect(Util.contains(records_from_insert_events, blog)).to(be_false);
+          })
+          .after_events(function(blog) {
+            expect(blog.id()).to(equal, "bandwidth");
+            expect(Util.contains(records_from_insert_events, blog)).to(be_true);
+          });
+
+        server.update(jan, {full_name: "Jan Christian Nelson"})
+          .before_events(function() {
+            expect(Util.contains(records_from_update_events, jan)).to(be_false);
+          })
+          .after_events(function() {
+            expect(Util.contains(records_from_update_events, jan)).to(be_true);
+          });
+
+        server.update(recipes, {name: "Disgusting Recipes Involving Pork"})
+          .before_events(function() {
+            expect(Util.contains(records_from_update_events, recipes)).to(be_false);
+          })
+          .after_events(function() {
+            expect(Util.contains(records_from_update_events, recipes)).to(be_true);
+          });
+
+        server.destroy(wil)
+          .before_events(function() {
+            expect(Util.contains(records_from_remove_events, wil)).to(be_false);
+          })
+          .after_events(function() {
+            expect(Util.contains(records_from_remove_events, wil)).to(be_true);
+          });
+
+        server.destroy(motorcycle)
+          .before_events(function() {
+            expect(Util.contains(records_from_remove_events, motorcycle)).to(be_false);
+          })
+          .after_events(function() {
+            expect(Util.contains(records_from_remove_events, motorcycle)).to(be_true);
+          });
+
+        expect(server.posts).to(be_empty);
+
+        server.finish_batch();
+
+        expect(server.posts.length).to(equal, 1);
+        var post = server.posts.shift();
+
+        expect(post.url).to(Repository.origin_url);
+        expect(post.data).to(equal, {
+          operations: {
+            users: {
+              create_0: { full_name: "Stephanie Wambach" },
+              jan: { full_name: "Jan Christian Nelson" },
+              wil: null
+            },
+            blogs: {
+              create_1: { name: "Bandwidth to Burn", fun_profit_name: "Bandwidth to Burn for Fun and Profit" },
+              recipes: { name: "Disgusting Recipes Involving Pork", fun_profit_name: "Disgusting Recipes Involving Pork for Fun and Profit" },
+              motorcycle: null
+            }
+          }
+        });
+      });
+    });
 
     describe("request methods", function() {
       var request_method;

@@ -32,39 +32,26 @@ Monarch.constructor("Monarch.Http.Server", {
   },
 
   create: function(table, field_values) {
-    var table_name = table.global_name;
-    if (!this.pending_commands[table_name]) this.pending_commands[table_name] = {};
-
-    var create_command = new Monarch.Http.CreateCommand(table, field_values, this.next_echo_id());
-
-    this.pending_commands[table_name][create_command.echo_id] = create_command;
-    this.perform_pending_mutations();
-    return create_command.future;
+    var command = new Monarch.Http.CreateCommand(table, field_values, this.next_echo_id());
+    return this.mutate(table, command)
   },
 
-
   update: function(record, values_by_method_name) {
-    var table_name = record.table().global_name;
-    if (!this.pending_commands[table_name]) this.pending_commands[table_name] = {};
-
-    var update_command = new Monarch.Http.UpdateCommand(record, values_by_method_name);
-
-    this.pending_commands[table_name][record.id()] = update_command;
-
-    this.perform_pending_mutations();
-    return update_command.future;
+    var command = new Monarch.Http.UpdateCommand(record, values_by_method_name);
+    return this.mutate(record.table(), command);
   },
 
   destroy: function(record) {
-    var table_name = record.table().global_name;
+    var command = new Monarch.Http.DestroyCommand(record);
+    return this.mutate(record.table(), command);
+  },
+
+  mutate: function(table, command) {
+    var table_name = table.global_name;
     if (!this.pending_commands[table_name]) this.pending_commands[table_name] = {};
-
-    var destroy_command = new Monarch.Http.DestroyCommand(record);
-
-    this.pending_commands[table_name][record.id()] = destroy_command;
-
-    this.perform_pending_mutations();
-    return destroy_command.future;
+    this.pending_commands[table_name][command.command_id] = command;
+    if (!this.batch_in_progress) this.perform_pending_mutations();
+    return command.future;
   },
 
   for_each_pending_command: function(fn) {

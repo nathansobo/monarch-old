@@ -1,10 +1,10 @@
 (function(Monarch) {
 
 Monarch.constructor("Monarch.Http.CreateCommand", {
-  initialize: function(table, field_values, echo_id) {
+  initialize: function(table, field_values, command_id) {
     this.table = table;
     this.field_values = field_values;
-    this.echo_id = echo_id;
+    this.command_id = command_id;
     this.future = new Monarch.Http.RepositoryUpdateFuture();
   },
 
@@ -13,7 +13,7 @@ Monarch.constructor("Monarch.Http.CreateCommand", {
     if (!request_data[table_name]) request_data[table_name] = {};
     
     this.pending_record = new this.table.record_constructor(this.field_values);
-    request_data[table_name][this.echo_id] = this.pending_record.wire_representation();
+    request_data[table_name][this.command_id] = this.pending_record.wire_representation();
   },
 
   complete_and_trigger_before_events: function(field_values_from_server) {

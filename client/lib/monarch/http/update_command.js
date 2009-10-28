@@ -5,6 +5,7 @@ Monarch.constructor("Monarch.Http.UpdateCommand", {
     this.record = record;
     this.values_by_method_name = values_by_method_name;
     this.future = new Monarch.Http.RepositoryUpdateFuture();
+    this.command_id = record.id();
   },
 
   add_to_request_data: function(request_data) {
@@ -16,7 +17,7 @@ Monarch.constructor("Monarch.Http.UpdateCommand", {
     this.pending_fieldset = this.record.active_fieldset;
     this.record.restore_primary_fieldset();
 
-    request_data[table_name][this.record.id()] = this.pending_fieldset.wire_representation();
+    request_data[table_name][this.command_id] = this.pending_fieldset.wire_representation();
   },
 
   complete_and_trigger_before_events: function(field_values_from_server) {
