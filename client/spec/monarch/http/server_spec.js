@@ -276,7 +276,9 @@ Screw.Unit(function(c) { with(c) {
         expect(post.url).to(equal, Repository.origin_url);
 
         expect(post.data).to(equal, {
-          destroys: [{relation: record.table().wire_representation(), id: record.id()}]
+          destroy: {
+            blogs: [record.id()]
+          }
         });
 
         var before_events_callback = mock_function("before events", function() {

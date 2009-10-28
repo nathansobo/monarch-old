@@ -20,8 +20,8 @@ module Model
         handle_create(JSON.parse(params[:create]))
       elsif params[:update]
         handle_update(JSON.parse(params[:update]))
-      elsif params[:destroys]
-        handle_destroys(JSON.parse(params[:destroys]))  
+      elsif params[:destroy]
+        handle_destroy(JSON.parse(params[:destroy]))
       end
     end
 
@@ -80,18 +80,17 @@ module Model
       [200, headers, { 'successful' => true, 'data' => data}.to_json]
     end
 
-    def handle_destroys(destroys)
-      destroy = destroys.first
+    def handle_destroy(destroy_commands_by_table_name)
 
+      table_name = destroy_commands_by_table_name.keys.first
+      id = destroy_commands_by_table_name.values.first.first
 
-      id = destroy['id']
-      relation = build_relation_from_wire_representation(destroy['relation'])
-      record = relation.find(id)
+      relation = resolve_table_name(table_name)
       relation.destroy(id)
 
       data = {
-        'destroys' => {
-          record.table.global_name => [id]  
+        'destroy' => {
+          table_name => [id]  
         }
       }
 

@@ -105,24 +105,22 @@ module Model
         end
       end
 
-      context "when called with an 'destroys' parameter containing a single destroy operation" do
+      context "when called with a 'destroy' parameter containing a single destroy operation" do
         it "finds the record with the given 'id' in the given 'relation', then destroys it" do
           User.find('jan').should_not be_nil
 
           response = Http::Response.new(*exposed_repository.post({
-            :destroys => [{
-              'relation' => { "type" => "table", "name" => "users"},
-              'id' => "jan"
-            }].to_json
+            :destroy => {
+              'users' => ['jan']
+            }.to_json
           }))
 
           User.find('jan').should be_nil
 
-
           response.should be_ok
           response.body_from_json.should == {
             'data' => {
-              'destroys' => {
+              'destroy' => {
                 'users' => ['jan']
               }
             },

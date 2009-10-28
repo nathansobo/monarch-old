@@ -97,18 +97,10 @@ Monarch.constructor("Monarch.Http.Server", {
     var self = this;
     var table = record.table();
 
-    var destroy_command = {
-      relation: table.wire_representation(),
-      id: record.id()
-    }
-
-    if (this.batch_in_progress) {
-      this.batched_destroys.push(destroy_command);
-      return destroy_future;
-    }
-
+    var destroy_commands_by_table = {};
+    destroy_commands_by_table[table.global_name] = [record.id()];
     this.post(Repository.origin_url, {
-      destroys: [destroy_command]
+      destroy: destroy_commands_by_table
     })
       .on_success(function() {
         table.remove(record, {
@@ -126,18 +118,10 @@ Monarch.constructor("Monarch.Http.Server", {
 
   start_batch: function() {
     this.batch_in_progress = true;
-    this.batched_creates = [];
-    this.batched_updates = [];
-    this.batched_destroys = [];
   },
 
   finish_batch: function() {
     this.batch_in_progress = false;
-
-
-
-
-
   },
 
   post: function(url, data) {
