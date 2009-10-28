@@ -4,5 +4,6 @@
 //= require "http/ajax_future"
 //= require "http/repository_update_future"
 //= require "http/create_command"
+//= require "http/update_command"
 
 })(Monarch);
