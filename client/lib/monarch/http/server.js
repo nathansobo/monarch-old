@@ -4,7 +4,7 @@ Monarch.constructor("Monarch.Http.Server", {
   initialize: function() {
     this._next_echo_id = 0;
     this.pending_commands = [];
-    this.pending_create_commands_by_echo_id = {};
+    this.pending_create_commands = {};
     this.pending_update_commands = {};
     this.pending_destroy_commands = {};
   },
@@ -35,9 +35,13 @@ Monarch.constructor("Monarch.Http.Server", {
   },
 
   create: function(table, field_values) {
+    var table_name = table.global_name;
+    if (!this.pending_create_commands[table_name]) this.pending_create_commands[table_name] = {};
+
     var create_command = new Monarch.Http.CreateCommand(table, field_values, this.next_echo_id());
+
     this.pending_commands.push(create_command);
-    this.pending_create_commands_by_echo_id[create_command.echo_id] = create_command;
+    this.pending_create_commands[table_name][create_command.echo_id] = create_command;
     this.perform_pending_mutations();
     return create_command.future;
   },
@@ -91,7 +95,7 @@ Monarch.constructor("Monarch.Http.Server", {
     if (response_data.create) {
       Monarch.Util.each(response_data.create, function(table_name, field_values_by_echo_id) {
         Monarch.Util.each(field_values_by_echo_id, function(echo_id, field_values) {
-          self.pending_create_commands_by_echo_id[echo_id].complete_and_trigger_before_events(field_values);
+          self.pending_create_commands[table_name][echo_id].complete_and_trigger_before_events(field_values);
         });
       });
     }
@@ -124,30 +128,6 @@ Monarch.constructor("Monarch.Http.Server", {
     this.pending_update_commands = {};
     this.pending_destroy_commands = {};
   },
-
-//  destroy: function(record) {
-//    var destroy_future = new Monarch.Http.RepositoryUpdateFuture();
-//    var self = this;
-//    var table = record.table();
-//
-//    var destroy_commands_by_table = {};
-//    destroy_commands_by_table[table.global_name] = [record.id()];
-//    this.post(Repository.origin_url, {
-//      destroy: destroy_commands_by_table
-//    })
-//      .on_success(function() {
-//        table.remove(record, {
-//          before_events: function() {
-//            destroy_future.trigger_before_events(record);
-//          },
-//          after_events: function() {
-//            destroy_future.trigger_after_events(record);
-//          }
-//        });
-//      });
-//
-//    return destroy_future;
-//  },
 
   start_batch: function() {
     this.batch_in_progress = true;
