@@ -29,14 +29,14 @@ module Model
     end
 
     describe "#post" do
-      context "when called with a 'create' parameter containing a single create operation" do
+      context "when called with a single create operation" do
         it "calls #create on the indicated 'relation' with the given 'field_values', then returns all field values as its result" do
           signed_up_at = Time.now
 
           response = Http::Response.new(*exposed_repository.post({
-            :create => {
+            :operations => {
               'users' => {
-                'echo_0' => {
+                'create_0' => {
                   'great_name' => "Sharon Ly",
                   'age' => 25,
                   'signed_up_at' => signed_up_at.to_millis
@@ -51,14 +51,12 @@ module Model
           response.body_from_json.should == {
             'successful' => true,
             'data' => {
-              'create' => {
-                'users' => {
-                  'echo_0' => {
-                    'id' => new_record.id,
-                    'full_name' => "Sharon Ly The Great",
-                    'age' => 25,
-                    'signed_up_at' => signed_up_at.to_millis
-                  }
+              'users' => {
+                'create_0' => {
+                  'id' => new_record.id,
+                  'full_name' => "Sharon Ly The Great",
+                  'age' => 25,
+                  'signed_up_at' => signed_up_at.to_millis
                 }
               }
             }
@@ -66,13 +64,13 @@ module Model
         end
       end
 
-      context "when called with an 'update' parameter containing a single update operation" do
+      context "when called with a single update operation" do
         it "finds the record with the given 'id' in the given 'relation', then updates it with the given field values and returns all changed field values as its result" do
           record = User.find('jan')
           new_signed_up_at = record.signed_up_at - 1.hours
 
           response = Http::Response.new(*exposed_repository.post({
-            :update => {
+            :operations => {
               "users" => {
                 "jan" => {
                   'great_name' => "Jan Christian Nelson",
@@ -92,12 +90,10 @@ module Model
           response.body_from_json.should == {
             'successful' => true,
             'data' => {
-              'update' => {
-                'users' => {
-                  'jan' => {
-                    'full_name' => "Jan Christian Nelson The Great",
-                    'signed_up_at' => new_signed_up_at.to_millis
-                  }
+              'users' => {
+                'jan' => {
+                  'full_name' => "Jan Christian Nelson The Great",
+                  'signed_up_at' => new_signed_up_at.to_millis
                 }
               }
             }
@@ -105,13 +101,13 @@ module Model
         end
       end
 
-      context "when called with a 'destroy' parameter containing a single destroy operation" do
+      context "when called with a single destroy operation" do
         it "finds the record with the given 'id' in the given 'relation', then destroys it" do
           User.find('jan').should_not be_nil
 
           response = Http::Response.new(*exposed_repository.post({
-            :destroy => {
-              'users' => ['jan']
+            :operations => {
+              'users' => {'jan' => nil}
             }.to_json
           }))
 
@@ -120,9 +116,7 @@ module Model
           response.should be_ok
           response.body_from_json.should == {
             'data' => {
-              'destroy' => {
-                'users' => ['jan']
-              }
+              'users' => {'jan' => nil}
             },
             'successful' => true
           }

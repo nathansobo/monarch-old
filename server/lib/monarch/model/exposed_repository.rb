@@ -16,13 +16,15 @@ module Model
     end
 
     def post(params)
-      if params[:create]
-        handle_create(JSON.parse(params[:create]))
-      elsif params[:update]
-        handle_update(JSON.parse(params[:update]))
-      elsif params[:destroy]
-        handle_destroy(JSON.parse(params[:destroy]))
+      response_data = {};
+      operations_by_table_name = JSON.parse(params[:operations])
+      operations_by_table_name.each do |table_name, operations_by_id|
+        response_data[table_name] = {}
+        operations_by_id.each do |id, field_values|
+          response_data[table_name][id] = perform_operation(table_name, id, field_values)
+        end
       end
+      [200, headers, { 'successful' => true, 'data' => response_data}.to_json]
     end
 
     def resolve_table_name(name)
@@ -38,63 +40,34 @@ module Model
     
     protected
 
-    def handle_create(create_commands_by_table)
-      table_name = create_commands_by_table.keys.first
-      create_commands_by_echo_id = create_commands_by_table.values.first
-      echo_id = create_commands_by_echo_id.keys.first
-      field_values = create_commands_by_echo_id.values.first
-
-      relation = resolve_table_name(table_name)
-      new_record = relation.create(field_values)
-
-      data = {
-        'create' => {
-          new_record.table.global_name => {
-            echo_id => new_record.wire_representation
-          }
-        }
-      }
-
-      [200, headers, { 'successful' => true, 'data' => data}.to_json]
+    def perform_operation(table_name, id, field_values)
+      if id =~ /^create/
+        perform_create(table_name, field_values)
+      elsif field_values.nil?
+        perform_destroy(table_name, id)
+      else
+        perform_update(table_name, id, field_values)
+      end
     end
 
-    def handle_update(update_commands_by_table)
-      table_name = update_commands_by_table.keys.first
-      update_commands_by_record_id = update_commands_by_table.values.first
-      id = update_commands_by_record_id.keys.first
-      field_values = update_commands_by_record_id.values.first
+    def perform_create(table_name, field_values)
+      relation = resolve_table_name(table_name)
+      new_record = relation.create(field_values)
+      new_record.wire_representation
+    end
 
+    def perform_update(table_name, id, field_values)
       relation = resolve_table_name(table_name)
       record = relation.find(id)
       updated_field_values = record.update(field_values)
       record.save
-
-      data = {
-        'update' => {
-          record.table.global_name => {
-            record.id => updated_field_values
-          }
-        }
-      }
-
-      [200, headers, { 'successful' => true, 'data' => data}.to_json]
+      updated_field_values
     end
 
-    def handle_destroy(destroy_commands_by_table_name)
-
-      table_name = destroy_commands_by_table_name.keys.first
-      id = destroy_commands_by_table_name.values.first.first
-
+    def perform_destroy(table_name, id)
       relation = resolve_table_name(table_name)
       relation.destroy(id)
-
-      data = {
-        'destroy' => {
-          table_name => [id]  
-        }
-      }
-
-      [200, headers, { 'successful' => true, 'data' => data }.to_json]
+      nil
     end
 
     def headers
