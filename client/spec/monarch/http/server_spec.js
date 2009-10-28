@@ -290,7 +290,11 @@ Screw.Unit(function(c) { with(c) {
         destroy_future.before_events(before_events_callback);
         destroy_future.after_events(after_events_callback);
 
-        post.simulate_success();
+        post.simulate_success({
+          destroy: {
+            blogs: [record.id()]
+          }
+        });
 
         expect(remove_callback).to(have_been_called, once);
 
