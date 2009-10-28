@@ -3,6 +3,7 @@
 Monarch.constructor("Monarch.Http.Server", {
   initialize: function() {
     this._next_echo_id = 0;
+    this.pending_create_commands_by_echo_id = {};
   },
 
   fetch: function(relations) {
@@ -30,33 +31,42 @@ Monarch.constructor("Monarch.Http.Server", {
     return "echo_" + this._next_echo_id++;
   },
 
-  create: function(relation, field_values) {
-    var create_future = new Monarch.Http.RepositoryUpdateFuture();
-    var record = new relation.record_constructor(field_values);
-    var table = record.table();
+  create: function(table, field_values) {
+    var create_command = new Monarch.Http.CreateCommand(table, field_values, this.next_echo_id());
+    this.pending_create_commands_by_echo_id[create_command.echo_id] = create_command;
+    this.perform_pending_mutations();
+    return create_command.future;
+  },
 
-    var create_commands_by_table = {};
-    var create_commands_by_echo_id = {};
-    create_commands_by_echo_id[this.next_echo_id()] = record.wire_representation();
-    create_commands_by_table[table.global_name] = create_commands_by_echo_id;
+  perform_pending_mutations: function() {
+    var self = this;
+    var request_data = {};
 
-    this.post(Repository.origin_url, {
-      create: create_commands_by_table
-    })
-      .on_success(function(data) {
-        var field_values = Monarch.Util.values(data.create[table.global_name])[0];
-        record.local_update(field_values);
-        table.insert(record, {
-          before_events: function() {
-            create_future.trigger_before_events(record);
-          },
-          after_events: function() {
-            create_future.trigger_after_events(record);
-          }
-        });
+    Monarch.Util.values(this.pending_create_commands_by_echo_id, function(create_command) {
+      create_command.add_to_request_data(request_data);
     });
 
-    return create_future;
+    this.post(Repository.origin_url, request_data).on_success(function(response_data) {
+      self.handle_mutation_response(response_data)
+    });
+  },
+
+  handle_mutation_response: function(response_data) {
+    var self = this;
+    Repository.pause_events();
+
+
+    Monarch.Util.each(response_data.create, function(table_name, field_values_by_echo_id) {
+      Monarch.Util.each(field_values_by_echo_id, function(echo_id, field_values) {
+        self.pending_create_commands_by_echo_id[echo_id].complete_and_trigger_before_events(field_values);
+      });
+    });
+
+    Repository.resume_events();
+    Monarch.Util.values(this.pending_create_commands_by_echo_id, function(command) {
+      command.trigger_after_events();
+    });
+    this.pending_create_commands_by_echo_id = {};
   },
 
   update: function(record, values_by_method_name) {
