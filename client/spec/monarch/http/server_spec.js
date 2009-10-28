@@ -129,7 +129,7 @@ Screw.Unit(function(c) { with(c) {
           create: {
             blogs: {
               echo_0: {
-                id: "dinosaurs"A,
+                id: "dinosaurs",
                 name: "Recipes Modified By Server",
                 user_id: "wil"
               }
@@ -224,19 +224,19 @@ Screw.Unit(function(c) { with(c) {
         expect(post.url).to(equal, Repository.origin_url);
 
         expect(post.data).to(equal, {
-          updates: [{
-            id: record.id(),
-            relation: Blog.table.wire_representation(),
-            field_values: {
-              name: "Fancy Programming",
-              user_id: "wil",
-              started_at: new_started_at.getTime()
+          update: {
+            blogs: {
+              recipes: {
+                name: "Fancy Programming",
+                user_id: "wil",
+                started_at: new_started_at.getTime()
+              }
             }
-          }]
-        })
+          }
+        });
 
         post.simulate_success({
-          updates: {
+          update: {
             blogs: {
               recipes: {
                 name: "Fancy Programming Prime", // server can change field values too

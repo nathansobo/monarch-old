@@ -35,13 +35,13 @@ Monarch.constructor("Monarch.Http.Server", {
     var record = new relation.record_constructor(field_values);
     var table = record.table();
 
-    var global_create_hash = {};
-    var table_create_hash = {};
-    global_create_hash[table.global_name] = table_create_hash;
-    table_create_hash[this.next_echo_id()] = record.wire_representation();
-    
+    var create_commands_by_table = {};
+    var create_commands_by_echo_id = {};
+    create_commands_by_echo_id[this.next_echo_id()] = record.wire_representation();
+    create_commands_by_table[table.global_name] = create_commands_by_echo_id;
+
     this.post(Repository.origin_url, {
-      create: global_create_hash
+      create: create_commands_by_table
     })
       .on_success(function(data) {
         var field_values = Monarch.Util.values(data.create[table.global_name])[0];
@@ -65,24 +65,18 @@ Monarch.constructor("Monarch.Http.Server", {
     record.start_pending_changes();
     record.local_update(values_by_method_name);
     var pending_fieldset = record.active_fieldset;
-
     record.restore_primary_fieldset();
-    var update_command = {
-      id: record.id(),
-      relation: table.wire_representation(),
-      field_values: pending_fieldset.wire_representation()
-    };
 
-    if (this.batch_in_progress) {
-      this.batched_updates.push(update_command);
-      return update_future;
-    }
+    var update_commands_by_table = {};
+    var update_commands_by_record_id = {};
+    update_commands_by_record_id[record.id()] = pending_fieldset.wire_representation();
+    update_commands_by_table[table.global_name] = update_commands_by_record_id;
 
     this.post(Repository.origin_url, {
-      updates: [update_command]
+      update: update_commands_by_table
     })
       .on_success(function(data) {
-        var field_values = data.updates[table.global_name][record.id()];
+        var field_values = data.update[table.global_name][record.id()];
         pending_fieldset.update(field_values);
         pending_fieldset.commit({
           before_events: function() {

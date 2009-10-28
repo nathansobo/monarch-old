@@ -66,21 +66,21 @@ module Model
         end
       end
 
-      context "when called with an 'updates' parameter containing a single update operation" do
+      context "when called with an 'update' parameter containing a single update operation" do
         it "finds the record with the given 'id' in the given 'relation', then updates it with the given field values and returns all changed field values as its result" do
           record = User.find('jan')
           new_signed_up_at = record.signed_up_at - 1.hours
 
           response = Http::Response.new(*exposed_repository.post({
-            :updates => [{
-              'relation' => { "type" => "table", "name" => "users"},
-              'id' => "jan",
-              'field_values' => {
-                'great_name' => "Jan Christian Nelson",
-                'age' => record.age,
-                'signed_up_at' => new_signed_up_at.to_millis
+            :update => {
+              "users" => {
+                "jan" => {
+                  'great_name' => "Jan Christian Nelson",
+                  'age' => record.age,
+                  'signed_up_at' => new_signed_up_at.to_millis
+                }
               }
-            }].to_json
+            }.to_json
           }))
 
           record.reload
@@ -92,7 +92,7 @@ module Model
           response.body_from_json.should == {
             'successful' => true,
             'data' => {
-              'updates' => {
+              'update' => {
                 'users' => {
                   'jan' => {
                     'full_name' => "Jan Christian Nelson The Great",

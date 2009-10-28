@@ -18,8 +18,8 @@ module Model
     def post(params)
       if params[:create]
         handle_create(JSON.parse(params[:create]))
-      elsif params[:updates]
-        handle_updates(JSON.parse(params[:updates]))
+      elsif params[:update]
+        handle_update(JSON.parse(params[:update]))
       elsif params[:destroys]
         handle_destroys(JSON.parse(params[:destroys]))  
       end
@@ -58,17 +58,19 @@ module Model
       [200, headers, { 'successful' => true, 'data' => data}.to_json]
     end
 
-    def handle_updates(updates)
-      update = updates.first
-      id = update['id']
-      relation = build_relation_from_wire_representation(update['relation'])
-      field_values = update['field_values']
+    def handle_update(update_commands_by_table)
+      table_name = update_commands_by_table.keys.first
+      update_commands_by_record_id = update_commands_by_table.values.first
+      id = update_commands_by_record_id.keys.first
+      field_values = update_commands_by_record_id.values.first
+
+      relation = resolve_table_name(table_name)
       record = relation.find(id)
       updated_field_values = record.update(field_values)
       record.save
 
       data = {
-        'updates' => {
+        'update' => {
           record.table.global_name => {
             record.id => updated_field_values
           }
