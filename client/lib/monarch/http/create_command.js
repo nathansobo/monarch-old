@@ -10,11 +10,10 @@ Monarch.constructor("Monarch.Http.CreateCommand", {
 
   add_to_request_data: function(request_data) {
     var table_name = this.table.global_name;
-    if (!request_data.create) request_data.create = {};
-    if (!request_data.create[table_name]) request_data.create[table_name] = {};
+    if (!request_data[table_name]) request_data[table_name] = {};
     
     this.pending_record = new this.table.record_constructor(this.field_values);
-    request_data.create[table_name][this.echo_id] = this.pending_record.wire_representation();
+    request_data[table_name][this.echo_id] = this.pending_record.wire_representation();
   },
 
   complete_and_trigger_before_events: function(field_values_from_server) {

@@ -110,9 +110,11 @@ Screw.Unit(function(c) { with(c) {
         var post = server.posts.shift();
         expect(post.url).to(equal, Repository.origin_url);
 
-        expect(post.data.create).to(equal, {
-          blogs: {
-            echo_0: new Blog(field_values).wire_representation()
+        expect(post.data).to(equal, {
+          operations: {
+            blogs: {
+              create_0: new Blog(field_values).wire_representation()
+            }
           }
         });
 
@@ -126,13 +128,11 @@ Screw.Unit(function(c) { with(c) {
         create_future.after_events(after_events_callback);
 
         post.simulate_success({
-          create: {
-            blogs: {
-              echo_0: {
-                id: "dinosaurs",
-                name: "Recipes Modified By Server",
-                user_id: "wil"
-              }
+          blogs: {
+            create_0: {
+              id: "dinosaurs",
+              name: "Recipes Modified By Server",
+              user_id: "wil"
             }
           }
         });
@@ -224,7 +224,7 @@ Screw.Unit(function(c) { with(c) {
         expect(post.url).to(equal, Repository.origin_url);
 
         expect(post.data).to(equal, {
-          update: {
+          operations: {
             blogs: {
               recipes: {
                 name: "Fancy Programming",
@@ -236,13 +236,11 @@ Screw.Unit(function(c) { with(c) {
         });
 
         post.simulate_success({
-          update: {
-            blogs: {
-              recipes: {
-                name: "Fancy Programming Prime", // server can change field values too
-                user_id: 'wil',
-                started_at: new_started_at.getTime()
-              }
+          blogs: {
+            recipes: {
+              name: "Fancy Programming Prime", // server can change field values too
+              user_id: 'wil',
+              started_at: new_started_at.getTime()
             }
           }
         });
@@ -276,8 +274,10 @@ Screw.Unit(function(c) { with(c) {
         expect(post.url).to(equal, Repository.origin_url);
 
         expect(post.data).to(equal, {
-          destroy: {
-            blogs: [record.id()]
+          operations: {
+            blogs: {
+              recipes: null
+            }
           }
         });
 
@@ -291,8 +291,8 @@ Screw.Unit(function(c) { with(c) {
         destroy_future.after_events(after_events_callback);
 
         post.simulate_success({
-          destroy: {
-            blogs: [record.id()]
+          blogs: {
+            recipes: null
           }
         });
 

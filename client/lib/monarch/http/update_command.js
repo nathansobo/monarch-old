@@ -9,15 +9,14 @@ Monarch.constructor("Monarch.Http.UpdateCommand", {
 
   add_to_request_data: function(request_data) {
     var table_name = this.record.table().global_name;
-    if (!request_data.update) request_data.update = {};
-    if (!request_data.update[table_name]) request_data.update[table_name] = {};
+    if (!request_data[table_name]) request_data[table_name] = {};
 
     this.record.start_pending_changes();
     this.record.local_update(this.values_by_method_name);
     this.pending_fieldset = this.record.active_fieldset;
     this.record.restore_primary_fieldset();
 
-    request_data.update[table_name][this.record.id()] = this.pending_fieldset.wire_representation();
+    request_data[table_name][this.record.id()] = this.pending_fieldset.wire_representation();
   },
 
   complete_and_trigger_before_events: function(field_values_from_server) {
