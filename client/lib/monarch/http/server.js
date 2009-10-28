@@ -95,10 +95,12 @@ Monarch.constructor("Monarch.Http.Server", {
   },
 
   start_batch: function() {
+    if (this.batch_in_progress) throw new Error("Batch already in progress");
     this.batch_in_progress = true;
   },
 
   finish_batch: function() {
+    if (!this.batch_in_progress) throw new Error("No batch in progress");
     this.batch_in_progress = false;
     this.perform_pending_mutations();
   },
