@@ -260,9 +260,167 @@ Screw.Unit(function(c) { with(c) {
       });
 
       describe("#start_batch and #finish_batch", function() {
+        use_local_fixtures();
+        var jan, wil, recipes, motorcycle, records_from_insert_events, records_from_update_events, records_from_remove_events, original_global_server;
+        var insert_callback, update_callback, remove_callback, before_events_callback, after_events_callback;
 
+        before(function() {
+          jan = User.find('jan');
+          wil = User.find('wil');
+          recipes = Blog.find('recipes');
+          motorcycle = Blog.find('motorcycle');
+
+          insert_callback = mock_function("insert_callback");
+          update_callback = mock_function("update_callback");
+          remove_callback = mock_function("remove_callback");
+
+          User.on_insert(insert_callback);
+          User.on_update(update_callback);
+          User.on_remove(remove_callback);
+          Blog.on_insert(insert_callback);
+          Blog.on_update(update_callback);
+          Blog.on_remove(remove_callback);
+        });
+
+        function expect_no_events_to_have_fired() {
+          expect(insert_callback).to_not(have_been_called);
+          expect(update_callback).to_not(have_been_called);
+          expect(remove_callback).to_not(have_been_called);
+        }
+
+        function expect_all_events_to_have_fired() {
+          expect(insert_callback).to(have_been_called, twice);
+          expect(update_callback).to(have_been_called, twice);
+          expect(remove_callback).to(have_been_called, twice);
+        }
+
+        they("cause all mutations occurring between the calls to be batched together in a single web request, firing the appropriate callbacks for all of them once they are complete", function() {
+          var before_events_callback_count = 0;
+          var after_events_callback_count = 0;
+
+          fake_server.start_batch();
+
+          expect(fake_server.batches).to(be_empty);
+          expect(fake_server.last_batch).to(be_null);
+
+          fake_server.create(User.table, {full_name: "Stephanie Wambach"})
+            .before_events(function(user) {
+              expect(user.id()).to_not(be_null);
+              expect(user.full_name()).to(equal, "Stephanie Wambach");
+              expect_no_events_to_have_fired();
+              before_events_callback_count++;
+            })
+            .after_events(function(user) {
+              expect(user.id()).to_not(be_null);
+              expect_all_events_to_have_fired();
+              after_events_callback_count++;
+            });
+
+          fake_server.create(Blog.table, {name: "Bandwidth to Burn"})
+            .before_events(function(blog) {
+              expect(blog.id()).to_not(be_null);
+              expect_no_events_to_have_fired();
+              before_events_callback_count++;
+            })
+            .after_events(function(blog) {
+              expect(blog.id()).to_not(be_null);
+              expect_all_events_to_have_fired();
+              after_events_callback_count++;
+            });
+
+          fake_server.update(jan, {full_name: "Jan Christian Nelson"})
+            .before_events(function(record) {
+              expect(record).to(equal, jan);
+              expect_no_events_to_have_fired();
+              before_events_callback_count++;
+            })
+            .after_events(function(record) {
+              expect(record).to(equal, jan);
+              expect_all_events_to_have_fired();
+              after_events_callback_count++;
+            });
+
+          fake_server.update(recipes, {name: "Disgusting Recipes Involving Pork"})
+            .before_events(function(record) {
+              expect(record).to(equal, recipes);
+              expect_no_events_to_have_fired();
+              before_events_callback_count++;
+            })
+            .after_events(function(record) {
+              expect(record).to(equal, recipes);
+              expect_all_events_to_have_fired();
+              after_events_callback_count++;
+            });
+
+          fake_server.destroy(wil)
+            .before_events(function(record) {
+              expect(record).to(equal, wil);
+              expect_no_events_to_have_fired();
+              before_events_callback_count++;
+            })
+            .after_events(function(record) {
+              expect(record).to(equal, wil);
+              expect_all_events_to_have_fired();
+              after_events_callback_count++;
+            });
+
+          fake_server.destroy(motorcycle)
+            .before_events(function(record) {
+              expect(record).to(equal, motorcycle);
+              expect_no_events_to_have_fired();
+              before_events_callback_count++;
+            })
+            .after_events(function(record) {
+              expect(record).to(equal, motorcycle);
+              expect_all_events_to_have_fired();
+              after_events_callback_count++;
+            });
+
+          expect(fake_server.creates).to(be_empty);
+          expect(fake_server.updates).to(be_empty);
+          expect(fake_server.destroys).to(be_empty);
+
+          expect(before_events_callback_count).to(equal, 0);
+          expect(after_events_callback_count).to(equal, 0);
+
+          fake_server.finish_batch();
+          expect(fake_server.batches.length).to(equal, 1);
+          fake_server.last_batch.simulate_success();
+          
+          expect(fake_server.batches).to(be_empty);
+          expect(fake_server.last_batch).to(be_null);
+
+          expect(before_events_callback_count).to(equal, 6);
+          expect(after_events_callback_count).to(equal, 6);
+        });
       });
     });
-
   });
 }});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
