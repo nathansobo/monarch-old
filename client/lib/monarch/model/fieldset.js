@@ -76,10 +76,10 @@ Monarch.constructor("Monarch.Model.Fieldset", {
     }
   },
 
-  wire_representation: function(only_dirty) {
+  wire_representation: function() {
     var wire_representation = {};
     Monarch.Util.each(this.fields_by_column_name, function(column_name, field) {
-      if (!only_dirty || field.dirty) wire_representation[column_name] = field.value_wire_representation();
+      wire_representation[column_name] = field.value_wire_representation();
     });
     return wire_representation;
   }
