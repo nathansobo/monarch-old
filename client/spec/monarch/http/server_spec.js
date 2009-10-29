@@ -323,6 +323,8 @@ Screw.Unit(function(c) { with(c) {
         update_callback = mock_function("update_callback");
         remove_callback = mock_function("remove_callback");
 
+        Monarch.Http.CreateCommand.command_id_counter = 0;
+
         User.on_insert(insert_callback);
         User.on_update(update_callback);
         User.on_remove(remove_callback);

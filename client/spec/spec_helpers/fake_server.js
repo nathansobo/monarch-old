@@ -5,6 +5,7 @@
 //= require "fake_server/fake_update"
 //= require "fake_server/fake_destroy"
 //= require "fake_server/fake_fetch"
+//= require "fake_server/fake_mutation"
 
 Screw.Unit(function(c) {
   c.use_fake_server = function() {

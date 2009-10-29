@@ -2,7 +2,6 @@
 
 Monarch.constructor("Monarch.Http.Server", {
   initialize: function() {
-    this._next_echo_id = 0;
     this.pending_commands = {};
   },
 
@@ -27,12 +26,8 @@ Monarch.constructor("Monarch.Http.Server", {
     return fetch_future;
   },
 
-  next_echo_id: function() {
-    return "create_" + this._next_echo_id++;
-  },
-
   create: function(table, field_values) {
-    var command = new Monarch.Http.CreateCommand(table, field_values, this.next_echo_id());
+    var command = new Monarch.Http.CreateCommand(table, field_values);
     return this.mutate(table, command)
   },
 

@@ -10,7 +10,7 @@ Monarch.constructor("FakeServer", {
     this.destroys = [];
     this.batches = [];
     this.auto_fetch = false;
-    this._command_id = 0;
+    this.create_command_id_counter = 0;
 
     this.Repository = Repository.clone_schema();
   },
@@ -31,28 +31,36 @@ Monarch.constructor("FakeServer", {
     if (!this.auto_fetch) this.fetches.shift().simulate_success();
   },
 
-  create: function(relation, field_values) {
-    return this.mutate(new FakeServer.FakeCreate(Repository.origin_url, relation, field_values, this));
+  create: function(table, field_values) {
+    return this.mutate(new Monarch.Http.CreateCommand(table, field_values));
   },
 
   update: function(record, field_values) {
-    return this.mutate(new FakeServer.FakeUpdate(record, field_values, this));
+    return this.mutate(new Monarch.Http.UpdateCommand(record, field_values));
   },
 
   destroy: function(record) {
-    return this.mutate(new FakeServer.FakeDestroy(Repository.origin_url, record, this));
+    return this.mutate(new Monarch.Http.DestroyCommand(record));
   },
 
   mutate: function(command) {
+    var fake_mutatation =  new FakeServer.FakeMutation(this.origin_url, command, this)
+
     if (this.batch_in_progress) {
-      this.current_batch.add_command(command);
-    } else if (this.auto_mutate) {
-      command.simulate_success();
+      this.current_batch.add_command(fake_mutatation);
     } else {
-      this["last_" + command.type] = command;
-      this[command.type + "s"].push(command);
+      this.start_batch();
+      this.current_batch.add_command(fake_mutatation)
+      this.finish_batch();
+
+      if (this.auto_mutate) {
+        this.last_batch.simulate_success();
+      } else {
+        this["last_" + fake_mutatation.type] = fake_mutatation;
+        this[fake_mutatation.type + "s"].push(fake_mutatation);
+      }
     }
-    return command.future;
+    return fake_mutatation.future;
   },
 
   start_batch: function() {

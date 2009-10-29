@@ -7,13 +7,13 @@ Monarch.constructor("Monarch.Http.UpdateCommand", Monarch.Http.Command, {
     this.command_id = record.id();
     this.values_by_method_name = values_by_method_name;
     this.future = new Monarch.Http.RepositoryUpdateFuture();
-  },
-
-  wire_representation: function() {
     this.record.start_pending_changes();
     this.record.local_update(this.values_by_method_name);
     this.pending_fieldset = this.record.active_fieldset;
     this.record.restore_primary_fieldset();
+  },
+
+  wire_representation: function() {
     return this.pending_fieldset.wire_representation();
   },
 
