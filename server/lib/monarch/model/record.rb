@@ -109,7 +109,7 @@ module Model
     end
 
     def destroy
-      table.destroy(self)
+      table.destroy(id)
     end
 
     def save
