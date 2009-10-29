@@ -9,8 +9,9 @@ Monarch.constructor("FakeServer", {
     this.updates = [];
     this.destroys = [];
     this.batches = [];
+
     this.auto_fetch = false;
-    this.create_command_id_counter = 0;
+    this.auto_mutate = false;
 
     this.Repository = Repository.clone_schema();
   },
@@ -47,10 +48,10 @@ Monarch.constructor("FakeServer", {
     var fake_mutatation =  new FakeServer.FakeMutation(Repository.origin_url, command, this)
 
     if (this.batch_in_progress) {
-      this.current_batch.add_command(fake_mutatation);
+      this.current_batch.add_mutation(fake_mutatation);
     } else {
       this.start_batch();
-      this.current_batch.add_command(fake_mutatation)
+      this.current_batch.add_mutation(fake_mutatation);
       this.finish_batch();
 
       if (this.auto_mutate) {
