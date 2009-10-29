@@ -44,7 +44,7 @@ Monarch.constructor("FakeServer", {
   },
 
   mutate: function(command) {
-    var fake_mutatation =  new FakeServer.FakeMutation(this.origin_url, command, this)
+    var fake_mutatation =  new FakeServer.FakeMutation(Repository.origin_url, command, this)
 
     if (this.batch_in_progress) {
       this.current_batch.add_command(fake_mutatation);

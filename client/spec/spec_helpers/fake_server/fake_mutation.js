@@ -7,6 +7,11 @@ Monarch.constructor("FakeServer.FakeMutation", {
     this.url = url;
     this.fake_server = fake_server;
     this.command = command;
+
+    this.table = command.table;
+    this.record = command.record;
+    this.field_values = command.wire_representation();
+
     this.type = Monarch.Inflection.underscore(command.constructor.basename).split("_")[0];
     this.table_name = command.table_name;
     this.command_id = command.command_id;

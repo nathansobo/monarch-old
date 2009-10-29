@@ -12,7 +12,7 @@ Monarch.constructor("FakeServer.FakeBatch", {
   },
 
   find_update: function(record) {
-    var commands_for_table = this.batched_requests[record.table().global_name];
+    var commands_for_table = this.commands[record.table().global_name];
     if (!commands_for_table) return null;
     return commands_for_table[record.id()];
   },
