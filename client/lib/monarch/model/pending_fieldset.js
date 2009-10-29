@@ -25,8 +25,8 @@ Monarch.constructor("Monarch.Model.PendingFieldset", Monarch.Model.Fieldset, {
     });
   },
 
-  commit: function(options) {
-    this.record.local_update(this.wire_representation(), options);
+  commit: function() {
+    this.record.local_update(this.wire_representation());
   }
 });
 

@@ -152,17 +152,14 @@ Monarch.constructor("Monarch.Model.Record", {
     this.active_fieldset = this.active_fieldset.new_pending_fieldset();
   },
 
-  local_update: function(values_by_method_name, options) {
-    if (!options) options = {};
+  local_update: function(values_by_method_name) {
     this.active_fieldset.begin_batch_update();
     for (var method_name in values_by_method_name) {
       if (this[method_name]) {
         this[method_name].call(this, values_by_method_name[method_name]);
       }
     }
-    if (options.before_events) options.before_events();
     this.active_fieldset.finish_batch_update();
-    if (options.after_events) options.after_events();
   },
 
   local_destroy: function() {

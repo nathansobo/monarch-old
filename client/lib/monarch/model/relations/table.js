@@ -30,16 +30,16 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
     return this._records.concat();
   },
 
-  insert: function(record, options) {
+  insert: function(record) {
     this.records_by_id[record.id()] = record;
     record.enable_update_events();
     record.initialize_relations();
-    this.record_inserted(record, options);
+    this.record_inserted(record);
   },
 
-  remove: function(record, options) {
+  remove: function(record) {
     delete this.records_by_id[record.id()];
-    this.record_removed(record, options);
+    this.record_removed(record);
   },
 
   create: function(field_values) {
