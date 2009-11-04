@@ -151,7 +151,7 @@ module Model
     def default_field_values
       defaults = {}
       table.columns.each do |column|
-        defaults[column.name] = column.default_value if column.default_value
+        defaults[column.name] = column.default_value unless column.default_value.nil?
       end
       defaults
     end

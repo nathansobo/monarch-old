@@ -91,6 +91,10 @@ module Model
         all.size
       end
 
+      def empty?
+        all.empty?
+      end
+
       protected
       def table_or_record_class?(arg)
         arg.instance_of?(Table) || arg.instance_of?(Class)
