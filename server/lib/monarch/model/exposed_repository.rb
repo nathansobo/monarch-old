@@ -76,8 +76,13 @@ module Model
       relation = resolve_table_name(table_name)
       record = relation.find(id)
       updated_field_values = record.update(field_values)
-      record.save
-      valid_result(updated_field_values)
+
+      if record.valid?
+        record.save
+        valid_result(updated_field_values)
+      else
+        invalid_result(record.validation_errors_by_column_name)
+      end
     end
 
     def perform_destroy(table_name, id)

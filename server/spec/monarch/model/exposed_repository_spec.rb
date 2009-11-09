@@ -106,39 +106,76 @@ module Model
       end
 
       context "when called with a single update operation" do
-        it "finds the record with the given 'id' in the given 'relation', then updates it with the given field values and returns all changed field values as its result" do
-          record = User.find('jan')
-          new_signed_up_at = record.signed_up_at - 1.hours
 
-          response = Http::Response.new(*exposed_repository.post({
-            :operations => {
-              "users" => {
-                "jan" => {
-                  'great_name' => "Jan Christian Nelson",
-                  'age' => record.age,
-                  'signed_up_at' => new_signed_up_at.to_millis
+        context "when the given field values are valid" do
+          it "finds the record with the given 'id' in the given 'relation', then updates it with the given field values and returns all changed field values as its result" do
+            record = User.find('jan')
+            new_signed_up_at = record.signed_up_at - 1.hours
+
+            response = Http::Response.new(*exposed_repository.post({
+              :operations => {
+                "users" => {
+                  "jan" => {
+                    'great_name' => "Jan Christian Nelson",
+                    'age' => record.age,
+                    'signed_up_at' => new_signed_up_at.to_millis
+                  }
                 }
-              }
-            }.to_json
-          }))
+              }.to_json
+            }))
 
-          record.reload
-          record.full_name.should == "Jan Christian Nelson The Great"
-          record.age.should == 31
-          record.signed_up_at.to_millis.should == new_signed_up_at.to_millis
+            record.reload
+            record.full_name.should == "Jan Christian Nelson The Great"
+            record.age.should == 31
+            record.signed_up_at.to_millis.should == new_signed_up_at.to_millis
 
-          response.should be_ok
-          response.body_from_json.should == {
-            'successful' => true,
-            'data' => {
-              'users' => {
-                'jan' => {
-                  'full_name' => "Jan Christian Nelson The Great",
-                  'signed_up_at' => new_signed_up_at.to_millis
+            response.should be_ok
+            response.body_from_json.should == {
+              'successful' => true,
+              'data' => {
+                'users' => {
+                  'jan' => {
+                    'full_name' => "Jan Christian Nelson The Great",
+                    'signed_up_at' => new_signed_up_at.to_millis
+                  }
                 }
               }
             }
-          }
+          end
+        end
+
+        context "when the given field values are invalid" do
+          it "returns the validation errors in an unsuccessful response" do
+            record = User.find('jan')
+            pre_update_age = record.age
+
+            response = Http::Response.new(*exposed_repository.post({
+              :operations => {
+                "users" => {
+                  "jan" => {
+                    'age' => 3,
+                  }
+                }
+              }.to_json
+            }))
+
+            validation_errors_on_age = record.field(:age).validation_errors
+            record.reload
+            record.age.should == pre_update_age
+
+            response.should be_ok
+            response.body_from_json.should == {
+              'successful' => false,
+              'data' => {
+                'users' => {
+                  'jan' => {
+                    'age' => validation_errors_on_age,
+                  }
+                }
+              }
+            }
+          end
+
         end
       end
 

@@ -113,8 +113,10 @@ module Model
     end
 
     def save
+      return false unless valid?
       Origin.update(table, field_values_by_column_name)
       mark_clean
+      true
     end
 
     def dirty?
