@@ -31,7 +31,7 @@ module Model
       end
 
       def ==(other_predicate)
-        return false unless other_predicate.instance_of?(Eq)
+        return false unless other_predicate.instance_of?(self.class)
         other_predicate.left_operand == left_operand && other_predicate.right_operand == right_operand
       end
 

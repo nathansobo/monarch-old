@@ -18,6 +18,10 @@ module Model
       Predicates::Eq.new(self, right_operand)
     end
 
+    def neq(right_operand)
+      Predicates::Neq.new(self, right_operand)
+    end
+
     def as(column_alias)
       ProjectedColumn.new(self, column_alias.to_sym)
     end
