@@ -30,14 +30,15 @@ module Model
         record = tuple_class.new(field_values)
         record.before_create if record.respond_to?(:before_create)
         insert(record)
-        record.mark_clean
         record.after_create if record.respond_to?(:after_create)
         record
       end
 
       def insert(record)
+        return record unless record.valid?
         Origin.insert(self, record.field_values_by_column_name)
         thread_local_identity_map[record.id] = record if thread_local_identity_map
+        record.mark_clean
       end
 
       def destroy(id)

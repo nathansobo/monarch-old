@@ -64,6 +64,45 @@ module Model
       wire_representation
     end
 
+    def valid?
+      validate_if_needed
+      fields.each do |field|
+        return false unless field.valid?
+      end
+      true
+    end
+
+    def validate_if_needed
+      return if validated?
+      validate
+      mark_validated
+    end
+
+    def validated?
+      fields.all? {|field| field.validated?}
+    end
+
+    def mark_validated
+      fields.each { |field| field.mark_validated }
+    end
+
+    def validate
+      # implement in subclasses if validation is desired
+    end
+
+    def validation_error(field_name, error_string)
+      field(field_name).validation_errors.push(error_string)
+    end
+
+    def validation_errors_by_column_name
+      validate_if_needed
+      validation_errors_by_column_name = {}
+      fields.each do |field|
+        validation_errors_by_column_name[field.name] = field.validation_errors unless field.valid?
+      end
+      validation_errors_by_column_name
+    end
+
     protected
     attr_reader :fields_by_column
     def initialize_fields

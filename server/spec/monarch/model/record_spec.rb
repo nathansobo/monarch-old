@@ -83,7 +83,7 @@ module Model
         end
       end
 
-      describe "#each" do
+      describe ".each" do
         specify "are forwarded to #all of #table" do
           all = []
           stub(BlogPost.table).all { all }
@@ -194,6 +194,32 @@ module Model
         end
       end
 
+
+      describe "#valid?" do
+        describe "when #validate stores validation errors on at least one field" do
+          it "returns false" do
+            record.title = "Has Many Through"
+            mock(record).validate do
+              record.field(:title).validation_errors.push("Title must not be lame")
+            end
+            record.should_not be_valid
+          end
+        end
+
+        describe "when #validates stores no validation errors on any fields" do
+          it "returns true" do
+            record.should be_valid
+          end
+        end
+      end
+
+      describe "#validation_error" do
+        it "pushes the given validation error message onto the field with the given name" do
+          record.validation_error(:title, "Title must not be lame")
+          record.field(:title).validation_errors.should == ["Title must not be lame"]
+        end
+      end
+
       describe "#dirty?" do
         context "when a Record has been instantiated but not inserted into the RemoteRepository" do
           it "returns true" do
@@ -216,6 +242,7 @@ module Model
             record.save
             record.body = "Wheat"
             record.should be_dirty
+            record.should_not be_validated
           end
         end
 
@@ -231,6 +258,7 @@ module Model
             record = BlogPost.find("grain_quinoa")
             record.body = "Red Rice"
             record.should be_dirty
+            record.should_not be_validated
           end
         end
       end

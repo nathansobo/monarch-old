@@ -1,6 +1,8 @@
 module Model
   class Field
-    attr_reader :record, :column, :value
+    attr_reader :record, :column, :value, :validation_errors
+
+    delegate :name, :to => :column
 
     def initialize(record, column)
       @record, @column = record, column
@@ -29,11 +31,25 @@ module Model
 
     def mark_clean
       @dirty = false
+      @validation_errors = []
+    end
+
+    def mark_validated
+      @validated = true
+    end
+
+    def validated?
+      @validated
+    end
+
+    def valid?
+      validation_errors.empty?
     end
 
     protected
     def mark_dirty
       @dirty = true
+      @validated = false
     end
   end
 end

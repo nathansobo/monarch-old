@@ -30,37 +30,78 @@ module Model
 
     describe "#post" do
       context "when called with a single create operation" do
-        it "calls #create on the indicated 'relation' with the given 'field_values', then returns all field values as its result" do
-          signed_up_at = Time.now
 
-          response = Http::Response.new(*exposed_repository.post({
-            :operations => {
-              'users' => {
-                'create_0' => {
-                  'great_name' => "Sharon Ly",
-                  'age' => 25,
-                  'signed_up_at' => signed_up_at.to_millis
+        context "when the given field values are valid" do
+          it "calls #create on the indicated 'relation' with the given 'field_values', then returns all field values as its result" do
+            signed_up_at = Time.now
+
+            field_values = {
+              'great_name' => "Sharon Ly",
+              'age' => 25,
+              'signed_up_at' => signed_up_at.to_millis
+            }
+
+            User.new(field_values).should be_valid
+
+            response = Http::Response.new(*exposed_repository.post({
+              :operations => {
+                'users' => {
+                  'create_0' => field_values
                 }
-              }
-            }.to_json
-          }))
+              }.to_json
+            }))
 
-          new_record = User.find(User[:full_name].eq('Sharon Ly The Great'))
+            new_record = User.find(User[:full_name].eq('Sharon Ly The Great'))
 
-          response.should be_ok
-          response.body_from_json.should == {
-            'successful' => true,
-            'data' => {
-              'users' => {
-                'create_0' => {
-                  'id' => new_record.id,
-                  'full_name' => "Sharon Ly The Great",
-                  'age' => 25,
-                  'signed_up_at' => signed_up_at.to_millis
+            response.should be_ok
+            response.body_from_json.should == {
+              'successful' => true,
+              'data' => {
+                'users' => {
+                  'create_0' => {
+                    'id' => new_record.id,
+                    'full_name' => "Sharon Ly The Great",
+                    'age' => 25,
+                    'signed_up_at' => signed_up_at.to_millis
+                  }
                 }
               }
             }
-          }
+          end
+        end
+
+        context "when the given field values are invalid" do
+          it "calls #create on the indicated 'relation' with the given 'field_values', then returns all the validation errors as its result" do
+            field_values = {
+              'full_name' => "Baby Sharon Ly",
+              'age' => 2
+            }
+
+            invalid_example = User.new(field_values)
+            invalid_example.should_not be_valid
+
+            response = Http::Response.new(*exposed_repository.post({
+              :operations => {
+                'users' => {
+                  'create_0' => field_values
+                }
+              }.to_json
+            }))
+
+            User.find(User[:full_name].eq("Baby Sharon Ly")).should be_nil
+            
+            response.should be_ok
+            response.body_from_json.should == {
+              'successful' => false,
+              'data' => {
+                'users' => {
+                  'create_0' => {
+                    'age' => invalid_example.field(:age).validation_errors,
+                  }
+                }
+              }
+            }
+          end
         end
       end
 

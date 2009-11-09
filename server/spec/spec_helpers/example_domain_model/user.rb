@@ -14,4 +14,8 @@ class User < Model::Record
   def great_name=(full_name)
     self.full_name = full_name + " The Great"
   end
+
+  def validate
+    validation_error(:age, "User must be at least 10 years old") if age && age < 10
+  end
 end

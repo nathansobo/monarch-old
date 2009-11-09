@@ -16,15 +16,26 @@ module Model
     end
 
     def post(params)
-      response_data = {};
+      successful_response_data = Hash.new {|h,k| h[k] = {}};
+      unsuccessful_response_data = Hash.new {|h,k| h[k] = {}};
+
       operations_by_table_name = JSON.parse(params[:operations])
+
+      all_operations_valid = true
       operations_by_table_name.each do |table_name, operations_by_id|
-        response_data[table_name] = {}
         operations_by_id.each do |id, field_values|
-          response_data[table_name][id] = perform_operation(table_name, id, field_values)
+          result = perform_operation(table_name, id, field_values)
+          if result.valid?
+            successful_response_data[table_name][id] = result.data
+          else
+            unsuccessful_response_data[table_name][id] = result.data
+            all_operations_valid = false
+          end
         end
       end
-      [200, headers, { 'successful' => true, 'data' => response_data}.to_json]
+
+      response_data = all_operations_valid ? successful_response_data : unsuccessful_response_data
+      [200, headers, { 'successful' => all_operations_valid, 'data' => response_data}.to_json]
     end
 
     def resolve_table_name(name)
@@ -52,8 +63,13 @@ module Model
 
     def perform_create(table_name, field_values)
       relation = resolve_table_name(table_name)
-      new_record = relation.create(field_values)
-      new_record.wire_representation
+      record = relation.create(field_values)
+
+      if record.valid?
+        valid_result(record.wire_representation)
+      else
+        invalid_result(record.validation_errors_by_column_name)
+      end
     end
 
     def perform_update(table_name, id, field_values)
@@ -61,13 +77,13 @@ module Model
       record = relation.find(id)
       updated_field_values = record.update(field_values)
       record.save
-      updated_field_values
+      valid_result(updated_field_values)
     end
 
     def perform_destroy(table_name, id)
       relation = resolve_table_name(table_name)
       relation.destroy(id)
-      nil
+      valid_result(nil)
     end
 
     def headers
@@ -92,6 +108,26 @@ module Model
 
     def exposed_relation_definitions_by_name
       self.class.exposed_relation_definitions_by_name
+    end
+
+    def valid_result(data)
+      OperationResult.new(true, data)
+    end
+
+    def invalid_result(data)
+      OperationResult.new(false, data)
+    end
+
+    class OperationResult
+      attr_reader :data
+
+      def initialize(valid, data)
+        @valid, @data = valid, data
+      end
+
+      def valid?
+        @valid
+      end
     end
   end
 end

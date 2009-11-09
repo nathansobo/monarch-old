@@ -40,14 +40,10 @@ module Model
 
       describe "#create" do
         it "instantiates an instance of #tuple_class with the given columns, #inserts it, and returns it in a non-dirty state" do
-          mock(table).insert(anything) do |record|
-            record.class.should == table.tuple_class
-            record.body.should == "Brown Rice"
-            record.blog_id.should == "grain"
-          end
-
           record = table.create(:body => "Brown Rice", :blog_id => "grain")
+          table.find(table.column(:body).eq("Brown Rice")).should == record
           record.body.should == "Brown Rice"
+          record.should be_valid
           record.should_not be_dirty
         end
 
@@ -62,6 +58,15 @@ module Model
           it "calls the after inserting the record" do
             mock.instance_of(BlogPost).after_create
             table.create(:body => "Couscous")
+          end
+        end
+
+        context "if the instantiated record is invalid" do
+          it "does not insert it in the database and returns the invalid record" do
+            field_values = { :full_name => "Invalid Bob", :age => 2 }
+            User.new(field_values).should_not be_valid
+            User.table.create(field_values)
+            User.find(User[:full_name].eq("Invalid Bob")).should be_nil
           end
         end
       end

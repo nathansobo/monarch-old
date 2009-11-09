@@ -27,7 +27,7 @@ Spec::Runner.configure do |config|
 end
 
 at_exit do
-  Spec::Runner.run
+   Spec::Runner.run
 end
 
 module Spec::Example::ExampleMethods
