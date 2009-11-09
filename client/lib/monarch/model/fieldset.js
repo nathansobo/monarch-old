@@ -30,6 +30,14 @@ Monarch.constructor("Monarch.Model.Fieldset", {
     return new Monarch.Model.PendingFieldset(this);
   },
 
+  valid: function() {
+    var valid = true;
+    Monarch.Util.each(this.fields_by_column_name, function(column_name, field) {
+      if (!field.valid()) valid = false;
+    });
+    return valid;
+  },
+
   field: function(column) {
     var column_name = (typeof column == 'string') ? column : column.name;
     var field = this.fields_by_column_name[column_name];

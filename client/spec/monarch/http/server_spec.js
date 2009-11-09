@@ -6,6 +6,7 @@ Screw.Unit(function(c) { with(c) {
 
     before(function() {
       server = new Monarch.Http.Server();
+      Monarch.Http.CreateCommand.command_id_counter = 0;
     });
 
     describe("#fetch(origin_url, relations)", function() {
@@ -97,57 +98,109 @@ Screw.Unit(function(c) { with(c) {
         server.post = FakeServer.prototype.post;
       });
 
-      it("instantiates a record without inserting it, posts its field values to the remote repository, then updates the record with the returned field values, reinitializes its relations, and inserts it", function() {
-        var insert_callback = mock_function("insert callback");
-        var update_callback = mock_function("update callback");
-        Blog.on_insert(insert_callback);
-        Blog.on_update(update_callback);
+      context("when the server response indicates success", function() {
+        it("instantiates a record without inserting it, posts its field values to the remote repository, then updates the record with the returned field values and inserts it", function() {
+          var insert_callback = mock_function("insert callback");
+          var update_callback = mock_function("update callback");
+          Blog.on_insert(insert_callback);
+          Blog.on_update(update_callback);
 
-        var field_values = { crazy_name: "Dinosaurs", user_id: 'wil' };
-        var create_future = server.create(Blog.table, field_values);
+          var field_values = { crazy_name: "Dinosaurs", user_id: 'wil' };
+          var create_future = server.create(Blog.table, field_values);
 
-        expect(server.posts.length).to(equal, 1);
-        var post = server.posts.shift();
-        expect(post.url).to(equal, Repository.origin_url);
+          expect(server.posts.length).to(equal, 1);
+          var post = server.posts.shift();
+          expect(post.url).to(equal, Repository.origin_url);
 
-        expect(post.data).to(equal, {
-          operations: {
+          expect(post.data).to(equal, {
+            operations: {
+              blogs: {
+                create_0: new Blog(field_values).wire_representation()
+              }
+            }
+          });
+
+          var before_events_callback = mock_function("before events", function() {
+            expect(insert_callback).to_not(have_been_called);
+          });
+          var after_events_callback = mock_function("after events", function() {
+            expect(insert_callback).to(have_been_called, once);
+          });
+          create_future.before_events(before_events_callback);
+          create_future.after_events(after_events_callback);
+
+          post.simulate_success({
             blogs: {
-              create_0: new Blog(field_values).wire_representation()
+              create_0: {
+                id: "dinosaurs",
+                name: "Recipes Modified By Server",
+                user_id: "wil"
+              }
             }
-          }
-        });
+          });
 
-        var before_events_callback = mock_function("before events", function() {
-          expect(insert_callback).to_not(have_been_called);
-        });
-        var after_events_callback = mock_function("after events", function() {
+          expect(update_callback).to_not(have_been_called);
           expect(insert_callback).to(have_been_called, once);
-        });
-        create_future.before_events(before_events_callback);
-        create_future.after_events(after_events_callback);
 
-        post.simulate_success({
-          blogs: {
-            create_0: {
-              id: "dinosaurs",
-              name: "Recipes Modified By Server",
-              user_id: "wil"
+          var new_record = Blog.find('dinosaurs');
+          expect(new_record.name()).to(equal, "Recipes Modified By Server");
+          expect(new_record.user_id()).to(equal, "wil");
+
+          expect(new_record.blog_posts().predicate.right_operand).to(equal, new_record.id());
+
+          expect(before_events_callback).to(have_been_called, with_args(new_record));
+          expect(after_events_callback).to(have_been_called, with_args(new_record));
+        });
+      });
+
+      context("when the server response indicates failure", function() {
+        it("assigns the indicated validation error messages to fields on the client side model and invokes the on_failure callbacks on the future", function() {
+
+          var insert_callback = mock_function("insert callback");
+          var update_callback = mock_function("update callback");
+          Blog.on_insert(insert_callback);
+          Blog.on_update(update_callback);
+
+          var field_values = { crazy_name: "Dinosaurs", user_id: 'wil' };
+          var create_future = server.create(Blog.table, field_values);
+
+          expect(server.posts.length).to(equal, 1);
+          var post = server.posts.shift();
+          expect(post.url).to(equal, Repository.origin_url);
+
+          expect(post.data).to(equal, {
+            operations: {
+              blogs: {
+                create_0: new Blog(field_values).wire_representation()
+              }
             }
-          }
-        });
-        
-        expect(update_callback).to_not(have_been_called);
-        expect(insert_callback).to(have_been_called, once);
+          });
 
-        var new_record = Blog.find('dinosaurs');
-        expect(new_record.name()).to(equal, "Recipes Modified By Server");
-        expect(new_record.user_id()).to(equal, "wil");
-        
-        expect(new_record.blog_posts().predicate.right_operand).to(equal, new_record.id());
-        
-        expect(before_events_callback).to(have_been_called, with_args(new_record));
-        expect(after_events_callback).to(have_been_called, with_args(new_record));
+          var before_events_callback = mock_function("before events callback");
+          var after_events_callback = mock_function("after events callback");
+          var failure_callback = mock_function("failure callback");
+
+          create_future.before_events(before_events_callback);
+          create_future.after_events(after_events_callback);
+          create_future.on_failure(failure_callback);
+
+          post.simulate_failure({
+            blogs: {
+              create_0: {
+                name: ["This name is already taken"]
+              }
+            }
+          });
+
+          expect(insert_callback).to_not(have_been_called);
+          expect(before_events_callback).to_not(have_been_called);
+          expect(after_events_callback).to_not(have_been_called);
+          expect(failure_callback).to(have_been_called);
+          var record = failure_callback.most_recent_args[0];
+
+          expect(record.valid()).to(be_false);
+          expect(record.field('name').validation_errors).to(equal, ["This name is already taken"]);
+        });
       });
     });
 
@@ -159,98 +212,155 @@ Screw.Unit(function(c) { with(c) {
         server.post = FakeServer.prototype.post;
       });
 
-      it("performs a pending local update, then sends the changes to the server and commits the (potentially changed) field values from the result", function() {
-        Repository.origin_url = "/repo";
+      context("when the server response indicates success", function() {
+        it("performs a pending local update, then sends the changes to the server and commits the (potentially changed) field values from the result", function() {
+          Repository.origin_url = "/repo";
 
-        var record = Blog.find('recipes');
-        record.fancy_name = function(plain_name) {
-          this.name("Fancy " + plain_name);
-        };
+          var record = Blog.find('recipes');
+          record.fancy_name = function(plain_name) {
+            this.name("Fancy " + plain_name);
+          };
 
-        var update_callback = mock_function("update callback");
-        Blog.on_update(update_callback);
+          var update_callback = mock_function("update callback");
+          Blog.on_update(update_callback);
 
-        var fun_profit_name_before_update = record.fun_profit_name();
-        var name_before_update = record.name();
-        var user_id_before_update = record.user_id();
-        var started_at_before_update = record.started_at();
-        var new_started_at = new Date();
+          var fun_profit_name_before_update = record.fun_profit_name();
+          var name_before_update = record.name();
+          var user_id_before_update = record.user_id();
+          var started_at_before_update = record.started_at();
+          var new_started_at = new Date();
 
-        var update_future = server.update(record, {
-          fancy_name: "Programming",
-          user_id: 'wil',
-          started_at: new_started_at
-        });
+          var update_future = server.update(record, {
+            fancy_name: "Programming",
+            user_id: 'wil',
+            started_at: new_started_at
+          });
 
-        expect(record.fun_profit_name()).to(equal, fun_profit_name_before_update);
-        expect(record.name()).to(equal, name_before_update);
-        expect(record.user_id()).to(equal, user_id_before_update);
-        expect(record.started_at()).to(equal, started_at_before_update);
-        expect(update_callback).to_not(have_been_called);
-
-        var before_events_callback = mock_function('before events callback', function() {
+          expect(record.fun_profit_name()).to(equal, fun_profit_name_before_update);
+          expect(record.name()).to(equal, name_before_update);
+          expect(record.user_id()).to(equal, user_id_before_update);
+          expect(record.started_at()).to(equal, started_at_before_update);
           expect(update_callback).to_not(have_been_called);
-        });
-        var after_events_callback = mock_function('after events callback', function() {
-          expect(update_callback).to(have_been_called, with_args(record, {
-            fun_profit_name: {
-              column: Blog.fun_profit_name,
-              old_value: fun_profit_name_before_update ,
-              new_value: "Fancy Programming Prime for Fun and Profit"
-            },
-            name: {
-              column: Blog.name,
-              old_value: name_before_update,
-              new_value: "Fancy Programming Prime"
-            },
-            user_id: {
-              column: Blog.user_id,
-              old_value: user_id_before_update,
-              new_value: "wil"
-            },
-            started_at: {
-              column: Blog.started_at,
-              old_value: started_at_before_update,
-              new_value: new_started_at
+
+          var before_events_callback = mock_function('before events callback', function() {
+            expect(update_callback).to_not(have_been_called);
+          });
+          var after_events_callback = mock_function('after events callback', function() {
+            expect(update_callback).to(have_been_called, with_args(record, {
+              fun_profit_name: {
+                column: Blog.fun_profit_name,
+                old_value: fun_profit_name_before_update ,
+                new_value: "Fancy Programming Prime for Fun and Profit"
+              },
+              name: {
+                column: Blog.name,
+                old_value: name_before_update,
+                new_value: "Fancy Programming Prime"
+              },
+              user_id: {
+                column: Blog.user_id,
+                old_value: user_id_before_update,
+                new_value: "wil"
+              },
+              started_at: {
+                column: Blog.started_at,
+                old_value: started_at_before_update,
+                new_value: new_started_at
+              }
+            }));
+          });
+          update_future.before_events(before_events_callback);
+          update_future.after_events(after_events_callback);
+
+          expect(server.posts.length).to(equal, 1);
+          var post = server.posts.shift();
+
+          expect(post.url).to(equal, Repository.origin_url);
+
+          expect(post.data).to(equal, {
+            operations: {
+              blogs: {
+                recipes: {
+                  name: "Fancy Programming",
+                  user_id: "wil",
+                  started_at: new_started_at.getTime()
+                }
+              }
             }
-          }));
-        });
-        update_future.before_events(before_events_callback);
-        update_future.after_events(after_events_callback);
+          });
 
-        expect(server.posts.length).to(equal, 1);
-        var post = server.posts.shift();
-
-        expect(post.url).to(equal, Repository.origin_url);
-
-        expect(post.data).to(equal, {
-          operations: {
+          post.simulate_success({
             blogs: {
               recipes: {
-                name: "Fancy Programming",
-                user_id: "wil",
+                name: "Fancy Programming Prime", // server can change field values too
+                user_id: 'wil',
                 started_at: new_started_at.getTime()
               }
             }
-          }
-        });
+          });
 
-        post.simulate_success({
-          blogs: {
-            recipes: {
-              name: "Fancy Programming Prime", // server can change field values too
-              user_id: 'wil',
-              started_at: new_started_at.getTime()
+          expect(record.name()).to(equal, "Fancy Programming Prime");
+          expect(record.user_id()).to(equal, "wil");
+          expect(record.started_at()).to(equal, new_started_at);
+
+          expect(before_events_callback).to(have_been_called);
+          expect(after_events_callback).to(have_been_called);
+        });
+      });
+
+      context("when the server response indicates failure", function() {
+        it("assigns the indicated validation error messages to fields on the client side model and invokes the on_failure callbacks on the future", function() {
+          Repository.origin_url = "/repo";
+
+          var record = Blog.find('recipes');
+          var update_callback = mock_function("update callback");
+          Blog.on_update(update_callback);
+
+          var update_future = server.update(record, {
+            name: "Programming",
+            user_id: 'wil'
+          });
+
+          var before_events_callback = mock_function('before events callback');
+          var after_events_callback = mock_function('after events callback');
+          var on_failure_callback = mock_function('on failure callback');
+
+          update_future.before_events(before_events_callback);
+          update_future.after_events(after_events_callback);
+          update_future.on_failure(on_failure_callback);
+
+          expect(server.posts.length).to(equal, 1);
+          var post = server.posts.shift();
+
+          expect(post.url).to(equal, Repository.origin_url);
+
+          expect(post.data).to(equal, {
+            operations: {
+              blogs: {
+                recipes: {
+                  name: "Programming",
+                  user_id: "wil"
+                }
+              }
             }
-          }
+          });
+
+          post.simulate_failure({
+            blogs: {
+              recipes: {
+                name: ["Bad name"]
+              }
+            }
+          });
+
+          expect(update_callback).to_not(have_been_called);
+          expect(before_events_callback).to_not(have_been_called);
+          expect(after_events_callback).to_not(have_been_called);
+          expect(on_failure_callback).to(have_been_called, with_args(record));
+
+          expect(record.valid()).to(be_false);
+          expect(record.field('name').validation_errors).to(equal, ["Bad name"]);
         });
-
-        expect(record.name()).to(equal, "Fancy Programming Prime");
-        expect(record.user_id()).to(equal, "wil");
-        expect(record.started_at()).to(equal, new_started_at);
-
-        expect(before_events_callback).to(have_been_called);
-        expect(after_events_callback).to(have_been_called);
       });
     });
 
@@ -322,8 +432,6 @@ Screw.Unit(function(c) { with(c) {
         insert_callback = mock_function("insert_callback");
         update_callback = mock_function("update_callback");
         remove_callback = mock_function("remove_callback");
-
-        Monarch.Http.CreateCommand.command_id_counter = 0;
 
         User.on_insert(insert_callback);
         User.on_update(update_callback);

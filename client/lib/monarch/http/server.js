@@ -65,12 +65,16 @@ Monarch.constructor("Monarch.Http.Server", {
       command.add_to_request_data(operations);
     });
 
-    this.post(Repository.origin_url, { operations: operations }).on_success(function(response_data) {
-      self.handle_mutation_response(response_data);
-    });
+    this.post(Repository.origin_url, { operations: operations })
+      .on_success(function(response_data) {
+        self.handle_successful_mutation_response(response_data);
+      })
+      .on_failure(function(response_data) {
+        self.handle_unsuccessful_mutation_response(response_data);
+      });
   },
 
-  handle_mutation_response: function(response_data) {
+  handle_successful_mutation_response: function(response_data) {
     var self = this;
     Repository.pause_events();
 
@@ -87,6 +91,15 @@ Monarch.constructor("Monarch.Http.Server", {
     });
 
     this.pending_commands = {};
+  },
+
+  handle_unsuccessful_mutation_response: function(response_data) {
+    var self = this;
+    Monarch.Util.each(response_data, function(table_name, responses_by_id) {
+      Monarch.Util.each(responses_by_id, function(id, response) {
+        self.pending_commands[table_name][id].handle_failure(response);      
+      });
+    });
   },
 
   start_batch: function() {

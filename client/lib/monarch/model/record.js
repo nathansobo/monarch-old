@@ -148,6 +148,13 @@ Monarch.constructor("Monarch.Model.Record", {
     return Server.destroy(this);
   },
 
+  populate_fields_with_errors: function(errors_by_field_name) {
+    var self = this;
+    Monarch.Util.each(errors_by_field_name, function(field_name, errors) {
+      self.field(field_name).validation_errors = errors;
+    });
+  },
+
   start_pending_changes: function() {
     this.active_fieldset = this.active_fieldset.new_pending_fieldset();
   },
@@ -164,6 +171,10 @@ Monarch.constructor("Monarch.Model.Record", {
 
   local_destroy: function() {
     this.table().remove(this);
+  },
+
+  valid: function() {
+    return this.active_fieldset.valid();
   },
 
   enable_update_events: function() {

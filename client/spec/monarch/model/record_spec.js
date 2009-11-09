@@ -248,7 +248,16 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
-    describe("#field", function() {
+    describe("#valid()", function() {
+      it("returns false if there are any validation errors", function() {
+        var record = Blog.find('recipes');
+        expect(record.valid()).to(be_true);
+        record.field('name').validation_errors = ["Bad name"];
+        expect(record.valid()).to(be_false);
+      });
+    });
+
+    describe("#field(field_name_or_column)", function() {
       it("returns the field for the given column name or Column", function() {
         var record = Blog.find('recipes');
 
