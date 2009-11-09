@@ -155,6 +155,10 @@ Monarch.constructor("Monarch.Model.Record", {
     });
   },
 
+  all_validation_errors: function() {
+    return this.active_fieldset.all_validation_errors();
+  },
+
   start_pending_changes: function() {
     this.active_fieldset = this.active_fieldset.new_pending_fieldset();
   },

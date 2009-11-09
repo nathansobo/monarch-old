@@ -38,6 +38,14 @@ Monarch.constructor("Monarch.Model.Fieldset", {
     return valid;
   },
 
+  all_validation_errors: function() {
+    var all_validation_errors = [];
+    Monarch.Util.each(this.fields_by_column_name, function(column_name, field) {
+      all_validation_errors = all_validation_errors.concat(field.validation_errors);
+    });
+    return all_validation_errors;
+  },
+
   field: function(column) {
     var column_name = (typeof column == 'string') ? column : column.name;
     var field = this.fields_by_column_name[column_name];
