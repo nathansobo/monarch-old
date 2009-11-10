@@ -115,7 +115,9 @@ module Model
     def save
       return false unless valid?
       Origin.update(table, field_values_by_column_name)
+      changeset = dirty_field_values_by_column_name
       mark_clean
+      after_update(changeset) if respond_to?(:after_update)
       true
     end
 

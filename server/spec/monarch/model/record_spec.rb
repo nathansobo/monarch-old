@@ -192,8 +192,14 @@ module Model
           mock(Origin).update(record.table, record.field_values_by_column_name)
           record.save
         end
-      end
 
+        it "calls #after_update if it is defined on the record with the dirty fields" do
+          def record.after_update; end
+          mock(record).after_update({:title => "Queso"})
+          record.title = "Queso"
+          record.save
+        end
+      end
 
       describe "#valid?" do
         describe "when #validate stores validation errors on at least one field" do
