@@ -189,7 +189,8 @@ module Model
 
       describe "#save" do
         it "calls Origin.update with the #global_name of the Record's #table and its #field_values_by_column_name" do
-          mock(Origin).update(record.table, record.field_values_by_column_name)
+          record.title = "Queso"
+          mock(Origin).update(record.table, record.id, record.dirty_field_values_by_column_name)
           record.save
         end
 

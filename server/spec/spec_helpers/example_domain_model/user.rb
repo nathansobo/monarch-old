@@ -2,6 +2,7 @@ class User < Model::Record
   column :full_name, :string
   column :age, :integer
   column :signed_up_at, :datetime
+  column :has_hair, :boolean
 
   relates_to_many :blogs do
     Blog.where(Blog[:user_id].eq(id))

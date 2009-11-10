@@ -98,14 +98,14 @@ module Model
         writer_method_name = "#{method_name}="
         self.send(writer_method_name, value) if self.respond_to?(writer_method_name)
       end
-      dirty_field_values_by_column_name
+      dirty_field_values_wire_representation
     end
 
     def update_fields(field_values_by_column_name)
       field_values_by_column_name.each do |column_name, value|
         self.field(column_name).value = value
       end
-      dirty_field_values_by_column_name
+      dirty_field_values_wire_representation
     end
 
     def destroy
@@ -114,7 +114,8 @@ module Model
 
     def save
       return false unless valid?
-      Origin.update(table, field_values_by_column_name)
+      return true unless dirty?
+      Origin.update(table, id, dirty_field_values_by_column_name)
       changeset = dirty_field_values_by_column_name
       mark_clean
       after_update(changeset) if respond_to?(:after_update)
@@ -129,9 +130,16 @@ module Model
       fields.each { |field| field.mark_clean }
     end
 
-    def dirty_field_values_by_column_name
+    def dirty_field_values_wire_representation
       dirty_fields.inject({}) do |field_values, field|
         field_values[field.column.name] = field.value_wire_representation
+        field_values
+      end
+    end
+
+    def dirty_field_values_by_column_name
+      dirty_fields.inject({}) do |field_values, field|
+        field_values[field.column.name] = field.value
         field_values
       end
     end

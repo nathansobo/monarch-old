@@ -59,6 +59,8 @@ module Model
         value.to_i
       when :datetime
         convert_datetime_value_for_storage(value)
+      when :boolean
+        convert_boolean_value_for_storage(value)
       else
         value
       end
@@ -86,6 +88,19 @@ module Model
         Time.at(value / 1000)
       when String
         Sequel.string_to_datetime(value)
+      end
+    end
+
+    def convert_boolean_value_for_storage(value)
+      case value
+      when "t", 1, true
+        true
+      when "f", 0, false
+        false
+      when nil
+        nil
+      else
+        raise "Invalid boolean representation: #{value.inspect}"
       end
     end
   end

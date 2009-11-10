@@ -6,8 +6,8 @@ module Model
       connection.from(table.global_name).insert(field_values)
     end
 
-    def update(table, field_values)
-      connection.from(table.global_name).filter(:id => field_values[:id]).update(field_values)
+    def update(table, id, field_values)
+      connection.from(table.global_name).filter(:id => id).update(field_values)
     end
 
     def destroy(table, id)

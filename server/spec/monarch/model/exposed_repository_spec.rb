@@ -62,7 +62,8 @@ module Model
                     'id' => new_record.id,
                     'full_name' => "Sharon Ly The Great",
                     'age' => 25,
-                    'signed_up_at' => signed_up_at.to_millis
+                    'signed_up_at' => signed_up_at.to_millis,
+                    'has_hair' => nil
                   }
                 }
               }
@@ -235,7 +236,8 @@ module Model
                   'id' => jake.id,
                   'full_name' => "Jake Frautschi",
                   'age' => 27,
-                  'signed_up_at' => signed_up_at.to_millis
+                  'signed_up_at' => signed_up_at.to_millis,
+                  'has_hair' => nil
                 },
                 "jan" => {
                   'age' => 101

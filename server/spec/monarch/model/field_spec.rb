@@ -12,6 +12,10 @@ module Model
       @field ||= User.find('jan').field(:signed_up_at)
     end
 
+    def boolean_field
+      @field ||= User.find('jan').field(:has_hair)
+    end
+
     describe "#value=" do
       context "when assigning to a :datetime field" do
         def field
@@ -35,6 +39,27 @@ module Model
             field.value.should be_an_instance_of(Time)
             field.value.should == time
           end
+        end
+      end
+
+      context "when assigning to a boolean field" do
+        def field
+          boolean_field
+        end
+
+        it "interprets 'f', 0, and false as false and 't', 1, and true as true" do
+          field.value = 'f'
+          field.value.should be_false
+          field.value = 't'
+          field.value.should be_true
+          field.value = 0
+          field.value.should be_false
+          field.value = 1
+          field.value.should be_true
+          field.value = false
+          field.value.should be_false
+          field.value = true
+          field.value.should be_true
         end
       end
 
