@@ -213,7 +213,7 @@ Screw.Unit(function(c) { with(c) {
       });
 
       context("when the server response indicates success", function() {
-        it("performs a pending local update, then sends the changes to the server and commits the (potentially changed) field values from the result", function() {
+        it("performs a pending local update, then sends the changes to the server and commits the (potentially changed) field values from the result, then calls #after_update on the record if it is defined", function() {
           Repository.origin_url = "/repo";
 
           var record = Blog.find('recipes');
@@ -221,6 +221,8 @@ Screw.Unit(function(c) { with(c) {
             this.name("Fancy " + plain_name);
           };
 
+          record.after_update = mock_function("optional after update method");
+          
           var update_callback = mock_function("update callback");
           Blog.on_update(update_callback);
 
@@ -245,29 +247,32 @@ Screw.Unit(function(c) { with(c) {
           var before_events_callback = mock_function('before events callback', function() {
             expect(update_callback).to_not(have_been_called);
           });
+
+          var expected_changeset = {
+            fun_profit_name: {
+              column: Blog.fun_profit_name,
+              old_value: fun_profit_name_before_update ,
+              new_value: "Fancy Programming Prime for Fun and Profit"
+            },
+            name: {
+              column: Blog.name,
+              old_value: name_before_update,
+              new_value: "Fancy Programming Prime"
+            },
+            user_id: {
+              column: Blog.user_id,
+              old_value: user_id_before_update,
+              new_value: "wil"
+            },
+            started_at: {
+              column: Blog.started_at,
+              old_value: started_at_before_update,
+              new_value: new_started_at
+            }
+          };
+
           var after_events_callback = mock_function('after events callback', function() {
-            expect(update_callback).to(have_been_called, with_args(record, {
-              fun_profit_name: {
-                column: Blog.fun_profit_name,
-                old_value: fun_profit_name_before_update ,
-                new_value: "Fancy Programming Prime for Fun and Profit"
-              },
-              name: {
-                column: Blog.name,
-                old_value: name_before_update,
-                new_value: "Fancy Programming Prime"
-              },
-              user_id: {
-                column: Blog.user_id,
-                old_value: user_id_before_update,
-                new_value: "wil"
-              },
-              started_at: {
-                column: Blog.started_at,
-                old_value: started_at_before_update,
-                new_value: new_started_at
-              }
-            }));
+            expect(update_callback).to(have_been_called, with_args(record, expected_changeset));
           });
           update_future.before_events(before_events_callback);
           update_future.after_events(after_events_callback);
@@ -305,6 +310,8 @@ Screw.Unit(function(c) { with(c) {
 
           expect(before_events_callback).to(have_been_called);
           expect(after_events_callback).to(have_been_called);
+
+          expect(record.after_update).to(have_been_called, with_args(expected_changeset));
         });
       });
 

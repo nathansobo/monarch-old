@@ -82,7 +82,7 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
     Monarch.Util.each(dataset, function(id, attributes) {
       var extant_record = self.find(id);
       if (extant_record) {
-        extant_record.local_update(attributes);
+        extant_record.local_update(attributes, true);
       } else {
         self.record_constructor.local_create(attributes)
       }

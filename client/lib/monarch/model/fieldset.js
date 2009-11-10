@@ -70,10 +70,11 @@ Monarch.constructor("Monarch.Model.Fieldset", {
   },
 
   finish_batch_update: function() {
-    var batched_updates = this.batched_updates;
+    var changeset = this.batched_updates;
     this.batched_updates = null;
-    if (this.update_events_enabled && Monarch.Util.keys(batched_updates).length > 0) {
-      this.record.table().record_updated(this.record, batched_updates);
+    if (this.update_events_enabled && Monarch.Util.keys(changeset).length > 0) {
+      this.record.table().record_updated(this.record, changeset);
+      if (this.record.after_update) this.record.after_update(changeset);
     }
   },
 
