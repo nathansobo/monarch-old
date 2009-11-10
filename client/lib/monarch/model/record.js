@@ -163,6 +163,11 @@ Monarch.constructor("Monarch.Model.Record", {
     this.active_fieldset = this.active_fieldset.new_pending_fieldset();
   },
 
+  on_update: function(callback) {
+    if (!this.on_update_node) this.on_update_node = new Monarch.SubscriptionNode();
+    return this.on_update_node.subscribe(callback);
+  },
+
   local_update: function(values_by_method_name) {
     this.active_fieldset.begin_batch_update();
     for (var method_name in values_by_method_name) {
