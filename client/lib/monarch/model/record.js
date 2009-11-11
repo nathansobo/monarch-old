@@ -188,6 +188,7 @@ Monarch.constructor("Monarch.Model.Record", {
 
   local_destroy: function() {
     this.table().remove(this);
+    if (this.after_destroy) this.after_destroy();
   },
 
   valid: function() {
