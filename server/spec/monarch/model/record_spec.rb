@@ -131,7 +131,8 @@ module Model
       end
 
       describe "#destroy" do
-        it "removes destroys the record in the database and removes it from the thread-local and global identity maps" do
+        it "removes the record in the database and removes it from the thread-local and global identity maps and calls after_destroy hook" do
+          mock(record).after_destroy
           record.activate
           BlogPost.table.thread_local_identity_map[record.id].should == record
           BlogPost.table.global_identity_map[record.id].should == record
