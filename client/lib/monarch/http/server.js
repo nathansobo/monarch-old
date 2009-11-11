@@ -49,8 +49,8 @@ Monarch.constructor("Monarch.Http.Server", {
     return command.future;
   },
 
-  for_each_pending_command: function(fn) {
-    Monarch.Util.values(this.pending_commands, function(commands_by_id) {
+  for_each_command: function(pending_commands, fn) {
+    Monarch.Util.values(pending_commands, function(commands_by_id) {
       Monarch.Util.values(commands_by_id, function(command) {
         fn(command);
       });
@@ -61,43 +61,44 @@ Monarch.constructor("Monarch.Http.Server", {
     var self = this;
     var operations = {};
 
-    this.for_each_pending_command(function(command) {
+    this.for_each_command(this.pending_commands, function(command) {
       command.add_to_request_data(operations);
     });
 
+    var pending_commands = this.pending_commands;
+    this.pending_commands = {};
+
     this.post(Repository.origin_url, { operations: operations })
       .on_success(function(response_data) {
-        self.handle_successful_mutation_response(response_data);
+        self.handle_successful_mutation_response(pending_commands, response_data);
       })
       .on_failure(function(response_data) {
-        self.handle_unsuccessful_mutation_response(response_data);
+        self.handle_unsuccessful_mutation_response(pending_commands, response_data);
       });
   },
 
-  handle_successful_mutation_response: function(response_data) {
+  handle_successful_mutation_response: function(pending_commands, response_data) {
     var self = this;
     Repository.pause_events();
 
     Monarch.Util.each(response_data, function(table_name, responses_by_id) {
       Monarch.Util.each(responses_by_id, function(id, response) {
-        self.pending_commands[table_name][id].complete_and_trigger_before_events(response);      
+        pending_commands[table_name][id].complete_and_trigger_before_events(response);
       });
     });
 
     Repository.resume_events();
 
-    this.for_each_pending_command(function(command) {
+    this.for_each_command(pending_commands, function(command) {
       command.trigger_after_events();
     });
-
-    this.pending_commands = {};
   },
 
-  handle_unsuccessful_mutation_response: function(response_data) {
+  handle_unsuccessful_mutation_response: function(pending_commands, response_data) {
     var self = this;
     Monarch.Util.each(response_data, function(table_name, responses_by_id) {
       Monarch.Util.each(responses_by_id, function(id, response) {
-        self.pending_commands[table_name][id].handle_failure(response);      
+        pending_commands[table_name][id].handle_failure(response);      
       });
     });
   },

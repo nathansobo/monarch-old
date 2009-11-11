@@ -149,6 +149,8 @@ Screw.Unit(function(c) { with(c) {
           expect(new_record.blog_posts().predicate.right_operand).to(equal, new_record.id());
 
           expect(before_events_callback).to(have_been_called, with_args(new_record));
+
+          expect(after_events_callback).to(have_been_called);
           expect(after_events_callback).to(have_been_called, with_args(new_record));
         });
       });
@@ -163,6 +165,8 @@ Screw.Unit(function(c) { with(c) {
 
           var field_values = { crazy_name: "Dinosaurs", user_id: 'wil' };
           var create_future = server.create(Blog.table, field_values);
+
+          expect(server.pending_commands).to(equal, {});
 
           expect(server.posts.length).to(equal, 1);
           var post = server.posts.shift();
@@ -277,6 +281,8 @@ Screw.Unit(function(c) { with(c) {
           update_future.before_events(before_events_callback);
           update_future.after_events(after_events_callback);
 
+          expect(server.pending_commands).to(equal, {});
+
           expect(server.posts.length).to(equal, 1);
           var post = server.posts.shift();
 
@@ -354,6 +360,8 @@ Screw.Unit(function(c) { with(c) {
           update_future.after_events(after_events_callback);
           update_future.on_failure(on_failure_callback);
 
+          expect(server.pending_commands).to(equal, {});
+
           expect(server.posts.length).to(equal, 1);
           var post = server.posts.shift();
 
@@ -403,6 +411,8 @@ Screw.Unit(function(c) { with(c) {
 
         var record = Blog.find('recipes');
         var destroy_future = server.destroy(record);
+
+        expect(server.pending_commands).to(equal, {});
 
         expect(server.posts.length).to(equal, 1);
         var post = server.posts.shift();
@@ -562,6 +572,8 @@ Screw.Unit(function(c) { with(c) {
         expect(server.posts).to(be_empty);
 
         server.finish_batch();
+
+        expect(server.pending_commands).to(equal, {});
 
         expect(server.posts.length).to(equal, 1);
         var post = server.posts.shift();

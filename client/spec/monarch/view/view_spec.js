@@ -16,7 +16,7 @@ Screw.Unit(function(c) { with(c) {
             div(function() {
               input({name: "foo", value: "Foo"}).ref('foo');
               input({name: "bar", value: "Bar"}).ref('bar');
-              input({name: "baz", value: "Baz", type: "checkbox"}).ref('baz');
+              input({name: "baz", type: "checkbox", checked: false}).ref('baz');
               input({value: "Do not include because I have no name"});
 
               select({name: "quux"}, function() {
