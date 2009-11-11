@@ -41,10 +41,10 @@ module Model
         record.mark_clean
       end
 
-      def destroy(id)
-        Origin.destroy(self, id)
-        thread_local_identity_map.delete(id) if thread_local_identity_map
-        global_identity_map.delete(id)
+      def remove(record)
+        Origin.destroy(self, record.id)
+        thread_local_identity_map.delete(record.id) if thread_local_identity_map
+        global_identity_map.delete(record.id)
       end
 
       def tables

@@ -109,7 +109,8 @@ module Model
     end
 
     def destroy
-      table.destroy(id)
+      table.remove(self)
+      after_destroy
     end
 
     def save
@@ -118,7 +119,7 @@ module Model
       Origin.update(table, id, dirty_field_values_by_column_name)
       changeset = dirty_field_values_by_column_name
       mark_clean
-      after_update(changeset) if respond_to?(:after_update)
+      after_update(changeset)
       true
     end
 
@@ -153,6 +154,14 @@ module Model
     end
 
     protected
+    def after_destroy
+      # override when needed
+    end
+
+    def after_update(changeset)
+      # override when needed
+    end
+
     def initialize_relations
       @relations_by_name = {}
       self.class.relation_definitions.each do |relation_name, definition|
