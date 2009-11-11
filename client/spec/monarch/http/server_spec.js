@@ -105,7 +105,7 @@ Screw.Unit(function(c) { with(c) {
           Blog.on_insert(insert_callback);
           Blog.on_update(update_callback);
 
-          var field_values = { crazy_name: "Dinosaurs", user_id: 'wil' };
+          var field_values = { crazy_name: "Dinosaurs", user_id: 'wil'};
           var create_future = server.create(Blog.table, field_values);
 
           expect(server.posts.length).to(equal, 1);
@@ -113,11 +113,7 @@ Screw.Unit(function(c) { with(c) {
           expect(post.url).to(equal, Repository.origin_url);
 
           expect(post.data).to(equal, {
-            operations: {
-              blogs: {
-                create_0: new Blog(field_values).wire_representation()
-              }
-            }
+            operations: [['create', 'blogs', { name: "CRAZY Dinosaurs", user_id: 'wil' }]]
           });
 
           var before_events_callback = mock_function("before events", function() {
@@ -129,15 +125,11 @@ Screw.Unit(function(c) { with(c) {
           create_future.before_events(before_events_callback);
           create_future.after_events(after_events_callback);
 
-          post.simulate_success({
-            blogs: {
-              create_0: {
-                id: "dinosaurs",
-                name: "Recipes Modified By Server",
-                user_id: "wil"
-              }
-            }
-          });
+          post.simulate_success([{
+            id: "dinosaurs",
+            name: "Recipes Modified By Server",
+            user_id: "wil"
+          }]);
 
           expect(update_callback).to_not(have_been_called);
           expect(insert_callback).to(have_been_called, once);
@@ -173,11 +165,7 @@ Screw.Unit(function(c) { with(c) {
           expect(post.url).to(equal, Repository.origin_url);
 
           expect(post.data).to(equal, {
-            operations: {
-              blogs: {
-                create_0: new Blog(field_values).wire_representation()
-              }
-            }
+            operations: [['create', 'blogs', { name: "CRAZY Dinosaurs", user_id: 'wil' }]]
           });
 
           var before_events_callback = mock_function("before events callback");
@@ -188,13 +176,7 @@ Screw.Unit(function(c) { with(c) {
           create_future.after_events(after_events_callback);
           create_future.on_failure(failure_callback);
 
-          post.simulate_failure({
-            blogs: {
-              create_0: {
-                name: ["This name is already taken"]
-              }
-            }
-          });
+          post.simulate_failure([{ name: ["This name is already taken"] }]);
 
           expect(insert_callback).to_not(have_been_called);
           expect(before_events_callback).to_not(have_been_called);
@@ -289,26 +271,18 @@ Screw.Unit(function(c) { with(c) {
           expect(post.url).to(equal, Repository.origin_url);
 
           expect(post.data).to(equal, {
-            operations: {
-              blogs: {
-                recipes: {
-                  name: "Fancy Programming",
-                  user_id: "wil",
-                  started_at: new_started_at.getTime()
-                }
-              }
-            }
+            operations: [['update', 'blogs', 'recipes', {
+              name: "Fancy Programming",
+              user_id: "wil",
+              started_at: new_started_at.getTime()
+            }]]
           });
 
-          post.simulate_success({
-            blogs: {
-              recipes: {
-                name: "Fancy Programming Prime", // server can change field values too
-                user_id: 'wil',
-                started_at: new_started_at.getTime()
-              }
-            }
-          });
+          post.simulate_success([{
+            name: "Fancy Programming Prime", // server can change field values too
+            user_id: 'wil',
+            started_at: new_started_at.getTime()
+          }]);
 
           expect(record.name()).to(equal, "Fancy Programming Prime");
           expect(record.user_id()).to(equal, "wil");
@@ -328,13 +302,7 @@ Screw.Unit(function(c) { with(c) {
 
           expect(server.posts.length).to(equal, 1);
           expect(server.last_post.data).to(equal, {
-            operations: {
-              blogs: {
-                recipes: {
-                  name: "Eating Fortune Cookies in Bed"
-                }
-              }
-            }
+            operations: [['update', 'blogs', 'recipes', { name: "Eating Fortune Cookies in Bed" }]]
           });
         });
       });
@@ -368,24 +336,13 @@ Screw.Unit(function(c) { with(c) {
           expect(post.url).to(equal, Repository.origin_url);
 
           expect(post.data).to(equal, {
-            operations: {
-              blogs: {
-                recipes: {
-                  name: "Programming",
-                  user_id: "wil"
-                }
-              }
-            }
+            operations: [['update', 'blogs', 'recipes', {
+              name: "Programming",
+              user_id: "wil"
+            }]]
           });
 
-          post.simulate_failure({
-            blogs: {
-              recipes: {
-                name: ["Bad name"]
-              }
-            }
-          });
-
+          post.simulate_failure([{ name: ["Bad name"] }]);
           expect(update_callback).to_not(have_been_called);
           expect(before_events_callback).to_not(have_been_called);
           expect(after_events_callback).to_not(have_been_called);
@@ -418,13 +375,7 @@ Screw.Unit(function(c) { with(c) {
         var post = server.posts.shift();
         expect(post.url).to(equal, Repository.origin_url);
 
-        expect(post.data).to(equal, {
-          operations: {
-            blogs: {
-              recipes: null
-            }
-          }
-        });
+        expect(post.data).to(equal, { operations: [['destroy', 'blogs', 'recipes']] });
 
         var before_events_callback = mock_function("before events", function() {
           expect(remove_callback).to_not(have_been_called);
@@ -435,11 +386,7 @@ Screw.Unit(function(c) { with(c) {
         destroy_future.before_events(before_events_callback);
         destroy_future.after_events(after_events_callback);
 
-        post.simulate_success({
-          blogs: {
-            recipes: null
-          }
-        });
+        post.simulate_success([null]);
 
         expect(remove_callback).to(have_been_called, once);
 
@@ -580,32 +527,24 @@ Screw.Unit(function(c) { with(c) {
 
         expect(post.url).to(equal, Repository.origin_url);
         expect(post.data).to(equal, {
-          operations: {
-            users: {
-              create_0: { full_name: "Stephanie Wambach" },
-              jan: { full_name: "Jan Christian Nelson" },
-              wil: null
-            },
-            blogs: {
-              create_1: { name: "Bandwidth to Burn" },
-              recipes: { name: "Disgusting Recipes Involving Pork" },
-              motorcycle: null
-            }
-          }
+          operations: [
+            ['create', 'users', { full_name: "Stephanie Wambach" }],
+            ['create', 'blogs', { name: "Bandwidth to Burn" }],
+            ['update', 'users', 'jan', { full_name: "Jan Christian Nelson" }],
+            ['update', 'blogs', 'recipes', { name: "Disgusting Recipes Involving Pork" }],
+            ['destroy', 'users', 'wil'],
+            ['destroy', 'blogs', 'motorcycle']
+          ]
         });
 
-        post.simulate_success({
-          users: {
-            create_0: { id: "stephanie", full_name: "Stephanie Anne Wambach" },
-            jan: { full_name: "Jan Christian Nelson" },
-            wil: null
-          },
-          blogs: {
-            create_1: { id: "bandwidth", name: "Bandwidth to Burn" },
-            recipes: { name: "Disgusting Recipes Involving Pork" },
-            motorcycle: null
-          }
-        });
+        post.simulate_success([
+          { id: "stephanie", full_name: "Stephanie Anne Wambach" },
+          { id: "bandwidth", name: "Bandwidth to Burn" },
+          { full_name: "Jan Christian Nelson" },
+          { name: "Disgusting Recipes Involving Pork" },
+          null,
+          null
+        ]);
 
         expect(before_events_callback_count).to(equal, 6);
         expect(after_events_callback_count).to(equal, 6);

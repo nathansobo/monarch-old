@@ -16,6 +16,8 @@ Monarch.constructor("Monarch.Http.Command", {
   },
 
   handle_failure: function(errors_by_field_name) {
+    console.debug(errors_by_field_name);
+
     this.record.populate_fields_with_errors(errors_by_field_name);
     this.future.trigger_on_failure(this.record);
   }

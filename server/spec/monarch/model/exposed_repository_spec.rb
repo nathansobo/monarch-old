@@ -43,30 +43,22 @@ module Model
 
             User.new(field_values).should be_valid
 
-            response = Http::Response.new(*exposed_repository.post({
-              :operations => {
-                'users' => {
-                  'create_0' => field_values
-                }
-              }.to_json
-            }))
+            response = Http::Response.new(*exposed_repository.post(
+              :operations => [['create', 'users', field_values]].to_json
+            ))
 
             new_record = User.find(User[:full_name].eq('Sharon Ly The Great'))
 
             response.should be_ok
             response.body_from_json.should == {
               'successful' => true,
-              'data' => {
-                'users' => {
-                  'create_0' => {
-                    'id' => new_record.id,
-                    'full_name' => "Sharon Ly The Great",
-                    'age' => 25,
-                    'signed_up_at' => signed_up_at.to_millis,
-                    'has_hair' => nil
-                  }
-                }
-              }
+              'data' => [{
+                'id' => new_record.id,
+                'full_name' => "Sharon Ly The Great",
+                'age' => 25,
+                'signed_up_at' => signed_up_at.to_millis,
+                'has_hair' => nil
+              }]
             }
           end
         end
@@ -82,11 +74,7 @@ module Model
             invalid_example.should_not be_valid
 
             response = Http::Response.new(*exposed_repository.post({
-              :operations => {
-                'users' => {
-                  'create_0' => field_values
-                }
-              }.to_json
+              :operations => [['create', 'users', field_values]].to_json
             }))
 
             User.find(User[:full_name].eq("Baby Sharon Ly")).should be_nil
@@ -94,13 +82,9 @@ module Model
             response.should be_ok
             response.body_from_json.should == {
               'successful' => false,
-              'data' => {
-                'users' => {
-                  'create_0' => {
-                    'age' => invalid_example.field(:age).validation_errors,
-                  }
-                }
-              }
+              'data' => [{
+                'age' => invalid_example.field(:age).validation_errors
+              }]
             }
           end
         end
@@ -113,16 +97,14 @@ module Model
             record = User.find('jan')
             new_signed_up_at = record.signed_up_at - 1.hours
 
+            field_values = {
+              'great_name' => "Jan Christian Nelson",
+              'age' => record.age,
+              'signed_up_at' => new_signed_up_at.to_millis
+            }
+
             response = Http::Response.new(*exposed_repository.post({
-              :operations => {
-                "users" => {
-                  "jan" => {
-                    'great_name' => "Jan Christian Nelson",
-                    'age' => record.age,
-                    'signed_up_at' => new_signed_up_at.to_millis
-                  }
-                }
-              }.to_json
+              :operations => [['update', 'users', 'jan', field_values]].to_json
             }))
 
             record.reload
@@ -133,14 +115,10 @@ module Model
             response.should be_ok
             response.body_from_json.should == {
               'successful' => true,
-              'data' => {
-                'users' => {
-                  'jan' => {
-                    'full_name' => "Jan Christian Nelson The Great",
-                    'signed_up_at' => new_signed_up_at.to_millis
-                  }
-                }
-              }
+              'data' => [{
+                'full_name' => "Jan Christian Nelson The Great",
+                'signed_up_at' => new_signed_up_at.to_millis
+              }]
             }
           end
         end
@@ -151,13 +129,7 @@ module Model
             pre_update_age = record.age
 
             response = Http::Response.new(*exposed_repository.post({
-              :operations => {
-                "users" => {
-                  "jan" => {
-                    'age' => 3,
-                  }
-                }
-              }.to_json
+              :operations => [['update', 'users', 'jan', { :age => 3}]].to_json
             }))
 
             validation_errors_on_age = record.field(:age).validation_errors
@@ -167,13 +139,9 @@ module Model
             response.should be_ok
             response.body_from_json.should == {
               'successful' => false,
-              'data' => {
-                'users' => {
-                  'jan' => {
-                    'age' => validation_errors_on_age,
-                  }
-                }
-              }
+              'data' => [{
+                'age' => validation_errors_on_age
+              }]
             }
           end
 
@@ -184,20 +152,16 @@ module Model
         it "finds the record with the given 'id' in the given 'relation', then destroys it" do
           User.find('jan').should_not be_nil
 
-          response = Http::Response.new(*exposed_repository.post({
-            :operations => {
-              'users' => {'jan' => nil}
-            }.to_json
-          }))
+          response = Http::Response.new(*exposed_repository.post(
+            :operations => [['destroy', 'users', 'jan']].to_json
+          ))
 
           User.find('jan').should be_nil
 
           response.should be_ok
           response.body_from_json.should == {
-            'data' => {
-              'users' => {'jan' => nil}
-            },
-            'successful' => true
+            'successful' => true,
+            'data' => [nil]
           }
         end
       end
@@ -208,19 +172,11 @@ module Model
           User.find('jan').should_not be_nil
 
           response = Http::Response.new(*exposed_repository.post({
-            :operations => {
-              'users' => {
-                'create_0' => {
-                  'full_name' => "Jake Frautschi",
-                  'age' => 27,
-                  'signed_up_at' => signed_up_at.to_millis
-                },
-                "jan" => {
-                  'age' => 101
-                },
-                'wil' => nil
-              }
-            }.to_json
+            :operations => [
+              ['create', 'users', { 'full_name' => "Jake Frautschi", 'age' => 27, 'signed_up_at' => signed_up_at.to_millis }],
+              ['update', 'users', 'jan', {'age' => 101}],
+              ['destroy', 'users', 'wil']
+            ].to_json
           }))
 
           jake = User.find(User[:full_name].eq("Jake Frautschi"))
@@ -230,21 +186,17 @@ module Model
 
           response.should be_ok
           response.body_from_json.should == {
-            'data' => {
-              'users' => {
-                'create_0' => {
-                  'id' => jake.id,
-                  'full_name' => "Jake Frautschi",
-                  'age' => 27,
-                  'signed_up_at' => signed_up_at.to_millis,
-                  'has_hair' => nil
-                },
-                "jan" => {
-                  'age' => 101
-                },
-                'wil' => nil
-              }
-            },
+            'data' => [
+              {
+                'id' => jake.id,
+                'full_name' => "Jake Frautschi",
+                'age' => 27,
+                'signed_up_at' => signed_up_at.to_millis,
+                'has_hair' => nil
+              },
+              { 'age' => 101 },
+              nil
+            ],
             'successful' => true
           }
         end

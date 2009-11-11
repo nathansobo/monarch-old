@@ -14,7 +14,7 @@ Monarch.constructor("Monarch.Http.UpdateCommand", Monarch.Http.Command, {
   },
 
   wire_representation: function() {
-    return this.pending_fieldset.wire_representation();
+    return ['update', this.table_name, this.command_id, this.pending_fieldset.wire_representation()];
   },
 
   complete: function(field_values_from_server) {

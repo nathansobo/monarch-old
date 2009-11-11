@@ -9,7 +9,7 @@ Monarch.constructor("Monarch.Http.DestroyCommand", Monarch.Http.Command, {
   },
 
   wire_representation: function() {
-    return null;
+    return ['destroy', this.table_name, this.command_id];
   },
 
   complete: function() {

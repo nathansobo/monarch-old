@@ -16,21 +16,19 @@ module Model
     end
 
     def post(params)
-      successful_response_data = Hash.new {|h,k| h[k] = {}};
-      unsuccessful_response_data = Hash.new {|h,k| h[k] = {}};
+      successful_response_data = []
+      unsuccessful_response_data = []
 
-      operations_by_table_name = JSON.parse(params[:operations])
-
+      operations = JSON.parse(params[:operations])
       all_operations_valid = true
-      operations_by_table_name.each do |table_name, operations_by_id|
-        operations_by_id.each do |id, field_values|
-          result = perform_operation(table_name, id, field_values)
-          if result.valid?
-            successful_response_data[table_name][id] = result.data
-          else
-            unsuccessful_response_data[table_name][id] = result.data
-            all_operations_valid = false
-          end
+
+      operations.each do |operation|
+        result = perform_operation(operation)
+        if result.valid?
+          successful_response_data.push(result.data)
+        else
+          unsuccessful_response_data.push(result.data)
+          all_operations_valid = false
         end
       end
 
@@ -51,13 +49,16 @@ module Model
     
     protected
 
-    def perform_operation(table_name, id, field_values)
-      if id =~ /^create/
-        perform_create(table_name, field_values)
-      elsif field_values.nil?
-        perform_destroy(table_name, id)
-      else
-        perform_update(table_name, id, field_values)
+    def perform_operation(operation)
+      operation_type = operation.shift
+
+      case operation_type
+      when 'create'
+        perform_create(*operation)
+      when 'update'
+        perform_update(*operation)
+      when 'destroy'
+        perform_destroy(*operation)
       end
     end
 
