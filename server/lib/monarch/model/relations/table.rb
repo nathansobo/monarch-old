@@ -7,6 +7,7 @@ module Model
         @global_name, @tuple_class = global_name, tuple_class
         @columns_by_name = ActiveSupport::OrderedHash.new
         @global_identity_map = {}
+        enable_validation_on_insert
       end
 
       def define_column(name, type, options={})
@@ -35,7 +36,7 @@ module Model
       end
 
       def insert(record)
-        return record unless record.valid?
+        return record if validation_on_insert_enabled? && !record.valid?
         Origin.insert(self, record.field_values_by_column_name)
         thread_local_identity_map[record.id] = record if thread_local_identity_map
         record.mark_clean
@@ -84,9 +85,23 @@ module Model
       end
 
       def load_fixtures(fixtures)
+        disable_validation_on_insert
         fixtures.each do |id, field_values|
           insert(tuple_class.unsafe_new(field_values.merge(:id => id.to_s)))
         end
+        enable_validation_on_insert
+      end
+
+      def disable_validation_on_insert
+        @validation_on_insert_enabled = false
+      end
+
+      def enable_validation_on_insert
+        @validation_on_insert_enabled = true
+      end
+
+      def validation_on_insert_enabled?
+        @validation_on_insert_enabled
       end
 
       def clear_table
