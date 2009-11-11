@@ -252,6 +252,27 @@ Screw.Unit(function(c) { with(c) {
       they("can read synthetic fields", function() {
         expect(record.fun_profit_name()).to(equal, record.field('fun_profit_name').value());
       });
+
+      they("can write synthetic fields if a setter method is defined for the column", function() {
+        record.fun_profit_name("Eating Fortune Cookies");
+        expect(record.fun_profit_name()).to(equal, "Eating Fortune Cookies in Bed for Fun and Profit");
+      });
+    });
+
+    describe("#fetch", function() {
+      use_fake_server();
+
+      it("fetches just the current record from the server", function() {
+        var record = Blog.find('recipes');
+        record.fetch();
+
+        expect(Server.fetches.length).to(equal, 1);
+        var fetched_relation = Server.last_fetch.relations[0];
+        expect(fetched_relation.constructor).to(equal, Monarch.Model.Relations.Selection);
+        expect(fetched_relation.operand).to(equal, Blog.table);
+        expect(fetched_relation.predicate.left_operand).to(equal, Blog.id);
+        expect(fetched_relation.predicate.right_operand).to(equal, 'recipes');
+      });
     });
 
     describe("#valid()", function() {

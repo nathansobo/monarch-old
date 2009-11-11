@@ -19,8 +19,12 @@ Monarch.constructor("Monarch.Model.Record", {
 
     synthetic_column: function(name, definition) {
       this[name] = this.table.define_synthetic_column(name, definition);
-      this.prototype[name] = function() {
-        return this.field(name).value();
+      this.prototype[name] = function(value) {
+        if (arguments.length == 0) {
+          return this.field(name).value();
+        } else {
+          return this.field(name).value(value);
+        }
       };
     },
 
@@ -140,6 +144,10 @@ Monarch.constructor("Monarch.Model.Record", {
     });
   },
 
+  fetch: function() {
+    return this.table().where(this.table().column('id').eq(this.id())).fetch();
+  },
+
   update: function(values_by_method_name) {
     return Server.update(this, values_by_method_name);
   },
@@ -172,7 +180,7 @@ Monarch.constructor("Monarch.Model.Record", {
     this.active_fieldset.begin_batch_update();
     for (var method_name in values_by_method_name) {
       if (this[method_name]) {
-        this[method_name].call(this, values_by_method_name[method_name]);
+        this[method_name](values_by_method_name[method_name]);
       }
     }
     this.active_fieldset.finish_batch_update();

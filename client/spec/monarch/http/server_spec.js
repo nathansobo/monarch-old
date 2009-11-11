@@ -313,6 +313,24 @@ Screw.Unit(function(c) { with(c) {
 
           expect(record.after_update).to(have_been_called, with_args(expected_changeset));
         });
+
+        it("correctly handles assignments to synthetic fields with setter methods", function() {
+          var record = Blog.find('recipes');
+
+
+          server.update(record, {fun_profit_name: "Eating Fortune Cookies"});
+
+          expect(server.posts.length).to(equal, 1);
+          expect(server.last_post.data).to(equal, {
+            operations: {
+              blogs: {
+                recipes: {
+                  name: "Eating Fortune Cookies in Bed"
+                }
+              }
+            }
+          });
+        });
       });
 
       context("when the server response indicates failure", function() {
