@@ -176,7 +176,7 @@ Screw.Unit(function(c) { with(c) {
           create_future.after_events(after_events_callback);
           create_future.on_failure(failure_callback);
 
-          post.simulate_failure([{ name: ["This name is already taken"] }]);
+          post.simulate_failure({index: 0, errors: { name: ["This name is already taken"] }});
 
           expect(insert_callback).to_not(have_been_called);
           expect(before_events_callback).to_not(have_been_called);
@@ -308,7 +308,7 @@ Screw.Unit(function(c) { with(c) {
       });
 
       context("when the server response indicates failure", function() {
-        it("assigns the indicated validation error messages to fields on the client side model and invokes the on_failure callbacks on the future", function() {
+        it("assigns the indicated validation error messages to fields on the client side model and invokes the on_failure callbacks (with the model in its pending state) on the future", function() {
           Repository.origin_url = "/repo";
 
           var record = Blog.find('recipes');
@@ -322,7 +322,12 @@ Screw.Unit(function(c) { with(c) {
 
           var before_events_callback = mock_function('before events callback');
           var after_events_callback = mock_function('after events callback');
-          var on_failure_callback = mock_function('on failure callback');
+          var on_failure_callback = mock_function('on failure callback', function(record) {
+            expect(record.name()).to(equal, "Programming");
+            expect(record.user_id()).to(equal, "wil");
+            expect(record.valid()).to(be_false);
+            expect(record.field('name').validation_errors).to(equal, ["Bad name"]);
+          });
 
           update_future.before_events(before_events_callback);
           update_future.after_events(after_events_callback);
@@ -342,14 +347,11 @@ Screw.Unit(function(c) { with(c) {
             }]]
           });
 
-          post.simulate_failure([{ name: ["Bad name"] }]);
+          post.simulate_failure({index: 0, errors: { name: ["Bad name"] }});
           expect(update_callback).to_not(have_been_called);
           expect(before_events_callback).to_not(have_been_called);
           expect(after_events_callback).to_not(have_been_called);
           expect(on_failure_callback).to(have_been_called, with_args(record));
-
-          expect(record.valid()).to(be_false);
-          expect(record.field('name').validation_errors).to(equal, ["Bad name"]);
         });
       });
     });
@@ -435,120 +437,157 @@ Screw.Unit(function(c) { with(c) {
         expect(remove_callback).to(have_been_called, twice);
       }
 
-      they("cause all mutations occurring between the calls to be batched together in a single web request, firing the appropriate callbacks for all of them once they are complete", function() {
-        var before_events_callback_count = 0;
-        var after_events_callback_count = 0;
+      context("when the server response indicates success", function() {
+        they("cause all mutations occurring between the calls to be batched together in a single web request, firing the appropriate callbacks for all of them once they are complete", function() {
+          var before_events_callback_count = 0;
+          var after_events_callback_count = 0;
 
-        server.start_batch();
+          server.start_batch();
 
-        server.create(User.table, {full_name: "Stephanie Wambach"})
-          .before_events(function(user) {
-            expect(user.id()).to(equal, "stephanie");
-            expect(user.full_name()).to(equal, "Stephanie Anne Wambach");
-            expect_no_events_to_have_fired();
-            before_events_callback_count++;
-          })
-          .after_events(function(user) {
-            expect(user.id()).to(equal, "stephanie");
-            expect_all_events_to_have_fired();
-            after_events_callback_count++;
+          server.create(User.table, {full_name: "Stephanie Wambach"})
+            .before_events(function(user) {
+              expect(user.id()).to(equal, "stephanie");
+              expect(user.full_name()).to(equal, "Stephanie Anne Wambach");
+              expect_no_events_to_have_fired();
+              before_events_callback_count++;
+            })
+            .after_events(function(user) {
+              expect(user.id()).to(equal, "stephanie");
+              expect_all_events_to_have_fired();
+              after_events_callback_count++;
+            });
+
+          server.create(Blog.table, {name: "Bandwidth to Burn"})
+            .before_events(function(blog) {
+              expect(blog.id()).to(equal, "bandwidth");
+              expect_no_events_to_have_fired();
+              before_events_callback_count++;
+            })
+            .after_events(function(blog) {
+              expect(blog.id()).to(equal, "bandwidth");
+              expect_all_events_to_have_fired();
+              after_events_callback_count++;
+            });
+
+          server.update(jan, {full_name: "Jan Christian Nelson"})
+            .before_events(function(record) {
+              expect(record).to(equal, jan);
+              expect_no_events_to_have_fired();
+              before_events_callback_count++;
+            })
+            .after_events(function(record) {
+              expect(record).to(equal, jan);
+              expect_all_events_to_have_fired();
+              after_events_callback_count++;
+            });
+
+          server.update(recipes, {name: "Disgusting Recipes Involving Pork"})
+            .before_events(function(record) {
+              expect(record).to(equal, recipes);
+              expect_no_events_to_have_fired();
+              before_events_callback_count++;
+            })
+            .after_events(function(record) {
+              expect(record).to(equal, recipes);
+              expect_all_events_to_have_fired();
+              after_events_callback_count++;
+            });
+
+          server.destroy(wil)
+            .before_events(function(record) {
+              expect(record).to(equal, wil);
+              expect_no_events_to_have_fired();
+              before_events_callback_count++;
+            })
+            .after_events(function(record) {
+              expect(record).to(equal, wil);
+              expect_all_events_to_have_fired();
+              after_events_callback_count++;
+            });
+
+          server.destroy(motorcycle)
+            .before_events(function(record) {
+              expect(record).to(equal, motorcycle);
+              expect_no_events_to_have_fired();
+              before_events_callback_count++;
+            })
+            .after_events(function(record) {
+              expect(record).to(equal, motorcycle);
+              expect_all_events_to_have_fired();
+              after_events_callback_count++;
+            });
+
+          expect(before_events_callback_count).to(equal, 0);
+          expect(after_events_callback_count).to(equal, 0);
+          expect(server.posts).to(be_empty);
+
+          server.finish_batch();
+
+          expect(server.pending_commands).to(equal, {});
+
+          expect(server.posts.length).to(equal, 1);
+          var post = server.posts.shift();
+
+          expect(post.url).to(equal, Repository.origin_url);
+          expect(post.data).to(equal, {
+            operations: [
+              ['create', 'users', { full_name: "Stephanie Wambach" }],
+              ['create', 'blogs', { name: "Bandwidth to Burn" }],
+              ['update', 'users', 'jan', { full_name: "Jan Christian Nelson" }],
+              ['update', 'blogs', 'recipes', { name: "Disgusting Recipes Involving Pork" }],
+              ['destroy', 'users', 'wil'],
+              ['destroy', 'blogs', 'motorcycle']
+            ]
           });
 
-        server.create(Blog.table, {name: "Bandwidth to Burn"})
-          .before_events(function(blog) {
-            expect(blog.id()).to(equal, "bandwidth");
-            expect_no_events_to_have_fired();
-            before_events_callback_count++;
-          })
-          .after_events(function(blog) {
-            expect(blog.id()).to(equal, "bandwidth");
-            expect_all_events_to_have_fired();
-            after_events_callback_count++;
-          });
+          post.simulate_success([
+            { id: "stephanie", full_name: "Stephanie Anne Wambach" },
+            { id: "bandwidth", name: "Bandwidth to Burn" },
+            { full_name: "Jan Christian Nelson" },
+            { name: "Disgusting Recipes Involving Pork" },
+            null,
+            null
+          ]);
 
-        server.update(jan, {full_name: "Jan Christian Nelson"})
-          .before_events(function(record) {
-            expect(record).to(equal, jan);
-            expect_no_events_to_have_fired();
-            before_events_callback_count++;
-          })
-          .after_events(function(record) {
-            expect(record).to(equal, jan);
-            expect_all_events_to_have_fired();
-            after_events_callback_count++;
-          });
-
-        server.update(recipes, {name: "Disgusting Recipes Involving Pork"})
-          .before_events(function(record) {
-            expect(record).to(equal, recipes);
-            expect_no_events_to_have_fired();
-            before_events_callback_count++;
-          })
-          .after_events(function(record) {
-            expect(record).to(equal, recipes);
-            expect_all_events_to_have_fired();
-            after_events_callback_count++;
-          });
-
-        server.destroy(wil)
-          .before_events(function(record) {
-            expect(record).to(equal, wil);
-            expect_no_events_to_have_fired();
-            before_events_callback_count++;
-          })
-          .after_events(function(record) {
-            expect(record).to(equal, wil);
-            expect_all_events_to_have_fired();
-            after_events_callback_count++;
-          });
-
-        server.destroy(motorcycle)
-          .before_events(function(record) {
-            expect(record).to(equal, motorcycle);
-            expect_no_events_to_have_fired();
-            before_events_callback_count++;
-          })
-          .after_events(function(record) {
-            expect(record).to(equal, motorcycle);
-            expect_all_events_to_have_fired();
-            after_events_callback_count++;
-          });
-
-        expect(before_events_callback_count).to(equal, 0);
-        expect(after_events_callback_count).to(equal, 0);
-        expect(server.posts).to(be_empty);
-
-        server.finish_batch();
-
-        expect(server.pending_commands).to(equal, {});
-
-        expect(server.posts.length).to(equal, 1);
-        var post = server.posts.shift();
-
-        expect(post.url).to(equal, Repository.origin_url);
-        expect(post.data).to(equal, {
-          operations: [
-            ['create', 'users', { full_name: "Stephanie Wambach" }],
-            ['create', 'blogs', { name: "Bandwidth to Burn" }],
-            ['update', 'users', 'jan', { full_name: "Jan Christian Nelson" }],
-            ['update', 'blogs', 'recipes', { name: "Disgusting Recipes Involving Pork" }],
-            ['destroy', 'users', 'wil'],
-            ['destroy', 'blogs', 'motorcycle']
-          ]
+          expect(before_events_callback_count).to(equal, 6);
+          expect(after_events_callback_count).to(equal, 6);
+          expect(server.pending_commands).to(equal, {});
         });
+      });
 
-        post.simulate_success([
-          { id: "stephanie", full_name: "Stephanie Anne Wambach" },
-          { id: "bandwidth", name: "Bandwidth to Burn" },
-          { full_name: "Jan Christian Nelson" },
-          { name: "Disgusting Recipes Involving Pork" },
-          null,
-          null
-        ]);
+      context("when the server response indicates failure", function() {
+        they("does not perform the changes and invokes the failure callbacks for every operation, giving the invalid operation's callback an invalid record", function() {
+          server.start_batch();
 
-        expect(before_events_callback_count).to(equal, 6);
-        expect(after_events_callback_count).to(equal, 6);
-        expect(server.pending_commands).to(equal, {});
+          var create_failure_callback = mock_function("create failure callback", function(record) {
+            expect(record.valid()).to(be_true);
+          });
+          var update_failure_callback = mock_function("update failure callback", function(record) {
+            expect(record.valid()).to(be_false);
+            expect(record.name()).to(equal, 'Potatoes For Every Meal');
+            expect(record.field('name').validation_errors).to(equal, ["You can't eat potatoes that much!"]);
+          });
+          var destroy_failure_callback = mock_function("destroy failure callback", function(record) {
+            expect(record.valid()).to(be_true);
+          });
+
+          server.destroy(wil).on_failure(destroy_failure_callback);
+          server.update(recipes, {name: 'Potatoes For Every Meal'}).on_failure(update_failure_callback);
+          server.create(User.table, {full_name: "Penelope Cruz"}).on_failure(create_failure_callback);
+
+          server.finish_batch();
+
+          server.last_post.simulate_failure({
+            index: 1,
+            errors: {
+              name: ["You can't eat potatoes that much!"]
+            }
+          });
+
+          expect(create_failure_callback).to(have_been_called);
+          expect(update_failure_callback).to(have_been_called);
+          expect(destroy_failure_callback).to(have_been_called, with_args(wil));
+        });
       });
     });
 

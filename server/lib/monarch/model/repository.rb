@@ -6,9 +6,11 @@ module Model
       end
 
       delegate :new_table, :tables_by_name, :load_fixtures, :clear_tables, :create_schema,
-               :tables, :initialize_identity_maps, :clear_identity_maps,
+               :tables, :initialize_identity_maps, :clear_identity_maps, :transaction,
                :to => :instance
     end
+
+    delegate :transaction, :to => :Origin
 
     attr_reader :tables_by_name
     def initialize

@@ -169,7 +169,7 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   start_pending_changes: function() {
-    this.active_fieldset = this.active_fieldset.new_pending_fieldset();
+    this.use_pending_fieldset(this.active_fieldset.new_pending_fieldset());
   },
 
   on_update: function(callback) {
@@ -202,6 +202,10 @@ Monarch.constructor("Monarch.Model.Record", {
 
   disable_update_events: function() {
     this.active_fieldset.disable_update_events();
+  },
+
+  use_pending_fieldset: function(pending_fieldset) {
+    this.active_fieldset = pending_fieldset;
   },
 
   restore_primary_fieldset: function() {

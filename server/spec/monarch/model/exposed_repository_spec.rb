@@ -30,7 +30,6 @@ module Model
 
     describe "#post" do
       context "when called with a single create operation" do
-
         context "when the given field values are valid" do
           it "calls #create on the indicated 'relation' with the given 'field_values', then returns all field values as its result" do
             signed_up_at = Time.now
@@ -57,7 +56,9 @@ module Model
                 'full_name' => "Sharon Ly The Great",
                 'age' => 25,
                 'signed_up_at' => signed_up_at.to_millis,
-                'has_hair' => nil
+                'has_hair' => nil,
+                'great_name' => "Sharon Ly The Great The Great",
+                'human' => true
               }]
             }
           end
@@ -82,9 +83,10 @@ module Model
             response.should be_ok
             response.body_from_json.should == {
               'successful' => false,
-              'data' => [{
-                'age' => invalid_example.field(:age).validation_errors
-              }]
+              'data' => {
+                'index' => 0,
+                'errors' => { 'age' => invalid_example.field(:age).validation_errors}
+              }
             }
           end
         end
@@ -117,7 +119,9 @@ module Model
               'successful' => true,
               'data' => [{
                 'full_name' => "Jan Christian Nelson The Great",
-                'signed_up_at' => new_signed_up_at.to_millis
+                'signed_up_at' => new_signed_up_at.to_millis,
+                'human' => true,
+                'great_name' => "Jan Christian Nelson The Great The Great"
               }]
             }
           end
@@ -139,9 +143,10 @@ module Model
             response.should be_ok
             response.body_from_json.should == {
               'successful' => false,
-              'data' => [{
-                'age' => validation_errors_on_age
-              }]
+              'data' => {
+                'index' => 0,
+                'errors' => { 'age' => ["User must be at least 10 years old"]}
+              }
             }
           end
 
@@ -167,38 +172,76 @@ module Model
       end
 
       context "when called with multiple operations" do
-        it "performs all operations" do
-          signed_up_at = Time.now
-          User.find('jan').should_not be_nil
+        context "when all operations are valid" do
+          it "performs all operations and returns a result for each" do
+            signed_up_at = Time.now
+            User.find('jan').should_not be_nil
 
-          response = Http::Response.new(*exposed_repository.post({
-            :operations => [
-              ['create', 'users', { 'full_name' => "Jake Frautschi", 'age' => 27, 'signed_up_at' => signed_up_at.to_millis }],
-              ['update', 'users', 'jan', {'age' => 101}],
-              ['destroy', 'users', 'wil']
-            ].to_json
-          }))
+            response = Http::Response.new(*exposed_repository.post({
+              :operations => [
+                ['create', 'users', { 'full_name' => "Jake Frautschi", 'age' => 27, 'signed_up_at' => signed_up_at.to_millis }],
+                ['update', 'users', 'jan', {'age' => 101}],
+                ['destroy', 'users', 'wil']
+              ].to_json
+            }))
 
-          jake = User.find(User[:full_name].eq("Jake Frautschi"))
-          jake.should_not be_nil
-          User.find("jan").age.should == 101
-          User.find('wil').should be_nil
+            jake = User.find(User[:full_name].eq("Jake Frautschi"))
+            jake.should_not be_nil
+            User.find("jan").age.should == 101
+            User.find('wil').should be_nil
 
-          response.should be_ok
-          response.body_from_json.should == {
-            'data' => [
-              {
-                'id' => jake.id,
-                'full_name' => "Jake Frautschi",
-                'age' => 27,
-                'signed_up_at' => signed_up_at.to_millis,
-                'has_hair' => nil
+            response.should be_ok
+            response.body_from_json.should == {
+              'data' => [
+                {
+                  'id' => jake.id,
+                  'full_name' => "Jake Frautschi",
+                  'age' => 27,
+                  'signed_up_at' => signed_up_at.to_millis,
+                  'has_hair' => nil,
+                  'great_name' => "Jake Frautschi The Great",
+                  'human' => true
+                },
+                { 'age' => 101 },
+                nil
+              ],
+              'successful' => true
+            }
+          end
+        end
+
+        context "when some operations are invalid" do
+          manually_manage_identity_map
+
+          it "rolls back all operations and returns validation errors for each" do
+            signed_up_at = Time.now
+            jan = User.find('jan')
+            age_before_update = jan.age
+
+            Model::Repository.initialize_identity_maps
+            response = Http::Response.new(*exposed_repository.post({
+              :operations => [
+                ['create', 'users', { 'full_name' => "Jake Frautschi", 'age' => 27, 'signed_up_at' => signed_up_at.to_millis }],
+                ['update', 'users', 'jan', {'age' => 3}],
+                ['destroy', 'users', 'wil']
+              ].to_json
+            }))
+            Model::Repository.clear_identity_maps
+
+            User.find(User[:full_name].eq("Jake Frautschi")).should be_nil
+
+            User.find("jan").age.should == age_before_update
+            User.find('wil').should_not be_nil
+
+            response.should be_ok
+            response.body_from_json.should == {
+              'data' => {
+                'index' => 1,
+                'errors' => { 'age' => ["User must be at least 10 years old"] }
               },
-              { 'age' => 101 },
-              nil
-            ],
-            'successful' => true
-          }
+              'successful' => false
+            }
+          end
         end
       end
     end

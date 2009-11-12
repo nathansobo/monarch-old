@@ -80,9 +80,13 @@ Monarch.constructor("Monarch.Http.Server", {
   },
 
   handle_unsuccessful_mutation_response: function(pending_commands, response_data) {
-    Monarch.Util.each(response_data, function(response, index) {
-      pending_commands[index].handle_failure(response);
-    })
+    Monarch.Util.each(pending_commands, function(command, index) {
+      if (index == response_data.index) {
+        command.handle_failure(response_data.errors)
+      } else {
+        command.handle_failure(null);
+      }
+    });
   },
 
   start_batch: function() {

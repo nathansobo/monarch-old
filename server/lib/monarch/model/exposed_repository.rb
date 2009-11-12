@@ -16,24 +16,31 @@ module Model
     end
 
     def post(params)
-      successful_response_data = []
-      unsuccessful_response_data = []
+      successful, response_data = perform_operations_in_transaction(JSON.parse(params[:operations]))
+      [200, headers, { 'successful' => successful, 'data' => response_data}.to_json]
+    end
 
-      operations = JSON.parse(params[:operations])
-      all_operations_valid = true
+    def perform_operations_in_transaction(operations)
+      successful = true
+      response_data = []
 
-      operations.each do |operation|
-        result = perform_operation(operation)
-        if result.valid?
-          successful_response_data.push(result.data)
-        else
-          unsuccessful_response_data.push(result.data)
-          all_operations_valid = false
+      Repository.transaction do
+        operations.each_with_index do |operation, index|
+          result = perform_operation(operation)
+          if result.valid?
+            response_data.push(result.data)
+          else
+            successful = false
+            response_data = {
+              :index => index,
+              :errors => result.data
+            }
+            raise Sequel::Rollback
+          end
         end
       end
 
-      response_data = all_operations_valid ? successful_response_data : unsuccessful_response_data
-      [200, headers, { 'successful' => all_operations_valid, 'data' => response_data}.to_json]
+      [successful, response_data]
     end
 
     def resolve_table_name(name)
@@ -76,7 +83,7 @@ module Model
     def perform_update(table_name, id, field_values)
       relation = resolve_table_name(table_name)
       record = relation.find(id)
-      updated_field_values = record.update(field_values)
+      updated_field_values = record.update_fields(field_values)
 
       if record.valid?
         record.save

@@ -1,27 +1,36 @@
 module Model
   module Relations
     class Table < Relation
-      attr_reader :global_name, :tuple_class, :columns_by_name, :global_identity_map
+      attr_reader :global_name, :tuple_class, :concrete_columns_by_name, :synthetic_columns_by_name, :global_identity_map
 
       def initialize(global_name, tuple_class)
         @global_name, @tuple_class = global_name, tuple_class
-        @columns_by_name = ActiveSupport::OrderedHash.new
+        @concrete_columns_by_name = ActiveSupport::OrderedHash.new
+        @synthetic_columns_by_name = ActiveSupport::OrderedHash.new
         @global_identity_map = {}
         enable_validation_on_insert
       end
 
-      def define_column(name, type, options={})
-        columns_by_name[name] = Column.new(self, name, type, options)
+      def define_concrete_column(name, type, options={})
+        concrete_columns_by_name[name] = ConcreteColumn.new(self, name, type, options)
       end
 
-      def columns
-        columns_by_name.values
+      def define_synthetic_column(name, type, signal_definition)
+        synthetic_columns_by_name[name] = SyntheticColumn.new(self, name, type, signal_definition)
+      end
+
+      def concrete_columns
+        concrete_columns_by_name.values
+      end
+
+      def synthetic_columns
+        synthetic_columns_by_name.values
       end
 
       def column(column_or_name)
         case column_or_name
         when String, Symbol
-          columns_by_name[column_or_name.to_sym]
+          concrete_columns_by_name[column_or_name.to_sym] || synthetic_columns_by_name[column_or_name.to_sym]
         when Column
           column_or_name
         end
@@ -62,12 +71,12 @@ module Model
 
         if record_from_global_id_map = global_identity_map[id]
           record_from_global_id_map
-        elsif record_from_id_map = thread_local_identity_map[id]
+        elsif thread_local_identity_map && record_from_id_map = thread_local_identity_map[id]
           record_from_id_map
         else
           record = tuple_class.unsafe_new(field_values)
           record.mark_clean
-          thread_local_identity_map[id] = record
+          thread_local_identity_map[id] = record if thread_local_identity_map
           record
         end
       end
@@ -109,7 +118,7 @@ module Model
       end
 
       def create_table
-        columns_to_generate = columns
+        columns_to_generate = concrete_columns
         Origin.create_table(global_name) do
           columns_to_generate.each do |c|
             column c.name, c.ruby_type

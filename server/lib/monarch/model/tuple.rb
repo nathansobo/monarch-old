@@ -5,7 +5,7 @@ module Model
 
       def relation=(relation)
         @relation = relation
-        relation.columns.each { |column| define_field_reader(column) }
+        relation.concrete_columns.each { |column| define_field_reader(column) }
       end
 
       protected
@@ -38,15 +38,19 @@ module Model
     end
 
     def field(column_or_name)
-      fields_by_column[column(column_or_name)]
+      concrete_fields_by_column[column(column_or_name)]
+    end
+
+    def concrete_fields
+      concrete_fields_by_column.values
     end
 
     def fields
-      fields_by_column.values
+      concrete_fields
     end
 
     def field_values_by_column_name
-      fields_by_column.inject({}) do |result, column_field_pair|
+      concrete_fields_by_column.inject({}) do |result, column_field_pair|
         result[column_field_pair[0].name] = column_field_pair[1].value
         result
       end
@@ -58,40 +62,10 @@ module Model
 
     def wire_representation
       wire_representation = {}
-      fields_by_column.each do |column, field|
-        wire_representation[column.name.to_s] = field.value_wire_representation
+      fields.each do |field|
+        wire_representation[field.name.to_s] = field.value_wire_representation
       end
       wire_representation
-    end
-
-    def valid?
-      validate_if_needed
-      fields.each do |field|
-        return false unless field.valid?
-      end
-      true
-    end
-
-    def validate_if_needed
-      return if validated?
-      validate
-      mark_validated
-    end
-
-    def validated?
-      fields.all? {|field| field.validated?}
-    end
-
-    def mark_validated
-      fields.each { |field| field.mark_validated }
-    end
-
-    def validate
-      # implement in subclasses if validation is desired
-    end
-
-    def validation_error(field_name, error_string)
-      field(field_name).validation_errors.push(error_string)
     end
 
     def validation_errors_by_column_name
@@ -103,12 +77,16 @@ module Model
       validation_errors_by_column_name
     end
 
+    def valid?
+      true
+    end
+
     protected
-    attr_reader :fields_by_column
+    attr_reader :concrete_fields_by_column
     def initialize_fields
-      @fields_by_column = {}
-      relation.columns.each do |column|
-        fields_by_column[column] = Field.new(self, column)
+      @concrete_fields_by_column = {}
+      relation.concrete_columns.each do |column|
+        concrete_fields_by_column[column] = ConcreteField.new(self, column)
       end
     end
   end

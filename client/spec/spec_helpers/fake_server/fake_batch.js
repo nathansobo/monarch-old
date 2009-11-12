@@ -3,19 +3,18 @@ Monarch.constructor("FakeServer.FakeBatch", {
 
   initialize: function(fake_server) {
     this.fake_server = fake_server;
-    this.mutations = {};
+    this.mutations = [];
   },
 
   find_update: function(record) {
-    var mutations_for_table = this.mutations[record.table().global_name];
-    if (!mutations_for_table) return null;
-    return mutations_for_table[record.id()];
+    return Monarch.Util.detect(this.mutations, function(mutation) {
+      return mutation.record === record
+    });
   },
 
   add_mutation: function(mutation) {
     mutation.batch = this;
-    if (!this.mutations[mutation.table_name]) this.mutations[mutation.table_name] = {};
-    this.mutations[mutation.table_name][mutation.command_id] = mutation;
+    this.mutations.push(mutation);
   },
 
   simulate_success: function(server_response) {
@@ -23,12 +22,14 @@ Monarch.constructor("FakeServer.FakeBatch", {
     if (!server_response) server_response = this.generate_fake_server_response();
 
     Repository.pause_events();
-    this.for_each_batched_mutation(function(table_name, command_id, mutation) {
-      if (server_response[table_name][command_id] === undefined) throw new Error("No server response value provided for command: " + table_name + ", " + command_id);
-      mutation.complete_and_trigger_before_events(server_response[table_name][command_id]);
-    });
-    Repository.resume_events()
-    this.for_each_batched_mutation(function(table_name, command_id, mutation) {
+
+    Monarch.Util.each(this.mutations, function(mutation, index) {
+      mutation.complete_and_trigger_before_events(server_response[index]);
+    })
+
+    Repository.resume_events();
+    
+    Monarch.Util.each(this.mutations, function(mutation) {
       mutation.trigger_after_events();
       self.fake_server.remove_request(mutation);
     });
@@ -37,19 +38,8 @@ Monarch.constructor("FakeServer.FakeBatch", {
   },
 
   generate_fake_server_response: function() {
-    var fake_server_response = {};
-    this.for_each_batched_mutation(function(table_name, command_id, mutation) {
-      if (!fake_server_response[table_name]) fake_server_response[table_name] = {};
-      fake_server_response[table_name][command_id] = mutation.response_wire_representation();
-    })
-    return fake_server_response;
-  },
-
-  for_each_batched_mutation: function(fn) {
-    Monarch.Util.each(this.mutations, function(table_name, mutations_by_command_id) {
-      Monarch.Util.each(mutations_by_command_id, function(command_id, mutation) {
-        fn(table_name, command_id, mutation);
-      });
+    return Monarch.Util.map(this.mutations, function(mutation) {
+      return mutation.response_wire_representation();
     });
   }
 });

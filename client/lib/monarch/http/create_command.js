@@ -22,6 +22,11 @@ Monarch.constructor("Monarch.Http.CreateCommand", Monarch.Http.Command, {
   complete: function(field_values_from_server) {
     this.record.local_update(field_values_from_server);
     this.table.insert(this.record);
+  },
+
+  handle_failure: function(errors_by_field_name) {
+    if (errors_by_field_name) this.record.populate_fields_with_errors(errors_by_field_name);
+    this.future.trigger_on_failure(this.record);
   }
 });
 

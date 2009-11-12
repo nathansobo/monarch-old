@@ -14,6 +14,10 @@ Monarch.constructor("Monarch.Http.DestroyCommand", Monarch.Http.Command, {
 
   complete: function() {
     this.record.local_destroy();
+  },
+
+  handle_failure: function() {
+    this.future.trigger_on_failure(this.record);
   }
 });
 

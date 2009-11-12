@@ -20,6 +20,13 @@ Monarch.constructor("Monarch.Http.UpdateCommand", Monarch.Http.Command, {
   complete: function(field_values_from_server) {
     this.pending_fieldset.update(field_values_from_server);
     this.pending_fieldset.commit();
+  },
+
+  handle_failure: function(errors_by_field_name) {
+    this.record.use_pending_fieldset(this.pending_fieldset);
+    if (errors_by_field_name) this.record.populate_fields_with_errors(errors_by_field_name);
+    this.future.trigger_on_failure(this.record);
+    this.record.restore_primary_fieldset();
   }
 });
 

@@ -11,7 +11,13 @@ Monarch.constructor("FakeServer.FakeMutation", {
     this.type = Monarch.Inflection.underscore(command.constructor.basename).split("_")[0];
     this.table = command.table;
     this.record = command.record;
-    this.field_values = command.wire_representation();
+
+    if (this.type == "create") {
+      this.field_values = command.wire_representation()[2];
+    } else if (this.type == "update") {
+      this.field_values = command.wire_representation()[3]
+    }
+
     this.table_name = command.table_name;
     this.command_id = command.command_id;
     this.future = command.future;
@@ -26,17 +32,19 @@ Monarch.constructor("FakeServer.FakeMutation", {
   },
 
   response_wire_representation: function() {
-    var wire_representation = this.command.wire_representation();
-    if (this.type == "create" && !wire_representation.id) {
-      wire_representation.id = (this.constructor.id_counter++).toString();
+    switch (this.type) {
+      case "update":
+        return this.record.wire_representation();
+      case "create":
+        var wire_representation = this.record.wire_representation();
+        wire_representation.id = (this.constructor.id_counter++).toString();
+        return wire_representation;
+      case "destroy":
+        return null;
     }
-    return wire_representation;
   },
 
   simulate_success: function(fake_response_wire_representation) {
-    var batch_response = {};
-    batch_response[this.table_name] = {};
-    batch_response[this.table_name][this.command_id] = fake_response_wire_representation || this.response_wire_representation();
-    this.batch.simulate_success(batch_response);
+    this.batch.simulate_success([fake_response_wire_representation || this.response_wire_representation()]);
   }
 });

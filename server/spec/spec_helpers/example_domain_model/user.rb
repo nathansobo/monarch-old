@@ -4,6 +4,18 @@ class User < Model::Record
   column :signed_up_at, :datetime
   column :has_hair, :boolean
 
+  synthetic_column :great_name, :string do
+    signal(:full_name) do |new_value, old_value|
+      full_name + " The Great"
+    end
+  end
+
+  synthetic_column :human, :boolean do
+    signal(:full_name) do |new_value, old_value|
+      true
+    end
+  end
+
   relates_to_many :blogs do
     Blog.where(Blog[:user_id].eq(id))
   end
