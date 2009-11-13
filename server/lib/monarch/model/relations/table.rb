@@ -47,13 +47,13 @@ module Model
       def insert(record)
         return record if validation_on_insert_enabled? && !record.valid?
         Origin.insert(self, record.field_values_by_column_name)
-        thread_local_identity_map[record.id] = record if thread_local_identity_map
+        local_identity_map[record.id] = record if local_identity_map
         record.mark_clean
       end
 
       def remove(record)
         Origin.destroy(self, record.id)
-        thread_local_identity_map.delete(record.id) if thread_local_identity_map
+        local_identity_map.delete(record.id) if local_identity_map
         global_identity_map.delete(record.id)
       end
 
@@ -71,12 +71,12 @@ module Model
 
         if record_from_global_id_map = global_identity_map[id]
           record_from_global_id_map
-        elsif thread_local_identity_map && record_from_id_map = thread_local_identity_map[id]
+        elsif local_identity_map && record_from_id_map = local_identity_map[id]
           record_from_id_map
         else
           record = tuple_class.unsafe_new(field_values)
           record.mark_clean
-          thread_local_identity_map[id] = record if thread_local_identity_map
+          local_identity_map[id] = record if local_identity_map
           record
         end
       end
@@ -85,7 +85,7 @@ module Model
         Thread.current["#{global_name}_identity_map"] = {}
       end
 
-      def thread_local_identity_map
+      def local_identity_map
         Thread.current["#{global_name}_identity_map"]
       end
 

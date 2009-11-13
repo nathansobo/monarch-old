@@ -155,12 +155,12 @@ module Model
         it "removes the record in the database and removes it from the thread-local and global identity maps and calls after_destroy hook" do
           mock(record).after_destroy
           record.activate
-          BlogPost.table.thread_local_identity_map[record.id].should == record
+          BlogPost.table.local_identity_map[record.id].should == record
           BlogPost.table.global_identity_map[record.id].should == record
 
           record.destroy
 
-          BlogPost.table.thread_local_identity_map.should_not have_key(record.id)
+          BlogPost.table.local_identity_map.should_not have_key(record.id)
           BlogPost.table.global_identity_map.should_not have_key(record.id)
           BlogPost.find(record.id).should be_nil
         end

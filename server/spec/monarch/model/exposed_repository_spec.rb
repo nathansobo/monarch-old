@@ -218,7 +218,7 @@ module Model
             jan = User.find('jan')
             age_before_update = jan.age
 
-            Model::Repository.initialize_identity_maps
+            Model::Repository.initialize_local_identity_map
             response = Http::Response.new(*exposed_repository.post({
               :operations => [
                 ['create', 'users', { 'full_name' => "Jake Frautschi", 'age' => 27, 'signed_up_at' => signed_up_at.to_millis }],
@@ -226,7 +226,7 @@ module Model
                 ['destroy', 'users', 'wil']
               ].to_json
             }))
-            Model::Repository.clear_identity_maps
+            Model::Repository.clear_local_identity_map
 
             User.find(User[:full_name].eq("Jake Frautschi")).should be_nil
 
