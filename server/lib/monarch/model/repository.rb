@@ -21,10 +21,6 @@ module Model
       tables_by_name[name] = Relations::Table.new(name, tuple_class)
     end
 
-    def tables
-      tables_by_name.values
-    end
-
     def initialize_identity_maps
       tables.each {|table| table.initialize_identity_map}
     end

@@ -9,8 +9,9 @@ module Model
     end
 
     describe ".expose(name, &relation_definition)" do
-      it "binds the given relation definition to a table name" do
+      it "binds the given relation definition to a table name and defines a reader method for it" do
         exposed_repository.resolve_table_name(:blogs).should == user.blogs
+        exposed_repository.blogs.should == user.blogs
       end
     end
 
