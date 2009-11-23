@@ -82,6 +82,61 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
+    describe("#delta", function() {
+      it("inserts records that don't exist, updates those that do, and removes records that are not present in the given snapshot", function() {
+        expect(User.find('nathan')).to(be_null);
+        expect(Blog.find('metacircular')).to(be_null);
+        expect(Blog.find('travel')).to(be_null);
+
+        var jan = User.find('jan');
+        expect(jan.full_name()).to(equal, 'Jan Nelson');
+        expect(User.find('mike')).to_not(be_null);
+        expect(User.find('wil')).to_not(be_null);
+        expect(Blog.find('recipes')).to_not(be_null);
+        expect(Blog.find('motorcycle')).to_not(be_null);
+
+        repository.delta({
+          users: {
+            nathan: {
+              id: 'nathan',
+              full_name: 'Nathan Sobo'
+            },
+            jan: {
+              id: 'jan',
+              full_name: 'Jan Christian Nelson'
+            }
+          },
+          blogs: {
+            metacircular: {
+              id: 'metacircular',
+              user_id: 'nathan',
+              name: 'Metacircular'
+            },
+            travel: {
+              id: 'travel',
+              user_id: 'nathan',
+              name: "Nathan's Travels"
+            }
+          }
+        });
+
+        var nathan = User.find('nathan');
+        var metacircular = Blog.find('metacircular');
+        var travel = Blog.find('travel');
+
+        expect(User.find('mike')).to(be_null);
+        expect(User.find('wil')).to(be_null);
+        expect(Blog.find('recipes')).to(be_null);
+        expect(Blog.find('motorcycle')).to(be_null);
+        expect(nathan.full_name()).to(equal, 'Nathan Sobo');
+        expect(metacircular.name()).to(equal, 'Metacircular');
+        expect(metacircular.user_id()).to(equal, 'nathan');
+        expect(travel.name()).to(equal, "Nathan's Travels");
+        expect(travel.user_id()).to(equal, 'nathan');
+        expect(jan.full_name()).to(equal, 'Jan Christian Nelson');
+      });
+    });
+
     describe("#clear", function() {
       it("removes all data from all tables", function() {
         expect(Blog.records()).to_not(be_empty);

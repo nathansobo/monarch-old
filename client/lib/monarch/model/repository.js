@@ -24,6 +24,13 @@ Monarch.constructor("Monarch.Model.Repository", {
     });
   },
 
+  delta: function(dataset) {
+    var self = this;
+    Monarch.Util.each(dataset, function(table_name, table_dataset) {
+      self.tables[table_name].delta(table_dataset);
+    });
+  },
+
   register_table: function(table) {
     this.tables[table.global_name] = table;
   },

@@ -88,6 +88,13 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
       }
     });
   },
+  
+  delta: function(dataset) {
+    this.each(function(record) {
+      if (!dataset[record.id()]) record.local_destroy();
+    });
+    this.update(dataset);
+  },
 
   fixtures: function(fixture_definitions) {
     this.fixture_definitions = fixture_definitions;
