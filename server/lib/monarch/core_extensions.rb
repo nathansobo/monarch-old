@@ -18,6 +18,10 @@ class Object
   def class_eval(*args, &block)
     eigenclass.class_eval(*args, &block)
   end
+
+  def union(*operands, &block)
+    Model::Relations::Union.new(operands, &block)
+  end
 end
 
 class Symbol

@@ -20,7 +20,7 @@ module Model
         [projected_table]
       end
 
-      def build_sql_query(query=SqlQuery.new)
+      def build_sql_query(query=Sql::Select.new)
         query.select_clause_columns = projected_table.concrete_columns.map {|c| ProjectedColumn.new(c)} unless query.has_explicit_select_clause_columns?
         operand.build_sql_query(query)
       end
