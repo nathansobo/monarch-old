@@ -258,7 +258,14 @@ Screw.Unit(function(c) { with(c) {
           };
 
           var after_events_callback = mock_function('after events callback', function() {
+
+            expect(update_callback).to(have_been_called, once);
+
+            expect(update_callback.most_recent_args[0] === record).to(be_true)
+            expect(update_callback.most_recent_args[1]).to(equal, expected_changeset);
+
             expect(update_callback).to(have_been_called, with_args(record, expected_changeset));
+            
           });
           update_future.before_events(before_events_callback);
           update_future.after_events(after_events_callback);
