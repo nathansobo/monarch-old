@@ -34,11 +34,9 @@ Monarch.constructor("FakeServer.FakeMutation", {
   response_wire_representation: function() {
     switch (this.type) {
       case "update":
-        return this.record.wire_representation();
+        return this.field_values;
       case "create":
-        var wire_representation = this.record.wire_representation();
-        wire_representation.id = (this.constructor.id_counter++).toString();
-        return wire_representation;
+        return jQuery.extend({}, this.field_values, { id: (this.constructor.id_counter++).toString() });
       case "destroy":
         return null;
     }
