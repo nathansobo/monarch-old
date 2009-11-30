@@ -28,8 +28,8 @@ Monarch.constructor("Monarch.Model.ConcreteField", Monarch.Model.Field, {
   },
 
   equal: function(value) {
-    if (this.column.type == "datetime") {
-      return this._value && value && this._value.getTime() == value.getTime();
+    if (this.column.type == "datetime" && this._value && value) {
+      return this._value.getTime() == value.getTime();
     }
     return this._value == value;
   },
