@@ -12,7 +12,7 @@ Screw.Unit(function(c) { with(c) {
     describe("#value(value)", function() {
       context("when the #column's type is 'datetime'", function() {
         before(function() {
-          field = record.field('signed_up_at')
+          field = record.field('signed_up_at');
           expect(field.column.type).to(equal, 'datetime');
         });
 
@@ -23,7 +23,7 @@ Screw.Unit(function(c) { with(c) {
             expect(field.value()).to(equal, date);
           });
         });
-
+        
         context("when an integer is assigned", function() {
           it("converts the integer to a Date object", function() {
             var date = new Date();
@@ -35,9 +35,56 @@ Screw.Unit(function(c) { with(c) {
             expect(field.value()).to(equal, date);
           });
         });
+        
       });
     });
     
+    describe("#equal(value)", function() {
+      before(function() {
+        field = record.field("full_name");
+        field.value("foo");
+        
+        expect(field.value()).to(equal, "foo");
+        expect(field.column.type).to(equal, "string");
+      });
+
+      context("when the values are different", function() {
+        it("returns true", function() {
+          expect(field.equal("foo")).to(be_true);
+        });
+      });
+    
+      context("when the values are equal", function() {
+        it("returns false", function() {
+          expect(field.equal("bar")).to(be_false);
+        });
+      });
+    
+      context("when comparing dates", function() {
+        var date;
+        before(function() {
+          date = new Date();
+          field = record.field("signed_up_at");
+          field.value(date);
+          
+          expect(field.value()).to(equal, date);
+          expect(field.column.type).to(equal, "datetime");
+        });
+        
+        context("when the values are equal", function() {
+          it("returns true", function() {
+            expect(field.equal(date)).to(be_true);
+          });
+        });
+        
+        context("when the value are different", function() {
+          it("returns false", function() {
+            date = new Date(date.getTime() + 1);
+            expect(field.equal(date)).to(be_false);
+          });
+        });
+      });
+    });
 
     describe("when the #value is updated", function() {
       var update_callback, old_value;

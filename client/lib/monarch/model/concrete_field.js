@@ -21,18 +21,27 @@ Monarch.constructor("Monarch.Model.ConcreteField", Monarch.Model.Field, {
 
   value: function(value) {
     if (arguments.length == 1) {
-      if (this._value != value) return this.assign_value(value);
+      return this.assign_value(value)
     } else {
       return this._value;
     }
   },
 
-  assign_value: function(value) {
+  equal: function(value) {
+    if (this.column.type == "datetime") {
+      return this._value && value && this._value.getTime() == value.getTime();
+    }
+    return this._value == value;
+  },
 
+  assign_value: function(value) {
+    value = this.column.convert_for_storage(value);
+    if (this.equal(value)) return value;
+    
     var batch_update_in_progress = this.fieldset.batch_update_in_progress();
     if (!batch_update_in_progress) this.fieldset.begin_batch_update();
     var old_value = this._value;
-    this._value = this.column.convert_for_storage(value);
+    this._value = value;
     if (this.pending) {
       this.dirty = true;
     } else {
