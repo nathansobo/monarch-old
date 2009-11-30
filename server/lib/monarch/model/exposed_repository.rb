@@ -94,11 +94,16 @@ module Model
       record = relation.find(id)
       updated_field_values = record.update_fields(field_values)
 
+
       if record.valid?
         record.save
-        valid_result(updated_field_values)
+        if relation.find(id)
+          return valid_result(updated_field_values)
+        else
+          return invalid_result("Security violation")
+        end
       else
-        invalid_result(record.validation_errors_by_column_name)
+        return invalid_result(record.validation_errors_by_column_name)
       end
     end
 
@@ -151,6 +156,9 @@ module Model
       def valid?
         @valid
       end
+    end
+
+    class SecurityException < Exception
     end
   end
 end

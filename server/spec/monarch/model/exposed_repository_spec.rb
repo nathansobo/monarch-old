@@ -93,7 +93,6 @@ module Model
       end
 
       context "when called with a single update operation" do
-
         context "when the given field values are valid" do
           it "finds the record with the given 'id' in the given 'relation', then updates it with the given field values and returns all changed field values as its result" do
             record = User.find('jan')
@@ -149,7 +148,14 @@ module Model
               }
             }
           end
+        end
 
+        context "when the given field values would cause the record to no longer be contained by the exposed relation" do
+          it "returns a security error and does not perform the update" do
+            response = Http::Response.new(*exposed_repository.post(:operations => [['update', 'blogs', 'grain', { 'user_id' => 'wil' }]].to_json))
+            response.body_from_json.should == {"data"=>{"errors"=>"Security violation", "index"=>0}, "successful"=>false}
+            Blog.find('grain').reload.user_id.should == 'jan'
+          end
         end
       end
 
