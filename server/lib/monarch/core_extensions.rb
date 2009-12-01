@@ -5,7 +5,7 @@ class Class
 end
 
 class Object
-  def to_sql
+  def where_clause_sql
     inspect
   end
 
@@ -46,10 +46,6 @@ class String
   def path_starts_with?(prefix)
     split('/').starts_with?(prefix.split('/'))
   end
-
-  def to_sql
-    inspect
-  end
 end
 
 class Array
@@ -64,19 +60,19 @@ class Array
 end
 
 class TrueClass
-  def to_sql
+  def where_clause_sql
     "t".inspect
   end
 end
 
 class FalseClass
-  def to_sql
+  def where_clause_sql
     "f".inspect
   end
 end
 
 class NilClass
-  def to_sql
+  def where_clause_sql
     "null"
   end
 end

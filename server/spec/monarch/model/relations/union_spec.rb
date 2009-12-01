@@ -25,11 +25,11 @@ module Model
           it "pushes the operations that are above the union in the relation tree into the union's subqueries for performance" do
             Blog.join_to(union).where(Blog[:user_id].eq("jan")).project(BlogPost).to_sql.should == %{
               select distinct
-                blog_posts.id,
-                blog_posts.title,
-                blog_posts.body,
-                blog_posts.blog_id,
-                blog_posts.created_at
+                blog_posts.id as id,
+                blog_posts.title as title,
+                blog_posts.body as body,
+                blog_posts.blog_id as blog_id,
+                blog_posts.created_at as created_at
               from
                 blogs, blog_posts
               where
@@ -38,11 +38,11 @@ module Model
                 and blog_posts.blog_id = \"grain\"
               union
               select distinct
-                blog_posts.id,
-                blog_posts.title,
-                blog_posts.body,
-                blog_posts.blog_id,
-                blog_posts.created_at
+                blog_posts.id as id,
+                blog_posts.title as title,
+                blog_posts.body as body,
+                blog_posts.blog_id as blog_id,
+                blog_posts.created_at as created_at
               from
                 blogs, blog_posts
               where
