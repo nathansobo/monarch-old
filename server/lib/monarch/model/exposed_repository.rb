@@ -92,11 +92,10 @@ module Model
     def perform_update(table_name, id, field_values)
       relation = resolve_table_name(table_name)
       record = relation.find(id)
-      updated_field_values = record.update_fields(field_values)
-
+      record.update_fields(field_values)
 
       if record.valid?
-        record.save
+        updated_field_values = record.save
         if relation.find(id)
           return valid_result(updated_field_values)
         else
