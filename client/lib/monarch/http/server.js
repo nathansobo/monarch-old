@@ -134,7 +134,7 @@ Monarch.constructor("Monarch.Http.Server", {
   stringify_json_data: function(data) {
     var stringified_data = {};
     Monarch.Util.each(data, function(key, value) {
-      if (typeof value == "object") value = JSON.stringify(value);
+      if (typeof value != "string") value = JSON.stringify(value);
       stringified_data[key] = value;
     });
     return stringified_data;
