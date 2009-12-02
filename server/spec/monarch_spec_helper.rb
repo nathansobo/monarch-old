@@ -3,7 +3,6 @@ dir = File.dirname(__FILE__)
 require "rubygems"
 require "spec"
 
-XMPP_ENABLED = true
 require "#{dir}/../lib/monarch"
 require "#{dir}/../lib/monarch/model/client"
 
