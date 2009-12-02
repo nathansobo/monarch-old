@@ -5,6 +5,7 @@ require "spec"
 
 XMPP_ENABLED = true
 require "#{dir}/../lib/monarch"
+require "#{dir}/../lib/monarch/model/client"
 
 Dir["#{File.dirname(__FILE__)}/spec_helpers/*.rb"].each do |spec_helper_path|
   require spec_helper_path

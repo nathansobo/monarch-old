@@ -61,13 +61,13 @@ end
 
 class TrueClass
   def where_clause_sql
-    "t".inspect
+    1
   end
 end
 
 class FalseClass
   def where_clause_sql
-    "f".inspect
+    0
   end
 end
 
