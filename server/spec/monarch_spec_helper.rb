@@ -2,6 +2,7 @@ dir = File.dirname(__FILE__)
 
 require "rubygems"
 require "spec"
+require "set"
 
 require "#{dir}/../lib/monarch"
 require "#{dir}/../lib/monarch/model/client"
