@@ -36,7 +36,8 @@ Screw.Unit(function(c) { with(c) {
       });
 
       it("associates columns named 'name' with 'name_' on the constructor to evade 'name' being a read-only property in Safari and Chrome", function() {
-        expect(Blog.name_).to(equal, Blog.name_);
+        expect(Blog.name).to_not(equal, Blog.name_);
+        expect(Blog.name_).to(equal, Blog.table.column('name'));
       });
 
       it("generates a method on .prototype that accesses the field corresponding to the prototype", function() {
