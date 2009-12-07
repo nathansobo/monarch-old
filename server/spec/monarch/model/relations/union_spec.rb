@@ -29,7 +29,8 @@ module Model
                 blog_posts.title as title,
                 blog_posts.body as body,
                 blog_posts.blog_id as blog_id,
-                blog_posts.created_at as created_at
+                blog_posts.created_at as created_at,
+                blog_posts.featured as featured
               from
                 blogs, blog_posts
               where
@@ -42,7 +43,8 @@ module Model
                 blog_posts.title as title,
                 blog_posts.body as body,
                 blog_posts.blog_id as blog_id,
-                blog_posts.created_at as created_at
+                blog_posts.created_at as created_at,
+                blog_posts.featured as featured
               from
                 blogs, blog_posts
               where

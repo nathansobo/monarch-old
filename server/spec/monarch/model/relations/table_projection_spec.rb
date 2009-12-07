@@ -46,7 +46,21 @@ module Model
             }
 
             projection = TableProjection.from_wire_representation(representation, repository)
-            projection.to_sql.should == %{select distinct blog_posts.id as id, blog_posts.title as title, blog_posts.body as body, blog_posts.blog_id as blog_id, blog_posts.created_at as created_at from blogs, blog_posts where blogs.id = blog_posts.blog_id and blogs.user_id = "jan"}
+            projection.to_sql.should == %{
+              select distinct
+                blog_posts.id as id,
+                blog_posts.title as title,
+                blog_posts.body as body,
+                blog_posts.blog_id as blog_id,
+                blog_posts.created_at as created_at,
+                blog_posts.featured as featured
+              from
+                blogs,
+                blog_posts
+              where
+                blogs.id = blog_posts.blog_id
+                and blogs.user_id = "jan"
+            }.gsub(/[ \n]+/, " ").strip
           end
         end
       end
@@ -71,7 +85,21 @@ module Model
 
           context "when the composed relation contains more than one TableProjection" do
             it "generates a query that selects the columns of #projected_table and includes all joined tables in its from clause" do
-              composite_projection.to_sql.should == %{select distinct blog_posts.id as id, blog_posts.title as title, blog_posts.body as body, blog_posts.blog_id as blog_id, blog_posts.created_at as created_at from blogs, blog_posts where blog_posts.blog_id = blogs.id and blogs.id = "grain"}
+              composite_projection.to_sql.should == %{
+                select distinct
+                  blog_posts.id as id,
+                  blog_posts.title as title,
+                  blog_posts.body as body,
+                  blog_posts.blog_id as blog_id,
+                  blog_posts.created_at as created_at,
+                  blog_posts.featured as featured
+                from
+                  blogs,
+                  blog_posts
+                where
+                  blog_posts.blog_id = blogs.id
+                  and blogs.id = "grain"
+              }.gsub(/[ \n]+/, " ").strip
             end
           end
         end
