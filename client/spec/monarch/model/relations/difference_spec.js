@@ -31,8 +31,8 @@ Screw.Unit(function(c) { with(c) {
       before(function() {
         Monarch.ModuleSystem.constructor("Table1", Monarch.Model.Record);
         Monarch.ModuleSystem.constructor("Table2", Monarch.Model.Record);
-        Table1.column('name', 'string');
-        Table2.column('name', 'string');
+        Table1.column('title', 'string');
+        Table2.column('title', 'string');
 
         left_operand = Table1.table;
         right_operand = Table2.table;
@@ -96,8 +96,8 @@ Screw.Unit(function(c) { with(c) {
         context("if the record is not present in the right operand", function() {
           it("triggers update callbacks with the record", function() {
             left_operand.insert(record);
-            record.local_update({name: "FOO"});
-            expect(update_callback).to(have_been_called, with_args(record, {name: {column: Table1.name, old_value: null, new_value: "FOO" }}));
+            record.local_update({title: "FOO"});
+            expect(update_callback).to(have_been_called, with_args(record, {title: {column: Table1.title, old_value: null, new_value: "FOO" }}));
           });
         });
 
@@ -105,7 +105,7 @@ Screw.Unit(function(c) { with(c) {
           it("does not trigger any callbacks", function() {
             right_operand.insert(record);
             left_operand.insert(record);
-            record.local_update({name: "FOO"});
+            record.local_update({title: "FOO"});
             expect_no_callbacks_to_have_been_called();
           });
         });

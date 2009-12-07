@@ -11,7 +11,9 @@ Monarch.constructor("Monarch.Model.Record", {
     },
 
     column: function(name, type) {
-      this[name] = this.table.define_column(name, type);
+      var column = this.table.define_column(name, type);
+      this[name] = column;
+      if (name == "name") this["name_"] = column;  // name property of functions is read-only in safari and chrome
       this.prototype[name] = function() {
         var field = this.field(name);
         return field.value.apply(field, arguments);

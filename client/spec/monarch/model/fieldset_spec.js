@@ -18,7 +18,7 @@ Screw.Unit(function(c) { with(c) {
 //        console.debug(Monarch.Model.ConcreteField);
         expect(name_field).to(be_an_instance_of, Monarch.Model.ConcreteField);
 //        expect(name_field.fieldset).to(equal, fieldset);
-//        expect(name_field.column).to(equal, Blog.name);
+//        expect(name_field.column).to(equal, Blog.name_);
 //
 //        expect(user_id_field).to(be_an_instance_of, Monarch.Model.ConcreteField);
 //        expect(user_id_field.fieldset).to(equal, fieldset);

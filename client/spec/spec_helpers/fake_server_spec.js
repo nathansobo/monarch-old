@@ -118,7 +118,7 @@ Screw.Unit(function(c) { with(c) {
           expect(before_events_callback).to(have_been_called);
           expect(after_events_callback).to(have_been_called);
 
-          var record = Blog.find(Blog.name.eq("King Crimson Songs I Like"));
+          var record = Blog.find(Blog.name_.eq("King Crimson Songs I Like"));
           expect(record.user_id()).to(equal, "wil");
         });
 

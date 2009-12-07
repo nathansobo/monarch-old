@@ -13,7 +13,7 @@ Screw.Unit(function(c) { with(c) {
           Blog.table.insert(record);
         }
         column_1 = Blog.user_id;
-        column_2 = Blog.name;
+        column_2 = Blog.name_;
       })
     });
 
@@ -25,7 +25,7 @@ Screw.Unit(function(c) { with(c) {
           Blog.table.insert(record);
         }
         column_1 = Blog.user_id;
-        column_2 = Blog.name;
+        column_2 = Blog.name_;
       })
     });
 

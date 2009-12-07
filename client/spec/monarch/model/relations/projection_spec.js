@@ -7,7 +7,7 @@ Screw.Unit(function(c) { with(c) {
     var operand, projected_columns, projection;
     before(function() {
       operand = Blog.table;
-      projected_columns = [new Monarch.Model.ProjectedColumn(Blog.user_id), Blog.name.as('blog_name')];
+      projected_columns = [new Monarch.Model.ProjectedColumn(Blog.user_id), Blog.name_.as('blog_name')];
       projection = new Monarch.Model.Relations.Projection(operand, projected_columns);
     });
 

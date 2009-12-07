@@ -241,7 +241,7 @@ Screw.Unit(function(c) { with(c) {
               new_value: "Fancy Programming Prime for Fun and Profit"
             },
             name: {
-              column: Blog.name,
+              column: Blog.name_,
               old_value: name_before_update,
               new_value: "Fancy Programming Prime"
             },

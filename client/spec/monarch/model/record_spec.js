@@ -28,10 +28,15 @@ Screw.Unit(function(c) { with(c) {
         delete window['Blog'];
         Monarch.ModuleSystem.constructor("Blog", Monarch.Model.Record);
         Blog.column("user_id", "string");
+        Blog.column("name", "string");
       });
 
       it("calls #define_column on its #table, assigning the returned Column to a constructor property", function() {
-        expect(Blog.user_id).to(equal, Blog.table.columns_by_name.user_id);
+        expect(Blog.user_id).to(equal, Blog.table.column('user_id'));
+      });
+
+      it("associates columns named 'name' with 'name_' on the constructor to evade 'name' being a read-only property in Safari and Chrome", function() {
+        expect(Blog.name_).to(equal, Blog.name_);
       });
 
       it("generates a method on .prototype that accesses the field corresponding to the prototype", function() {
@@ -88,7 +93,7 @@ Screw.Unit(function(c) { with(c) {
           var user = User.local_create({id: "jerry"});
           var ordering = user.blogs();
           expect(ordering.constructor).to(equal, Monarch.Model.Relations.Ordering);
-          expect(ordering.order_by_columns[0].column).to(equal, Blog.name);
+          expect(ordering.order_by_columns[0].column).to(equal, Blog.name_);
           expect(ordering.order_by_columns[0].direction).to(equal, "desc");
         });
       });
@@ -100,7 +105,7 @@ Screw.Unit(function(c) { with(c) {
           var ordering = user.blogs();
           expect(ordering.constructor).to(equal, Monarch.Model.Relations.Ordering);
           expect(ordering.order_by_columns.length).to(equal, 2);
-          expect(ordering.order_by_columns[0].column).to(equal, Blog.name);
+          expect(ordering.order_by_columns[0].column).to(equal, Blog.name_);
           expect(ordering.order_by_columns[0].direction).to(equal, "desc");
           expect(ordering.order_by_columns[1].column).to(equal, Blog.user_id);
           expect(ordering.order_by_columns[1].direction).to(equal, "asc");
@@ -186,7 +191,7 @@ Screw.Unit(function(c) { with(c) {
             new_value: 'Pesticides for Fun and Profit'
           },
           name: {
-            column: Blog.name,
+            column: Blog.name_,
             old_value: 'Recipes from the Front',
             new_value: 'Pesticides'
           },
@@ -236,7 +241,7 @@ Screw.Unit(function(c) { with(c) {
             new_value: 'Pesticides for Fun and Profit'
           },
           name: {
-            column: Blog.name,
+            column: Blog.name_,
             old_value: 'Recipes from the Front',
             new_value: 'Pesticides'
           }
