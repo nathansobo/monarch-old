@@ -143,6 +143,11 @@ Screw.Unit(function(c) { with(c) {
           view_properties: view_properties
         });
         view = TestTemplate.to_view();
+        jQuery("#test_content").html(view);
+      });
+
+      after(function() {
+        jQuery("#test_content").html("");
       });
 
 
@@ -150,16 +155,17 @@ Screw.Unit(function(c) { with(c) {
         init(function() {
           view_properties = {
             before_show: mock_function("before_show", function() {
-              expect(this.css('display')).to(equal, 'none');
+              expect(view.is(':visible')).to(be_false);
             })
           };
         });
 
         it("calls it before showing the view", function() {
           view.hide();
-          expect(view.css('display')).to(equal, 'none');
+
+          expect(view.is(':visible')).to(be_false);
           view.show();
-          expect(view.css('display')).to(equal, 'block');
+          expect(view.is(':visible')).to(be_true);
           expect(view.before_show).to(have_been_called);
         });
       });
@@ -168,16 +174,16 @@ Screw.Unit(function(c) { with(c) {
         init(function() {
           view_properties = {
             after_show: mock_function("after_show", function() {
-              expect(this.css('display')).to(equal, 'block');
+              expect(view.is(':visible')).to(be_true);
             })
           };
         });
 
         it("calls it after showing the view", function() {
           view.hide();
-          expect(view.css('display')).to(equal, 'none');
+          expect(view.is(':visible')).to(be_false);
           view.show();
-          expect(view.css('display')).to(equal, 'block');
+          expect(view.is(':visible')).to(be_true);
           expect(view.after_show).to(have_been_called);
         });
       });
@@ -186,14 +192,16 @@ Screw.Unit(function(c) { with(c) {
         init(function() {
           view_properties = {
             before_hide: mock_function("before_hide", function() {
-              expect(this.css("display")).to(equal, 'block');
+              expect(view.is(':visible')).to(be_true);
             })
           };
         });
 
         it("calls it before hiding the view", function() {
+          expect(view.is(':visible')).to(be_true);
           view.hide();
           expect(view.before_hide).to(have_been_called);
+          expect(view.is(':visible')).to(be_false);
         });
       });
 
@@ -201,13 +209,15 @@ Screw.Unit(function(c) { with(c) {
         init(function() {
           view_properties = {
             after_hide: mock_function("after_hide", function() {
-              expect(this.css('display')).to(equal, 'none');
+              expect(view.is(':visible')).to(be_false);
             })
           };
         });
 
         it("calls it before hiding the view", function() {
+          expect(view.is(':visible')).to(be_true);
           view.hide();
+          expect(view.is(':visible')).to(be_false);
           expect(view.after_hide).to(have_been_called);
         });
       });
