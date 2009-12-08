@@ -34,7 +34,6 @@ Monarch.constructor("Monarch.Model.Repository", {
   mutate: function(commands) {
     var self = this;
     Monarch.Util.each(commands, function(command) {
-      console.debug(command);
       var type = command.shift();
       self["perform_" + type + "_command"].apply(self, command);
     });
