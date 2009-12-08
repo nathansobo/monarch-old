@@ -137,6 +137,35 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
+    describe("#mutate", function() {
+      it("takes an array of mutation commands, and executes them if their effects are not redundant", function() {
+        var insert_callback = mock_function('insert_callback');
+        var update_callback = mock_function('update_callback');
+        var remove_callback = mock_function('remove_callback');
+
+        Blog.on_insert(insert_callback);
+        User.on_update(update_callback);
+        User.on_remove(remove_callback);
+
+        repository.mutate([
+          ['create', 'blogs', { id: "malathion", name: "Recipes From The Makers of Malathion"}],
+          ['create', 'blogs', { id: "malathion", name: "Recipes From The Makers of Malathion"}],
+          ['update', 'users', 'jan', { age: 88 }],
+          ['update', 'users', 'jan', { age: 88 }],
+          ['destroy', 'users', 'wil'],
+          ['destroy', 'users', 'wil']
+        ]);
+
+        expect(insert_callback).to(have_been_called, once);
+        expect(update_callback).to(have_been_called, once);
+        expect(remove_callback).to(have_been_called, once);
+
+        expect(Blog.find('malathion').name()).to(equal, "Recipes From The Makers of Malathion");
+        expect(User.find('jan').age()).to(equal, 88);
+        expect(User.find('wil')).to(be_null);
+      });
+    });
+
     describe("#clear", function() {
       it("removes all data from all tables", function() {
         expect(Blog.records()).to_not(be_empty);

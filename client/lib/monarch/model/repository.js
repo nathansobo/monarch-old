@@ -34,14 +34,14 @@ Monarch.constructor("Monarch.Model.Repository", {
   mutate: function(commands) {
     var self = this;
     Monarch.Util.each(commands, function(command) {
-      var type = command.shift();
+      var type = command.shift();-
       self["perform_" + type + "_command"].apply(self, command);
     });
   },
 
   perform_create_command: function(table_name, field_values) {
     var table = this.tables[table_name];
-    if (table) table.local_create(field_values);
+    if (table && !table.find(field_values.id)) table.local_create(field_values);
   },
 
   perform_update_command: function(table_name, id, field_values) {
