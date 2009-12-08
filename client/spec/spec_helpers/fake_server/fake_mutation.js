@@ -23,8 +23,12 @@ Monarch.constructor("FakeServer.FakeMutation", {
     this.future = command.future;
   },
 
-  complete_and_trigger_before_events: function(field_values) {
-    this.command.complete_and_trigger_before_events(field_values);
+  complete: function(field_values) {
+    this.command.complete(field_values);
+  },
+
+  trigger_before_events: function() {
+    this.command.trigger_before_events();
   },
 
   trigger_after_events: function() {

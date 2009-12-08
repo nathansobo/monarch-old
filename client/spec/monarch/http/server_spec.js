@@ -91,7 +91,7 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("#create(relation, field_values)", function() {
-      use_example_domain_model();
+      use_local_fixtures();
 
       before(function() {
         server.posts = [];
@@ -99,7 +99,7 @@ Screw.Unit(function(c) { with(c) {
       });
 
       context("when the server response indicates success", function() {
-        it("instantiates a record without inserting it, posts its field values to the remote repository, then updates the record with the returned field values and inserts it", function() {
+        it("instantiates a record without inserting it, posts its field values to the remote repository, then updates the record with the returned field values and inserts it, also processing any secondary mutations before firing handlers", function() {
           var insert_callback = mock_function("insert callback");
           var update_callback = mock_function("update callback");
           Blog.on_insert(insert_callback);
@@ -117,10 +117,13 @@ Screw.Unit(function(c) { with(c) {
           });
 
           var before_events_callback = mock_function("before events", function() {
+            expect(User.find('jan').age()).to(equal, 33);
+            expect(Blog.find('demons').name()).to(equal, "Demons in my bathroom");
+            expect(Blog.find('motorcycle')).to(be_null);
             expect(insert_callback).to_not(have_been_called);
           });
           var after_events_callback = mock_function("after events", function() {
-            expect(insert_callback).to(have_been_called, once);
+            expect(insert_callback).to(have_been_called, twice);
           });
           create_future.before_events(before_events_callback);
           create_future.after_events(after_events_callback);
@@ -131,11 +134,15 @@ Screw.Unit(function(c) { with(c) {
               name: "Recipes Modified By Server",
               user_id: "wil"
             }],
-            secondary: []
+            secondary: [
+              ['update', 'users', 'jan', { age: 33 }],
+              ['create', 'blogs', { id: "demons", name: "Demons in my bathroom" }],
+              ['destroy', 'blogs', 'motorcycle']
+            ]
           });
 
           expect(update_callback).to_not(have_been_called);
-          expect(insert_callback).to(have_been_called, once);
+          expect(insert_callback).to(have_been_called, twice);
 
           var new_record = Blog.find('dinosaurs');
           expect(new_record.name()).to(equal, "Recipes Modified By Server");

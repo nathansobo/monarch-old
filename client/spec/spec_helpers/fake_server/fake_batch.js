@@ -24,8 +24,11 @@ Monarch.constructor("FakeServer.FakeBatch", {
     Repository.pause_events();
 
     Monarch.Util.each(this.mutations, function(mutation, index) {
-      mutation.complete_and_trigger_before_events(server_response[index]);
-    })
+      mutation.complete(server_response[index]);
+    });
+    Monarch.Util.each(this.mutations, function(mutation, index) {
+      mutation.trigger_before_events();
+    });
 
     Repository.resume_events();
     

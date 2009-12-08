@@ -31,6 +31,34 @@ Monarch.constructor("Monarch.Model.Repository", {
     });
   },
 
+  mutate: function(commands) {
+    var self = this;
+    Monarch.Util.each(commands, function(command) {
+      console.debug(command);
+      var type = command.shift();
+      self["perform_" + type + "_command"].apply(self, command);
+    });
+  },
+
+  perform_create_command: function(table_name, field_values) {
+    var table = this.tables[table_name];
+    if (table) table.local_create(field_values);
+  },
+
+  perform_update_command: function(table_name, id, field_values) {
+    var table = this.tables[table_name];
+    if (!table) return;
+    var record = table.find(id);
+    if (record) record.local_update(field_values);
+  },
+
+  perform_destroy_command: function(table_name, id) {
+    var table = this.tables[table_name];
+    if (!table) return;
+    var record = table.find(id);
+    if (record) record.local_destroy();
+  },
+
   register_table: function(table) {
     this.tables[table.global_name] = table;
   },

@@ -11,6 +11,10 @@ Monarch.constructor("Monarch.Http.Command", {
     this.future.trigger_before_events(this.record);
   },
 
+  trigger_before_events: function() {
+    this.future.trigger_before_events(this.record);
+  },
+
   trigger_after_events: function() {
     this.future.trigger_after_events(this.record);
   }

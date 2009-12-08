@@ -67,13 +67,16 @@ Monarch.constructor("Monarch.Http.Server", {
 
   handle_successful_mutation_response: function(pending_commands, response_data) {
     Repository.pause_events();
+    
+    Monarch.Util.each(response_data.primary, function(response, index) {
+      pending_commands[index].complete(response);
+    });
+    Repository.mutate(response_data.secondary);
 
     Monarch.Util.each(response_data.primary, function(response, index) {
-      pending_commands[index].complete_and_trigger_before_events(response);
+      pending_commands[index].trigger_before_events();
     });
-
     Repository.resume_events();
-
     Monarch.Util.each(pending_commands, function(command) {
       command.trigger_after_events();
     });
