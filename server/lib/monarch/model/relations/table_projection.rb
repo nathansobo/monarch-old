@@ -9,7 +9,7 @@ module Model
         end
       end
 
-      delegate :column, :to => :projected_table
+      delegate :column, :create, :to => :projected_table
       attr_reader :operand, :projected_table
       def initialize(operand, projected_table, &block)
         super(&block)

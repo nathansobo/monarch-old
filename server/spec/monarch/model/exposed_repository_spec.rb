@@ -51,15 +51,18 @@ module Model
             response.should be_ok
             response.body_from_json.should == {
               'successful' => true,
-              'data' => [{
-                'id' => new_record.id,
-                'full_name' => "Sharon Ly The Great",
-                'age' => 25,
-                'signed_up_at' => signed_up_at.to_millis,
-                'has_hair' => nil,
-                'great_name' => "Sharon Ly The Great The Great",
-                'human' => true
-              }]
+              'data' => {
+                'primary' => [{
+                  'id' => new_record.id,
+                  'full_name' => "Sharon Ly The Great",
+                  'age' => 25,
+                  'signed_up_at' => signed_up_at.to_millis,
+                  'has_hair' => nil,
+                  'great_name' => "Sharon Ly The Great The Great",
+                  'human' => true
+                }],
+                'secondary' => []
+              }
             }
           end
         end
@@ -116,12 +119,15 @@ module Model
             response.should be_ok
             response.body_from_json.should == {
               'successful' => true,
-              'data' => [{
-                'full_name' => "Jan Christian Nelson The Great",
-                'signed_up_at' => new_signed_up_at.to_millis,
-                'human' => true,
-                'great_name' => "Jan Christian Nelson The Great The Great"
-              }]
+              'data' => {
+                'primary' => [{
+                  'full_name' => "Jan Christian Nelson The Great",
+                  'signed_up_at' => new_signed_up_at.to_millis,
+                  'human' => true,
+                  'great_name' => "Jan Christian Nelson The Great The Great"
+                }],
+                'secondary' => []
+              }
             }
           end
         end
@@ -172,7 +178,10 @@ module Model
           response.should be_ok
           response.body_from_json.should == {
             'successful' => true,
-            'data' => [nil]
+            'data' => {
+              'primary' => [nil],
+              'secondary' => []
+            }
           }
         end
       end
@@ -198,19 +207,23 @@ module Model
 
             response.should be_ok
             response.body_from_json.should == {
-              'data' => [
-                {
-                  'id' => jake.id,
-                  'full_name' => "Jake Frautschi",
-                  'age' => 27,
-                  'signed_up_at' => signed_up_at.to_millis,
-                  'has_hair' => nil,
-                  'great_name' => "Jake Frautschi The Great",
-                  'human' => true
-                },
-                { 'age' => 101 },
-                nil
-              ],
+              'data' => {
+                'primary' => [
+                  {
+                    'id' => jake.id,
+                    'full_name' => "Jake Frautschi",
+                    'age' => 27,
+                    'signed_up_at' => signed_up_at.to_millis,
+                    'has_hair' => nil,
+                    'great_name' => "Jake Frautschi The Great",
+                    'human' => true
+                  },
+                  { 'age' => 101 },
+                  nil
+                ],
+                'secondary' => []
+              },
+
               'successful' => true
             }
           end

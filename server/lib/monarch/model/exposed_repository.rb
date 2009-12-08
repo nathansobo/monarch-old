@@ -25,13 +25,13 @@ module Model
 
     def perform_operations_in_transaction(operations)
       successful = true
-      response_data = []
+      response_data = { 'primary' => [], 'secondary' => [] }
 
       Repository.transaction do
         operations.each_with_index do |operation, index|
           result = perform_operation(operation)
           if result.valid?
-            response_data.push(result.data)
+            response_data['primary'].push(result.data)
           else
             successful = false
             response_data = {

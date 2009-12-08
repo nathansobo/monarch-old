@@ -125,11 +125,14 @@ Screw.Unit(function(c) { with(c) {
           create_future.before_events(before_events_callback);
           create_future.after_events(after_events_callback);
 
-          post.simulate_success([{
-            id: "dinosaurs",
-            name: "Recipes Modified By Server",
-            user_id: "wil"
-          }]);
+          post.simulate_success({
+            primary: [{
+              id: "dinosaurs",
+              name: "Recipes Modified By Server",
+              user_id: "wil"
+            }],
+            secondary: []
+          });
 
           expect(update_callback).to_not(have_been_called);
           expect(insert_callback).to(have_been_called, once);
@@ -285,11 +288,14 @@ Screw.Unit(function(c) { with(c) {
             }]]
           });
 
-          post.simulate_success([{
-            name: "Fancy Programming Prime", // server can change field values too
-            user_id: 'wil',
-            started_at: new_started_at.getTime()
-          }]);
+          post.simulate_success({
+            primary: [{
+              name: "Fancy Programming Prime", // server can change field values too
+              user_id: 'wil',
+              started_at: new_started_at.getTime()
+            }],
+            secondary: []
+          });
 
           expect(record.name()).to(equal, "Fancy Programming Prime");
           expect(record.user_id()).to(equal, "wil");
@@ -395,7 +401,7 @@ Screw.Unit(function(c) { with(c) {
         destroy_future.before_events(before_events_callback);
         destroy_future.after_events(after_events_callback);
 
-        post.simulate_success([null]);
+        post.simulate_success({primary: [null], secondary: []});
 
         expect(remove_callback).to(have_been_called, once);
 
@@ -547,14 +553,16 @@ Screw.Unit(function(c) { with(c) {
             ]
           });
 
-          post.simulate_success([
-            { id: "stephanie", full_name: "Stephanie Anne Wambach" },
-            { id: "bandwidth", name: "Bandwidth to Burn" },
-            { full_name: "Jan Christian Nelson" },
-            { name: "Disgusting Recipes Involving Pork" },
-            null,
-            null
-          ]);
+          post.simulate_success({
+            primary: [{ id: "stephanie", full_name: "Stephanie Anne Wambach" },
+                      { id: "bandwidth", name: "Bandwidth to Burn" },
+                      { full_name: "Jan Christian Nelson" },
+                      { name: "Disgusting Recipes Involving Pork" },
+                      null,
+                      null
+                    ],
+            secondary: []
+          });
 
           expect(before_events_callback_count).to(equal, 6);
           expect(after_events_callback_count).to(equal, 6);
