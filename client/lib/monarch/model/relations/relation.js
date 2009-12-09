@@ -101,11 +101,11 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
     return records[records.length-1];
   },
 
-  find: function(predicate_or_id) {
-    if (typeof predicate_or_id === "string") {
-      return this.where(this.column('id').eq(predicate_or_id)).first();
+  find: function(predicate_or_id_or_hash) {
+    if (typeof predicate_or_id_or_hash === "string") {
+      return this.where(this.column('id').eq(predicate_or_id_or_hash)).first();
     } else {
-      return this.where(predicate_or_id).first();
+      return this.where(predicate_or_id_or_hash).first();
     }
   },
 

@@ -38,7 +38,7 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
-    describe("#find(id_or_predicate)", function() {
+    describe("#find(id_or_predicate_or_hash)", function() {
       context("when passed an id", function() {
         it("returns the Record with the given id or null if none exists", function() {
           var found_record = relation.find(record.id());
@@ -49,6 +49,17 @@ Screw.Unit(function(c) { with(c) {
       context("when passed a predicate", function() {
         it("returns the first Record matching the predicate or null if none exists", function() {
           var found_record = relation.find(column_2.eq(record.field(column_2).value()));
+          expect(found_record).to(equal, record);
+        });
+      });
+
+      context("when passed a hash", function() {
+        it("converts it into a predicate and performs a find with it", function() {
+          var hash = {};
+          hash[column_1.name] = record.field(column_1).value();
+          hash[column_2.name] = record.field(column_2).value();
+
+          var found_record = relation.find(hash);
           expect(found_record).to(equal, record);
         });
       });
