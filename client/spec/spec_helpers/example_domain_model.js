@@ -6,6 +6,7 @@ Screw.Unit(function(c) {
           this.columns({
             name: "string",
             user_id: "string",
+            owner_id: "string",
             started_at: "datetime"
           });
 

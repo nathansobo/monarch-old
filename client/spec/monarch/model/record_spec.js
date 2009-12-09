@@ -116,11 +116,29 @@ Screw.Unit(function(c) { with(c) {
       context("if a conditions hash is supplied in the options", function() {
         it("constrains the generated relation by the conditions", function() {
           User.has_many('blogs', { conditions: { name: "My Blog" }});
-          var user = User.local_create('jake');
+          var user = User.local_create({id: 'jake'});
           expect(user.blogs().empty()).to(be_true);
           user.blogs().local_create();
           expect(user.blogs().size()).to(equal, 1);
           expect(user.blogs().first().name()).to(equal, "My Blog");
+        });
+      });
+
+      context("if a 'table' option is provided", function() {
+        it("uses the named table instead of trying to infer it from the name of the relation", function() {
+          User.has_many('blogs_o_rama', { table: 'blogs' });
+          var user = User.local_create({id: 'jake'});
+          user.blogs_o_rama().local_create();
+          expect(user.blogs_o_rama().empty()).to(be_false);
+        });
+      });
+
+      context("if a 'key' option is provided", function() {
+        it("uses the named foreign key instead of trying to infer it from the name of the model on which the relation is being defined", function() {
+          User.has_many('blogs', { key: 'owner_id' });
+          var user = User.local_create({id: 'jake'});
+          var blog = user.blogs().local_create();
+          expect(blog.owner_id()).to(equal, 'jake');
         });
       });
     });

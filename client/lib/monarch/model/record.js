@@ -50,13 +50,15 @@ Monarch.constructor("Monarch.Model.Record", {
       };
     },
 
-    has_many: function(target_table_name, options) {
+    has_many: function(relation_name, options) {
       var self = this;
       options = options || {};
       var conditions = options.conditions || {};
 
-      var foreign_key_column_name = Monarch.Inflection.singularize(this.table.global_name) + "_id";
-      this.relates_to_many(target_table_name, function() {
+      var target_table_name = options.table || relation_name;
+      var foreign_key_column_name = options.key || Monarch.Inflection.singularize(this.table.global_name) + "_id";
+
+      this.relates_to_many(relation_name, function() {
         var target_table = Repository.tables[target_table_name];
         conditions[foreign_key_column_name] = this.id();
         var relation = target_table.where(conditions);
