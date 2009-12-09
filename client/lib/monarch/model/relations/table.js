@@ -1,4 +1,4 @@
-(function(Monarch, jQuery) {
+(function(Monarch) {
 
 Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Relation, {
   has_operands: false,
@@ -104,7 +104,7 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
     if (!this.fixture_definitions) return;
     var self = this;
     Monarch.Util.each(this.fixture_definitions, function(id, properties) {
-      var attributes = jQuery.extend({id: id}, properties)
+      var attributes = Monarch.Util.extend({id: id}, properties)
       self.insert(new self.record_constructor(attributes));
     });
   },
@@ -129,4 +129,4 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
   }
 });
 
-})(Monarch, jQuery);
+})(Monarch);

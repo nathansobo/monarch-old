@@ -1,4 +1,4 @@
-(function(Monarch, jQuery) {
+(function(Monarch) {
 
 Monarch.constructor("Monarch.Model.Fieldset", {
   initialize: function(record) {
@@ -88,7 +88,7 @@ Monarch.constructor("Monarch.Model.Fieldset", {
     };
 
     if (this.batch_update_in_progress()) {
-      jQuery.extend(this.batched_updates, change_data);
+      Monarch.Util.extend(this.batched_updates, change_data);
     } else {
       if (this.update_events_enabled) this.record.table().record_updated(this.record, change_data);
     }
@@ -103,4 +103,4 @@ Monarch.constructor("Monarch.Model.Fieldset", {
   }
 });
 
-})(Monarch, jQuery);
+})(Monarch);

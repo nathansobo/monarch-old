@@ -1,4 +1,4 @@
-(function(Monarch, jQuery) {
+(function(Monarch) {
 
 Monarch.constructor("Monarch.Model.Predicates.Eq", Monarch.Model.Predicates.Predicate, {
   initialize: function(left_operand, right_operand) {
@@ -19,7 +19,7 @@ Monarch.constructor("Monarch.Model.Predicates.Eq", Monarch.Model.Predicates.Pred
   },
 
   force_matching_field_values: function(field_values) {
-    var matching_field_values = jQuery.extend({}, field_values);
+    var matching_field_values = Monarch.Util.extend({}, field_values);
     matching_field_values[this.column_operand().name] = this.scalar_operand();
     return matching_field_values;
   },
@@ -56,4 +56,4 @@ Monarch.constructor("Monarch.Model.Predicates.Eq", Monarch.Model.Predicates.Pred
   }
 });
 
-})(Monarch, jQuery);
+})(Monarch);
