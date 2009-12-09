@@ -112,6 +112,17 @@ Screw.Unit(function(c) { with(c) {
           expect(ordering.order_by_columns[1].direction).to(equal, "asc");
         });
       });
+
+      context("if a conditions hash is supplied in the options", function() {
+        it("constrains the generated relation by the conditions", function() {
+          User.has_many('blogs', { conditions: { name: "My Blog" }});
+          var user = User.local_create('jake');
+          expect(user.blogs().empty()).to(be_true);
+          user.blogs().local_create();
+          expect(user.blogs().size()).to(equal, 1);
+          expect(user.blogs().first().name()).to(equal, "My Blog");
+        });
+      });
     });
     
     describe(".local_create(field_values)", function() {

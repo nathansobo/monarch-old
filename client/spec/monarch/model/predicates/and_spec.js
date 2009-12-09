@@ -48,5 +48,21 @@ Screw.Unit(function(c) { with(c) {
         });
       });
     });
+    
+    describe("#force_matching_field_values", function() {
+      it("returns a hash that matches the required field values of all the operands", function() {
+        var hash = {
+          foo: "narnar"
+        }
+        expect(and.force_matching_field_values(hash)).to(equal, {
+          foo: "narnar",
+          id: "jan",
+          full_name: "Jan Nelson"
+        });
+        expect(hash).to(equal, {
+          foo: "narnar"
+        });
+      });
+    });
   });
 }});

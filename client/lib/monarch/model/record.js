@@ -53,11 +53,13 @@ Monarch.constructor("Monarch.Model.Record", {
     has_many: function(target_table_name, options) {
       var self = this;
       options = options || {};
+      var conditions = options.conditions || {};
+
       var foreign_key_column_name = Monarch.Inflection.singularize(this.table.global_name) + "_id";
       this.relates_to_many(target_table_name, function() {
         var target_table = Repository.tables[target_table_name];
-        var foreign_key_column = target_table.columns_by_name[foreign_key_column_name];
-        var relation = target_table.where(foreign_key_column.eq(this.id()));
+        conditions[foreign_key_column_name] = this.id();
+        var relation = target_table.where(conditions);
 
         if (options.order_by) relation = self.process_has_many_order_by_option(relation, options.order_by);
         return relation;

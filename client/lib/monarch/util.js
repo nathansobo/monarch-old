@@ -1,4 +1,4 @@
-(function(Monarch) {
+(function(Monarch, jQuery) {
 
 Monarch.module("Monarch.Util", {
   each: function(array_or_hash, fn) {
@@ -104,7 +104,19 @@ Monarch.module("Monarch.Util", {
       if (!callback(array[i])) return false;
     }
     return true;
+  },
+
+  extend: function() {
+    return jQuery.extend.apply(jQuery, arguments);
+  },
+
+  inject: function(array, init, fn) {
+    var current_val = init;
+    this.each(array, function(elt) {
+      current_val = fn(current_val, elt);
+    });
+    return current_val;
   }
 });
 
-})(Monarch);
+})(Monarch, jQuery);
