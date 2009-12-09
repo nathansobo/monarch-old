@@ -63,13 +63,46 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
-    describe("#where(predicate)", function() {
-      it("returns a Selection with the receiver as its #operand and the given predicate as its #predicate", function() {
-        var predicate = Blog.user_id.eq('The Pain of Motorcycle Maintenance');
-        var selection = relation.where(predicate);
-        expect(selection.constructor).to(equal, Monarch.Model.Relations.Selection);
-        expect(selection.operand).to(equal, relation);
-        expect(selection.predicate).to(equal, predicate);
+    describe("#where(predicate_or_equality_conditions)", function() {
+      context("when passed a predicate", function() {
+        it("returns a Selection with the receiver as its #operand and the given predicate as its #predicate", function() {
+          var predicate = Blog.user_id.eq('jan');
+          var selection = relation.where(predicate);
+          expect(selection.constructor).to(equal, Monarch.Model.Relations.Selection);
+          expect(selection.operand).to(equal, relation);
+          expect(selection.predicate).to(equal, predicate);
+        });
+      });
+
+      context("when passed a hash of equality conditions", function() {
+        context("when passed a hash with multiple key-value pairs", function() {
+          it("constructs a selections with an And predicate reflecting each key-value pair in the hash", function() {
+            var selection = relation.where({ user_id: "jan", name: "The Pain of Motorcycle Maintenance" });
+
+            var predicate = selection.predicate
+            expect(predicate.constructor).to(equal, Monarch.Model.Predicates.And);
+            expect(predicate.operands.length).to(equal, 2);
+
+            expect(Monarch.Util.detect(predicate.operands, function(eq_predicate) {
+              return eq_predicate.left_operand === Blog.user_id && eq_predicate.right_operand == "jan";
+            })).to_not(be_null);
+
+            expect(Monarch.Util.detect(predicate.operands, function(eq_predicate) {
+              return eq_predicate.left_operand === Blog.name_ && eq_predicate.right_operand == "The Pain of Motorcycle Maintenance";
+            })).to_not(be_null);
+
+            expect(selection.operand).to(equal, relation);
+          });
+        });
+
+        context("when passed a hash with a single key-value pair", function() {
+          it("constructs a selection with an Eq predicate reflecting the key-value pair", function() {
+            var selection = relation.where({ user_id: "jan" });
+            expect(selection.predicate.left_operand).to(equal, Blog.user_id);
+            expect(selection.predicate.right_operand).to(equal, "jan");
+          });
+        });
+
       });
     });
 

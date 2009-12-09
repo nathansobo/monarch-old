@@ -97,6 +97,13 @@ Monarch.module("Monarch.Util", {
       Monarch.Util.each(values, optional_each_function);
     }
     return values;
+  },
+
+  all: function(array, callback) {
+    for(var i = 0; i < array.length; i++) {
+      if (!callback(array[i])) return false;
+    }
+    return true;
   }
 });
 

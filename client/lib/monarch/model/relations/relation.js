@@ -13,8 +13,30 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
     }
   },
 
-  where: function(predicate) {
+  where: function(predicate_or_conditions_hash) {
+    var predicate;
+
+    if (predicate_or_conditions_hash.constructor.is_predicate) {
+      predicate = predicate_or_conditions_hash;
+    } else {
+      predicate = this.predicate_from_hash(predicate_or_conditions_hash);
+    }
     return new Monarch.Model.Relations.Selection(this, predicate);
+
+  },
+
+  predicate_from_hash: function(hash) {
+    var self = this;
+    var predicates = [];
+    Monarch.Util.each(hash, function(key, value) {
+      predicates.push(self.column(key).eq(value))
+    });
+
+    if (predicates.length == 1) {
+      return predicates[0];
+    } else {
+      return new Monarch.Model.Predicates.And(predicates);
+    }
   },
 
   order_by: function() {
