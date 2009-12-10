@@ -1,10 +1,10 @@
 (function(Monarch) {
 
-Monarch.constructor("Monarch.Model.LocalFieldset", {
-  initialize: function(record, remote_fieldset) {
+Monarch.constructor("Monarch.Model.LocalFieldset", Monarch.Model.Fieldset, {
+  initialize: function(record, remote) {
     this.record = record;
-    this.remote_fieldset = remote_fieldset;
-    remote_fieldset.local_fieldset = this;
+    this.remote = remote;
+    remote.local = this;
 
     this.initialize_local_fields();
     this.connect_local_and_remote_fields();
@@ -24,11 +24,6 @@ Monarch.constructor("Monarch.Model.LocalFieldset", {
     return all_validation_errors;
   },
 
-  field: function(column_or_name) {
-    var column_name = (typeof column_or_name == 'string') ? column_or_name : column_or_name.name;
-    return this.fields_by_column_name[column_name] || this.synthetic_fields_by_column_name[column_name];
-  },
-
   dirty_wire_representation: function() {
     return this.wire_representation(true)
   },
@@ -41,18 +36,14 @@ Monarch.constructor("Monarch.Model.LocalFieldset", {
     return wire_representation;
   },
 
-  initialize_synthetic_fields: function() {
-    this.synthetic_fields_by_column_name = {};
-    Monarch.Util.each(this.record.table().synthetic_columns_by_name, function(column_name, column) {
-      var signal = column.definition.call(this.record);
-      this.synthetic_fields_by_column_name[column_name] = new Monarch.Model.SyntheticField(this.record, column, signal);
-    }.bind(this));
-  },
-
   populate_fields_with_errors: function(errors_by_field_name) {
     Monarch.Util.each(errors_by_field_name, function(field_name, errors) {
       this.field(field_name).validation_errors = errors;
     }.bind(this));
+  },
+
+  field_updated: function(field, new_value, old_value) {
+    // TODO  
   },
 
   // private
@@ -61,12 +52,13 @@ Monarch.constructor("Monarch.Model.LocalFieldset", {
     this.fields_by_column_name = {};
     Monarch.Util.each(this.record.table().columns_by_name, function(column_name, column) {
       this.fields_by_column_name[column_name] = new Monarch.Model.LocalField(this, column);
+      this.generate_field_accessor(column_name);
     }.bind(this));
   },
 
   connect_local_and_remote_fields: function() {
     Monarch.Util.each(this.fields_by_column_name, function(column_name, local_field) {
-      var remote_field = this.remote_fieldset.field(column_name);
+      var remote_field = this.remote.field(column_name);
       local_field.remote_field(remote_field);
       remote_field.local_field(local_field);
     }.bind(this));

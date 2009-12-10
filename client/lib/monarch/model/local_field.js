@@ -64,7 +64,7 @@ Monarch.constructor("Monarch.Model.LocalField", Monarch.Model.ConcreteField, {
     if (!this.value_equals(value)) {
       this._value = value;
       this.last_modified_at = new Date();
-      if (this.fieldset.remote_fieldset.update_events_enabled && this.on_update_node) this.on_update_node.publish(this._value, old_value)
+      if (this.fieldset.remote.update_events_enabled && this.on_update_node) this.on_update_node.publish(this._value, old_value)
     }
     return value;
   },

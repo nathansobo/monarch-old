@@ -7,7 +7,7 @@ Screw.Unit(function(c) { with(c) {
     var record, remote_field;
     init(function() {
       record = User.find('jan');
-      remote_field = record.remote_fieldset.field('full_name');
+      remote_field = record.remote.field('full_name');
     });
 
     describe("when the #value is updated", function() {
@@ -28,7 +28,7 @@ Screw.Unit(function(c) { with(c) {
 
 //      context("if update events are disabled on the Field's Fieldset", function() {
 //        init(function() {
-//          record.remote_fieldset.disable_update_events();
+//          record.remote.disable_update_events();
 //        });
 //
 //        it("does not trigger #on_update callbacks with the new and old value", function() {

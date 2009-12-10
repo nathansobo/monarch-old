@@ -296,7 +296,7 @@ Screw.Unit(function(c) { with(c) {
       it("returns false if there are any validation errors", function() {
         var record = Blog.find('recipes');
         expect(record.valid()).to(be_true);
-        record.local_fieldset.field('name').validation_errors = ["Bad name"];
+        record.local.field('name').validation_errors = ["Bad name"];
         expect(record.valid()).to(be_false);
       });
     });

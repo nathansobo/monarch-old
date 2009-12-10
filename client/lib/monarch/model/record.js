@@ -86,7 +86,7 @@ Monarch.constructor("Monarch.Model.Record", {
 
     local_create: function(field_values) {
       var record = new this();
-      record.remote_fieldset.update(field_values);
+      record.remote.update(field_values);
       this.table.insert(record);
       return record;
     },
@@ -134,10 +134,12 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   initialize: function(field_values_by_column_name) {
-    this.remote_fieldset = new Monarch.Model.RemoteFieldset(this);
-    this.local_fieldset = new Monarch.Model.LocalFieldset(this, this.remote_fieldset);
+    this.remote = new Monarch.Model.RemoteFieldset(this);
+    this.local = new Monarch.Model.LocalFieldset(this, this.remote);
+
     if (field_values_by_column_name) this.local_update(field_values_by_column_name);
-    this.local_fieldset.initialize_synthetic_fields();
+    this.remote.initialize_synthetic_fields();
+    this.local.initialize_synthetic_fields();
   },
 
   initialize_relations: function() {
@@ -166,11 +168,11 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   populate_fields_with_errors: function(errors_by_field_name) {
-    this.local_fieldset.populate_fields_with_errors(errors_by_field_name);
+    this.local.populate_fields_with_errors(errors_by_field_name);
   },
 
   all_validation_errors: function() {
-    return this.local_fieldset.all_validation_errors();
+    return this.local.all_validation_errors();
   },
 
   on_update: function(callback) {
@@ -192,7 +194,7 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   valid: function() {
-    return this.local_fieldset.valid();
+    return this.local.valid();
   },
 
   table: function() {
@@ -200,15 +202,16 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   dirty_wire_representation: function() {
-    return this.local_fieldset.dirty_wire_representation();
+    return this.local.dirty_wire_representation();
   },
 
   wire_representation: function() {
-    return this.local_fieldset.wire_representation();
+    return this.local.wire_representation();
   },
 
   field: function(column) {
-    return this.local_fieldset.field(column);
+    if (!this.local) debugger;
+    return this.local.field(column);
   },
 
   signal: function(column, optional_transformer) {

@@ -11,7 +11,7 @@ Screw.Unit(function(c) { with(c) {
         record.user_id("farb");
 
 
-        expect(record.local_fieldset.dirty_wire_representation()).to(equal, {
+        expect(record.local.dirty_wire_representation()).to(equal, {
           name: 'Booboo',
           user_id: 'farb'
         });
@@ -23,7 +23,7 @@ Screw.Unit(function(c) { with(c) {
         var record = Blog.find('recipes');
 
 
-        expect(record.local_fieldset.wire_representation()).to(equal, {
+        expect(record.local.wire_representation()).to(equal, {
           id: 'recipes',
           name: 'Recipes from the Front',
           user_id: 'mike',
@@ -36,7 +36,7 @@ Screw.Unit(function(c) { with(c) {
 //    var record, fieldset;
 //    before(function() {
 //      record = new Blog();
-//      local_fieldset = new Monarch.Model.LocalFieldset(record);
+//      local = new Monarch.Model.LocalFieldset(record);
 //    });
 //
 //    describe("#initialize(record)", function() {
@@ -45,11 +45,11 @@ Screw.Unit(function(c) { with(c) {
 //        var user_id_field = fieldset.field('user_id');
 //
 //        expect(name_field).to(be_an_instance_of, Monarch.Model.LocalField);
-//        expect(name_field.fieldset).to(equal, local_fieldset);
+//        expect(name_field.fieldset).to(equal, local);
 //        expect(name_field.column).to(equal, Blog.name_);
 //
 //        expect(user_id_field).to(be_an_instance_of, Monarch.Model.LocalField);
-//        expect(user_id_field.fieldset).to(equal, local_fieldset);
+//        expect(user_id_field.fieldset).to(equal, local);
 //        expect(user_id_field.column).to(equal, Blog.user_id);
 //      });
 //    });

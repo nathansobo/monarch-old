@@ -40,7 +40,7 @@ Screw.Unit(function(c) { with(c) {
         right_operand = Table2.table;
         difference = new Monarch.Model.Relations.Difference(left_operand, right_operand);
         record = new Table1();
-        record.remote_fieldset.update({id: "foo"});
+        record.remote.update({id: "foo"});
 
         insert_callback = mock_function("insert_callback");
         update_callback = mock_function("update_callback");

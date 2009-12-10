@@ -41,6 +41,11 @@ Monarch.constructor("Monarch.Http.Server", {
     return this.mutate(record.table(), command);
   },
 
+  save: function(record) {
+    // update only for now
+    return this.update(record);
+  },
+
   mutate: function(table, command) {
     this.pending_commands.push(command);
     if (!this.batch_in_progress) this.perform_pending_mutations();

@@ -48,7 +48,7 @@ Monarch.constructor("Monarch.Model.Repository", {
     var table = this.tables[table_name];
     if (!table) return;
     var record = table.find(id);
-    if (record) record.remote_fieldset.update(field_values, new Date());
+    if (record) record.remote.update(field_values, new Date());
   },
 
   perform_destroy_command: function(table_name, id) {

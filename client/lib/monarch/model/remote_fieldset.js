@@ -1,16 +1,11 @@
 (function(Monarch) {
 
-Monarch.constructor("Monarch.Model.RemoteFieldset", {
+Monarch.constructor("Monarch.Model.RemoteFieldset", Monarch.Model.Fieldset, {
   initialize: function(record) {
     this.record = record;
     this.initialize_remote_fields();
-    this.local_fieldset = null;
+    this.local = null;
     this.batch_update_in_progress = false;
-  },
-
-  field: function(column_or_name) {
-    var column_name = (typeof column_or_name == 'string') ? column_or_name : column_or_name.name;
-    return this.fields_by_column_name[column_name];
   },
 
   update: function(field_values, requested_at) {
@@ -46,9 +41,11 @@ Monarch.constructor("Monarch.Model.RemoteFieldset", {
   // private
 
   initialize_remote_fields: function() {
+    var self = this;
     this.fields_by_column_name = {};
     Monarch.Util.each(this.record.table().columns_by_name, function(column_name, column) {
       this.fields_by_column_name[column_name] = new Monarch.Model.RemoteField(this, column);
+      this.generate_field_accessor(column_name);
     }.bind(this));
   }
 });

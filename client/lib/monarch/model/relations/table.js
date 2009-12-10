@@ -105,7 +105,7 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
     Monarch.Util.each(this.fixture_definitions, function(id, properties) {
       var attributes = Monarch.Util.extend({id: id}, properties)
       var record = new self.record_constructor();
-      record.remote_fieldset.update(attributes);
+      record.remote.update(attributes);
       self.insert(record);
     });
   },
