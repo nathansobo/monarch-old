@@ -154,7 +154,7 @@ Monarch.constructor("Monarch.Model.Record", {
 
   update: function(values_by_method_name) {
     this.local_update(values_by_method_name);
-    this.save();
+    return Server.update(this);
   },
 
   save: function() {
