@@ -5,6 +5,7 @@
 //= require <jquery.cookie>
 //= require <htmlescape>
 //= require <json>
+//= require "monarch/language_extensions"
 //= require "monarch/module_system"
 //= require "monarch/util"
 //= require "monarch/object"

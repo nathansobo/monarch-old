@@ -85,7 +85,8 @@ Monarch.constructor("Monarch.Model.Record", {
     },
 
     local_create: function(field_values) {
-      var record = new this(field_values);
+      var record = new this();
+      record.remote_fieldset.update(field_values);
       this.table.insert(record);
       return record;
     },
@@ -133,20 +134,10 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   initialize: function(field_values_by_column_name) {
-    this.primary_fieldset = new Monarch.Model.Fieldset(this);
-    this.active_fieldset = this.primary_fieldset;
-    if (field_values_by_column_name) {
-      this.local_update(field_values_by_column_name);
-    }
-    this.primary_fieldset.initialize_synthetic_fields();
-  },
-
-  initialize_fields_by_column_name: function() {
-    this.fields_by_column_name = {};
-    for (var attr_name in this.constructor.table.columns_by_name) {
-      var column = this.constructor.table.columns_by_name[attr_name];
-      this.fields_by_column_name[attr_name] = new Monarch.Model.ConcreteField(this, column);
-    }
+    this.remote_fieldset = new Monarch.Model.RemoteFieldset(this);
+    this.local_fieldset = new Monarch.Model.LocalFieldset(this, this.remote_fieldset);
+    if (field_values_by_column_name) this.local_update(field_values_by_column_name);
+    this.local_fieldset.initialize_synthetic_fields();
   },
 
   initialize_relations: function() {
@@ -162,7 +153,12 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   update: function(values_by_method_name) {
-    return Server.update(this, values_by_method_name);
+    this.local_update(values_by_method_name);
+    this.save();
+  },
+
+  save: function() {
+    return Server.update(this);
   },
 
   destroy: function() {
@@ -170,18 +166,11 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   populate_fields_with_errors: function(errors_by_field_name) {
-    var self = this;
-    Monarch.Util.each(errors_by_field_name, function(field_name, errors) {
-      self.field(field_name).validation_errors = errors;
-    });
+    this.local_fieldset.populate_fields_with_errors(errors_by_field_name);
   },
 
   all_validation_errors: function() {
-    return this.active_fieldset.all_validation_errors();
-  },
-
-  start_pending_changes: function() {
-    this.use_pending_fieldset(this.active_fieldset.new_pending_fieldset());
+    return this.local_fieldset.all_validation_errors();
   },
 
   on_update: function(callback) {
@@ -190,13 +179,11 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   local_update: function(values_by_method_name) {
-    this.active_fieldset.begin_batch_update();
     for (var method_name in values_by_method_name) {
       if (this[method_name]) {
         this[method_name](values_by_method_name[method_name]);
       }
     }
-    this.active_fieldset.finish_batch_update();
   },
 
   local_destroy: function() {
@@ -205,23 +192,7 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   valid: function() {
-    return this.active_fieldset.valid();
-  },
-
-  enable_update_events: function() {
-    this.active_fieldset.enable_update_events();
-  },
-
-  disable_update_events: function() {
-    this.active_fieldset.disable_update_events();
-  },
-
-  use_pending_fieldset: function(pending_fieldset) {
-    this.active_fieldset = pending_fieldset;
-  },
-
-  restore_primary_fieldset: function() {
-    this.active_fieldset = this.primary_fieldset;
+    return this.local_fieldset.valid();
   },
 
   table: function() {
@@ -229,11 +200,11 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   wire_representation: function() {
-    return this.active_fieldset.wire_representation();
+    return this.local_fieldset.wire_representation();
   },
 
   field: function(column) {
-    return this.active_fieldset.field(column);
+    return this.local_fieldset.field(column);
   },
 
   signal: function(column, optional_transformer) {

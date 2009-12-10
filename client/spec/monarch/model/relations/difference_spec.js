@@ -27,6 +27,8 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("event handling", function() {
+      use_fake_server();
+
       var table_1, table_2, difference, record, insert_callback, update_callback, remove_callback;
       before(function() {
         Monarch.ModuleSystem.constructor("Table1", Monarch.Model.Record);
@@ -37,7 +39,8 @@ Screw.Unit(function(c) { with(c) {
         left_operand = Table1.table;
         right_operand = Table2.table;
         difference = new Monarch.Model.Relations.Difference(left_operand, right_operand);
-        record = new Table1({id: "foo"});
+        record = new Table1();
+        record.remote_fieldset.update({id: "foo"});
 
         insert_callback = mock_function("insert_callback");
         update_callback = mock_function("update_callback");
@@ -96,7 +99,8 @@ Screw.Unit(function(c) { with(c) {
         context("if the record is not present in the right operand", function() {
           it("triggers update callbacks with the record", function() {
             left_operand.insert(record);
-            record.local_update({title: "FOO"});
+            record.update({title: "FOO"});
+            expect(update_callback).to(have_been_called);
             expect(update_callback).to(have_been_called, with_args(record, {title: {column: Table1.title, old_value: null, new_value: "FOO" }}));
           });
         });

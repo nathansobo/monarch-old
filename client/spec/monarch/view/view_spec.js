@@ -48,8 +48,6 @@ Screw.Unit(function(c) { with(c) {
           baz: true,
           quux: 3
         });
-
-        mock(model, 'update');
       });
 
       describe("#field_values", function() {
@@ -79,13 +77,15 @@ Screw.Unit(function(c) { with(c) {
       });
 
       describe("#model(model)", function() {
+        use_fake_server();
+
         it("populates text fields by calling methods on the given model corresponding to their names and keeps them updated as model changes", function() {
           expect(view.foo.val()).to(equal, "Foo");
           expect(view.bar.val()).to(equal, "Bar");
           view.model(model);
           expect(view.foo.val()).to(equal, "foo");
           expect(view.bar.val()).to(equal, "bar");
-          model.local_update({foo: "FOO!", bar: "BAR!"});
+          model.update({foo: "FOO!", bar: "BAR!"});
           expect(view.foo.val()).to(equal, "FOO!");
           expect(view.bar.val()).to(equal, "BAR!");
         });
@@ -94,7 +94,7 @@ Screw.Unit(function(c) { with(c) {
           expect(view.baz.attr('checked')).to(be_false);
           view.model(model);
           expect(view.baz.attr('checked')).to(be_true);
-          model.local_update({baz: false});
+          model.update({baz: false});
           expect(view.baz.attr('checked')).to(be_false);
         });
         
@@ -102,7 +102,7 @@ Screw.Unit(function(c) { with(c) {
           expect(view.quux.val()).to(equal, '2');
           view.model(model);
           expect(view.quux.val()).to(equal, '3');
-          model.local_update({quux: 1});
+          model.update({quux: 1});
           expect(view.quux.val()).to(equal, '1');
         });
 
@@ -123,7 +123,9 @@ Screw.Unit(function(c) { with(c) {
       });
 
       describe("#save()", function() {
+
         it("calls #update on #model with the results of #field_values", function() {
+          mock(model, 'update');
           view.model(model);
           view.save();
           expect(model.update).to(have_been_called, with_args(view.field_values()));

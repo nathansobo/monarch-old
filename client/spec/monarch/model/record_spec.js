@@ -193,18 +193,11 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("#local_update(values_by_method)", function() {
-      it("calls setter methods for each key in the given hash and fires an optional after_update hook plus update callbacks on itself and its Table with all the changed attributes", function() {
+      it("calls setter methods for each key in the given hash", function() {
         var record = Blog.find('recipes');
-        record.after_update = mock_function("after update hook");
         record.other_method = mock_function('other method');
-        var record_update_callback = mock_function('record_update_callback');
-        var table_update_callback = mock_function('table_update_callback');
-
-        record.table().on_update(table_update_callback);
-        record.on_update(record_update_callback);
 
         record.local_update({
-          id: 'recipes',
           name: 'Pesticides',
           user_id: 'jan',
           other_method: 'foo'
@@ -213,45 +206,27 @@ Screw.Unit(function(c) { with(c) {
         expect(record.name()).to(equal, 'Pesticides');
         expect(record.user_id()).to(equal, 'jan');
         expect(record.other_method).to(have_been_called, with_args('foo'));
-
-        var expected_changeset = {
-          fun_profit_name: {
-            column: Blog.fun_profit_name,
-            old_value: 'Recipes from the Front for Fun and Profit',
-            new_value: 'Pesticides for Fun and Profit'
-          },
-          name: {
-            column: Blog.name_,
-            old_value: 'Recipes from the Front',
-            new_value: 'Pesticides'
-          },
-          user_id: {
-            column: Blog.user_id,
-            old_value: 'mike',
-            new_value: 'jan'
-          }
-        };
-        expect(record_update_callback).to(have_been_called, with_args(expected_changeset));
-        expect(table_update_callback).to(have_been_called, with_args(record, expected_changeset));
-        expect(record.after_update).to(have_been_called, with_args(expected_changeset));
       });
     });
 
     describe("when a synthetic field changes", function() {
+      use_fake_server();
+
       it("triggers update callbacks on the table of its record", function() {
         var record = Blog.find('recipes');
         var update_callback = mock_function('update_callback');
         record.table().on_update(update_callback);
 
-        expect(record.active_fieldset.batch_update_in_progress()).to(be_false);
-
         record.name("Farming");
+        record.save();
 
         expect(update_callback).to(have_been_called, once);
       });
     });
 
     describe("column accessor functions", function() {
+      use_fake_server();
+      
       var record;
       before(function() {
         record = Blog.find('recipes');
@@ -262,6 +237,7 @@ Screw.Unit(function(c) { with(c) {
         Blog.on_update(update_callback);
 
         record.name('Pesticides');
+        record.save();
 
         expect(update_callback).to(have_been_called, once);
         expect(update_callback).to(have_been_called, with_args(record, {
@@ -280,6 +256,8 @@ Screw.Unit(function(c) { with(c) {
         update_callback.clear();
 
         record.name('Pesticides');
+        record.save();
+        
         expect(update_callback).to_not(have_been_called);
       });
       
@@ -318,7 +296,7 @@ Screw.Unit(function(c) { with(c) {
       it("returns false if there are any validation errors", function() {
         var record = Blog.find('recipes');
         expect(record.valid()).to(be_true);
-        record.field('name').validation_errors = ["Bad name"];
+        record.local_fieldset.field('name').validation_errors = ["Bad name"];
         expect(record.valid()).to(be_false);
       });
     });
@@ -334,19 +312,6 @@ Screw.Unit(function(c) { with(c) {
         field = record.field('id');
         expect(field.fieldset.record).to(equal, record);
         expect(field.column).to(equal, Blog.id);
-      });
-    });
-
-    describe("#wire_representation", function() {
-      it("returns the field values by column name", function() {
-        var record = Blog.find('recipes');
-
-        expect(record.wire_representation()).to(equal, {
-          id: 'recipes',
-          name: 'Recipes from the Front',
-          user_id: 'mike',
-          started_at: record.started_at().getTime()
-        });
       });
     });
   });

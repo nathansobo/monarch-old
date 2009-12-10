@@ -31,8 +31,8 @@ Monarch.constructor("Monarch.Http.Server", {
     return this.mutate(table, command)
   },
 
-  update: function(record, values_by_method_name) {
-    var command = new Monarch.Http.UpdateCommand(record, values_by_method_name);
+  update: function(record) {
+    var command = new Monarch.Http.UpdateCommand(record);
     return this.mutate(record.table(), command);
   },
 
@@ -56,20 +56,21 @@ Monarch.constructor("Monarch.Http.Server", {
     var pending_commands = this.pending_commands;
     this.pending_commands = [];
 
+    var requested_at = new Date();
     this.post(Repository.origin_url, { operations: operation_wire_representations })
       .on_success(function(response_data) {
-        self.handle_successful_mutation_response(pending_commands, response_data);
+        self.handle_successful_mutation_response(pending_commands, response_data, requested_at);
       })
       .on_failure(function(response_data) {
-        self.handle_unsuccessful_mutation_response(pending_commands, response_data);
+        self.handle_unsuccessful_mutation_response(pending_commands, response_data, requested_at);
       });
   },
 
-  handle_successful_mutation_response: function(pending_commands, response_data) {
+  handle_successful_mutation_response: function(pending_commands, response_data, requested_at) {
     Repository.pause_events();
     
     Monarch.Util.each(response_data.primary, function(response, index) {
-      pending_commands[index].complete(response);
+      pending_commands[index].complete(response, requested_at);
     });
     Repository.mutate(response_data.secondary);
 

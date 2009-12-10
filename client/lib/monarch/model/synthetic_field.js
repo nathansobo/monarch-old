@@ -1,24 +1,23 @@
 (function(Monarch) {
 
 Monarch.constructor("Monarch.Model.SyntheticField", Monarch.Model.Field, {
-  initialize: function(fieldset, column, signal) {
-    this.fieldset = fieldset;
+  initialize: function(record, column, signal) {
+    this.record = record;
     this.signal = signal;
     this.column = column;
     this.on_update_node = new Monarch.SubscriptionNode();
 
-    var self = this;
-    this.signal.on_update(function(new_value, old_value) {
-      self.fieldset.field_updated(self, new_value, old_value);
-      if (self.fieldset.update_events_enabled) self.on_update_node.publish(self, new_value, old_value)
-    });
+    this.signal.on_remote_update(function(new_value, old_value) {
+      this.record.remote_fieldset.field_updated(this, new_value, old_value);
+      if (this.record.remote_fieldset.update_events_enabled) this.on_update_node.publish(this, new_value, old_value)
+    }.bind(this));
   },
 
   value: function(value) {
     if (arguments.length == 0) {
-      return this.signal.value();
+      return this.signal.local_value();
     } else if (this.column.setter) {
-      this.column.setter.call(this.fieldset.record, value);
+      this.column.setter.call(this.record, value);
     } else {
       throw new Error("No setter method defined on the synthetic column " + this.column.name);
     }

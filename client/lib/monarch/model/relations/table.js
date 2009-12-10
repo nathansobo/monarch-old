@@ -32,7 +32,6 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
 
   insert: function(record) {
     this.records_by_id[record.id()] = record;
-    record.enable_update_events();
     record.initialize_relations();
     this.record_inserted(record);
   },
@@ -105,7 +104,9 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
     var self = this;
     Monarch.Util.each(this.fixture_definitions, function(id, properties) {
       var attributes = Monarch.Util.extend({id: id}, properties)
-      self.insert(new self.record_constructor(attributes));
+      var record = new self.record_constructor();
+      record.remote_fieldset.update(attributes);
+      self.insert(record);
     });
   },
 

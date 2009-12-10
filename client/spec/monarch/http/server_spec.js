@@ -228,16 +228,17 @@ Screw.Unit(function(c) { with(c) {
           var started_at_before_update = record.started_at();
           var new_started_at = new Date();
 
-          var update_future = server.update(record, {
+          record.local_update({
             fancy_name: "Programming",
             user_id: 'wil',
             started_at: new_started_at
           });
 
-          expect(record.fun_profit_name()).to(equal, fun_profit_name_before_update);
-          expect(record.name()).to(equal, name_before_update);
-          expect(record.user_id()).to(equal, user_id_before_update);
-          expect(record.started_at()).to(equal, started_at_before_update);
+          var update_future = server.update(record);
+
+          expect(record.remote_fieldset.field('name').value()).to(equal, name_before_update);
+          expect(record.remote_fieldset.field('user_id').value()).to(equal, user_id_before_update);
+          expect(record.remote_fieldset.field('started_at').value()).to(equal, started_at_before_update);
           expect(update_callback).to_not(have_been_called);
 
           var before_events_callback = mock_function('before events callback', function() {
@@ -286,7 +287,6 @@ Screw.Unit(function(c) { with(c) {
           var post = server.posts.shift();
 
           expect(post.url).to(equal, Repository.origin_url);
-
           expect(post.data).to(equal, {
             operations: [['update', 'blogs', 'recipes', {
               name: "Fancy Programming",
@@ -313,18 +313,6 @@ Screw.Unit(function(c) { with(c) {
 
           expect(record.after_update).to(have_been_called, with_args(expected_changeset));
         });
-
-        it("correctly handles assignments to synthetic fields with setter methods", function() {
-          var record = Blog.find('recipes');
-
-
-          server.update(record, {fun_profit_name: "Eating Fortune Cookies"});
-
-          expect(server.posts.length).to(equal, 1);
-          expect(server.last_post.data).to(equal, {
-            operations: [['update', 'blogs', 'recipes', { name: "Eating Fortune Cookies in Bed" }]]
-          });
-        });
       });
 
       context("when the server response indicates failure", function() {
@@ -335,10 +323,12 @@ Screw.Unit(function(c) { with(c) {
           var update_callback = mock_function("update callback");
           Blog.on_update(update_callback);
 
-          var update_future = server.update(record, {
+
+          record.local_update({
             name: "Programming",
             user_id: 'wil'
           });
+          var update_future = server.update(record);
 
           var before_events_callback = mock_function('before events callback');
           var after_events_callback = mock_function('after events callback');
@@ -489,7 +479,9 @@ Screw.Unit(function(c) { with(c) {
               after_events_callback_count++;
             });
 
-          server.update(jan, {full_name: "Jan Christian Nelson"})
+
+          jan.full_name("Jan Christian Nelson");
+          server.update(jan)
             .before_events(function(record) {
               expect(record).to(equal, jan);
               expect_no_events_to_have_fired();
@@ -501,7 +493,8 @@ Screw.Unit(function(c) { with(c) {
               after_events_callback_count++;
             });
 
-          server.update(recipes, {name: "Disgusting Recipes Involving Pork"})
+          recipes.name("Disgusting Recipes Involving Pork")
+          server.update(recipes)
             .before_events(function(record) {
               expect(record).to(equal, recipes);
               expect_no_events_to_have_fired();
@@ -594,7 +587,8 @@ Screw.Unit(function(c) { with(c) {
           });
 
           server.destroy(wil).on_failure(destroy_failure_callback);
-          server.update(recipes, {name: 'Potatoes For Every Meal'}).on_failure(update_failure_callback);
+          recipes.name('Potatoes For Every Meal');
+          server.update(recipes).on_failure(update_failure_callback);
           server.create(User.table, {full_name: "Penelope Cruz"}).on_failure(create_failure_callback);
 
           server.finish_batch();

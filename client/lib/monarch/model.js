@@ -8,6 +8,12 @@
 //= require "model/synthetic_field"
 //= require "model/fieldset"
 //= require "model/pending_fieldset"
+
+//= require "model/local_fieldset"
+//= require "model/local_field"
+//= require "model/remote_fieldset"
+//= require "model/remote_field"
+
 //= require "model/signal"
 //= require "model/column"
 //= require "model/projected_column"

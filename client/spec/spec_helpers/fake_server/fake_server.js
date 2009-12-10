@@ -11,7 +11,7 @@ Monarch.constructor("FakeServer", {
     this.batches = [];
 
     this.auto_fetch = false;
-    this.auto_mutate = false;
+    this.auto_mutate = true;
 
     this.Repository = Repository.clone_schema();
   },

@@ -135,6 +135,8 @@ Screw.Unit(function(c) { with(c) {
       });
 
       describe("when a record in the Table is updated", function() {
+        use_fake_server();
+
         it("triggers #on_update callbacks with the updated record and a changed attributes object", function() {
           var update_callback = mock_function("update callback");
           User.table.on_update(update_callback);
@@ -145,6 +147,8 @@ Screw.Unit(function(c) { with(c) {
           var new_value = old_value + " The Third";
 
           record.full_name(new_value);
+          record.save();
+
           expect(update_callback).to(have_been_called, once);
           expect(update_callback).to(have_been_called, with_args(record, {
             full_name: {
@@ -158,6 +162,8 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("#pause_events and #resume_events", function() {
+      use_fake_server();
+
       specify("#pause_events delays #on_insert, #on_remove, and #on_update triggers until #resume_events is called. Then delayed events are flushed and future events are no longer delayed", function() {
         var insert_callback = mock_function("insert callback");
         var update_callback = mock_function("update callback");
@@ -170,7 +176,7 @@ Screw.Unit(function(c) { with(c) {
         User.table.pause_events();
 
         var record = User.local_create({id: "jake", full_name: "Jake Frautschi"});
-        record.full_name("Jacob Frautschi");
+        record.remote_fieldset.update({ full_name: "Jacob Frautschi" });
         record.local_destroy();
 
         expect(insert_callback).to_not(have_been_called);
@@ -180,6 +186,7 @@ Screw.Unit(function(c) { with(c) {
         User.table.resume_events();
 
         expect(insert_callback).to(have_been_called, with_args(record));
+        expect(update_callback).to(have_been_called, once);
         expect(update_callback).to(have_been_called, with_args(record, {
           full_name: {
             column: User.full_name,
@@ -198,7 +205,7 @@ Screw.Unit(function(c) { with(c) {
         expect(insert_callback).to(have_been_called, once);
         expect(insert_callback).to(have_been_called, with_args(record_2));
 
-        record_2.full_name("Nate Sobo");
+        record_2.remote_fieldset.update({full_name: "Nate Sobo"});
         expect(update_callback).to(have_been_called, once);
 
         record_2.local_destroy();

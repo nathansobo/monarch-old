@@ -17,20 +17,6 @@ Monarch.module("Monarch.Util", {
     }
   },
 
-  array_detect: function(array, fn) {
-    for(var i = 0; i < array.length; i++) {
-      if (fn.call(array[i], array[i])) return array[i];
-    }
-    return null;
-  },
-
-  hash_detect: function(hash, fn) {
-    for (key in hash) {
-      if (fn.call(hash[key], key, hash[key])) return hash[key];
-    }
-    return null;
-  },
-
   index_of: function(array, element) {
     for(var i = 0; i < array.length; i++) {
       if (array[i] == element) return i;
@@ -40,18 +26,6 @@ Monarch.module("Monarch.Util", {
 
   contains: function(array, element) {
     return this.index_of(array, element) != -1;
-  },
-
-  array_each: function(array, fn) {
-    for(var i = 0; i < array.length; i++) {
-      fn.call(array[i], array[i], i);
-    }
-  },
-
-  hash_each: function(hash, fn) {
-    for (key in hash) {
-      fn.call(hash[key], key, hash[key]);
-    }
   },
 
   map: function(array, fn) {
@@ -99,11 +73,19 @@ Monarch.module("Monarch.Util", {
     return values;
   },
 
-  all: function(array, callback) {
-    for(var i = 0; i < array.length; i++) {
-      if (!callback(array[i])) return false;
+  all: function(array_or_hash, callback) {
+    if (array_or_hash.length) {
+      return this.array_all(array_or_hash, callback);
+    } else {
+      return this.hash_all(array_or_hash, callback);
     }
-    return true;
+  },
+
+  any: function(array, callback) {
+    for(var i = 0; i < array.length; i++) {
+      if (callback(array[i])) return true;
+    }
+    return false;
   },
 
   extend: function() {
@@ -116,6 +98,48 @@ Monarch.module("Monarch.Util", {
       current_val = fn(current_val, elt);
     });
     return current_val;
+  },
+
+  // private
+
+  array_each: function(array, fn) {
+    for(var i = 0; i < array.length; i++) {
+      fn.call(array[i], array[i], i);
+    }
+  },
+
+  hash_each: function(hash, fn) {
+    for (key in hash) {
+      fn.call(hash[key], key, hash[key]);
+    }
+  },
+
+  array_detect: function(array, fn) {
+    for(var i = 0; i < array.length; i++) {
+      if (fn.call(array[i], array[i])) return array[i];
+    }
+    return null;
+  },
+
+  hash_detect: function(hash, fn) {
+    for (key in hash) {
+      if (fn.call(hash[key], key, hash[key])) return hash[key];
+    }
+    return null;
+  },
+  
+  array_all: function(array, callback) {
+    for(var i = 0; i < array.length; i++) {
+      if (!callback(array[i])) return false;
+    }
+    return true;
+  },
+
+  hash_all: function(hash, callback) {
+    for(var key in hash) {
+      if (!callback(key, hash[key])) return false;
+    }
+    return true;
   }
 });
 

@@ -32,6 +32,8 @@ Screw.Unit(function(c) { with(c) {
 
 
     describe("event handling", function() {
+      use_fake_server();
+
       var insert_callback, update_callback, remove_callback;
       before(function() {
         insert_callback = mock_function("insert_callback");
@@ -60,7 +62,7 @@ Screw.Unit(function(c) { with(c) {
             var projection_record = projection.find(projection.column('blog_name').eq(operand_record.name()));
             expect(projection_record).to_not(be_null);
             
-            operand_record.local_update({name: "Motorcycles: Wheee!"});
+            operand_record.update({name: "Motorcycles: Wheee!"});
 
             expect(update_callback).to(have_been_called, with_args(projection_record, {
               blog_name: {
