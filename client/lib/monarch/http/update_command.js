@@ -9,7 +9,7 @@ Monarch.constructor("Monarch.Http.UpdateCommand", Monarch.Http.Command, {
   },
 
   wire_representation: function() {
-    return ['update', this.table_name, this.command_id, this.record.local_fieldset.wire_representation()];
+    return ['update', this.table_name, this.command_id, this.record.local_fieldset.dirty_wire_representation()];
   },
 
   complete: function(field_values_from_server, requested_at) {

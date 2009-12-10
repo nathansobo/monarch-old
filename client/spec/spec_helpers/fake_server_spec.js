@@ -6,7 +6,7 @@ Screw.Unit(function(c) { with(c) {
 
     var fake_server;
     before(function() {
-      fake_server = new FakeServer();
+      fake_server = new FakeServer(false);
       fake_server.Repository.load_fixtures({
         users: {
           sharon: {
@@ -341,7 +341,8 @@ Screw.Unit(function(c) { with(c) {
               after_events_callback_count++;
             });
 
-          fake_server.update(jan, {full_name: "Jan Christian Nelson"})
+          jan.full_name("Jan Christian Nelson");
+          fake_server.update(jan)
             .before_events(function(record) {
               expect(record).to(equal, jan);
               expect_no_events_to_have_fired();
@@ -353,7 +354,8 @@ Screw.Unit(function(c) { with(c) {
               after_events_callback_count++;
             });
 
-          fake_server.update(recipes, {name: "Disgusting Recipes Involving Pork"})
+          recipes.name("Disgusting Recipes Involving Pork");
+          fake_server.update(recipes)
             .before_events(function(record) {
               expect(record).to(equal, recipes);
               expect_no_events_to_have_fired();
@@ -395,7 +397,7 @@ Screw.Unit(function(c) { with(c) {
 
           expect(before_events_callback_count).to(equal, 0);
           expect(after_events_callback_count).to(equal, 0);
-
+          
           fake_server.finish_batch();
           expect(fake_server.batches.length).to(equal, 1);
           fake_server.last_batch.simulate_success();

@@ -16,7 +16,7 @@ Monarch.constructor("Monarch.Http.CreateCommand", Monarch.Http.Command, {
   },
 
   wire_representation: function() {
-    return ['create', this.table_name, this.record.wire_representation()];
+    return ['create', this.table_name, this.record.dirty_wire_representation()];
   },
 
   complete: function(field_values_from_server) {

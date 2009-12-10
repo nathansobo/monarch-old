@@ -199,6 +199,10 @@ Monarch.constructor("Monarch.Model.Record", {
     return this.constructor.table;
   },
 
+  dirty_wire_representation: function() {
+    return this.local_fieldset.dirty_wire_representation();
+  },
+
   wire_representation: function() {
     return this.local_fieldset.wire_representation();
   },

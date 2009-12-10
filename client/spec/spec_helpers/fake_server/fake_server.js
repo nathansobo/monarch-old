@@ -1,5 +1,5 @@
 Monarch.constructor("FakeServer", {
-  initialize: function() {
+  initialize: function(auto_mutate) {
     this.posts = [];
     this.puts = [];
     this.deletes = [];
@@ -11,7 +11,7 @@ Monarch.constructor("FakeServer", {
     this.batches = [];
 
     this.auto_fetch = false;
-    this.auto_mutate = true;
+    this.auto_mutate = (auto_mutate === undefined) ? true : auto_mutate;
 
     this.Repository = Repository.clone_schema();
   },

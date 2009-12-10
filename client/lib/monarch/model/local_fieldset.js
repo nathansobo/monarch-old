@@ -29,12 +29,14 @@ Monarch.constructor("Monarch.Model.LocalFieldset", {
     return this.fields_by_column_name[column_name] || this.synthetic_fields_by_column_name[column_name];
   },
 
-  wire_representation: function() {
+  dirty_wire_representation: function() {
+    return this.wire_representation(true)
+  },
+
+  wire_representation: function(only_dirty) {
     var wire_representation = {};
     Monarch.Util.each(this.fields_by_column_name, function(column_name, field) {
-      if (field.dirty()) {
-        wire_representation[column_name] = field.value_wire_representation();
-      }
+      if (!only_dirty || field.dirty()) wire_representation[column_name] = field.value_wire_representation();
     });
     return wire_representation;
   },

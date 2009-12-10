@@ -4,16 +4,31 @@ Screw.Unit(function(c) { with(c) {
   describe("Monarch.Model.LocalFieldset", function() {
     use_local_fixtures();
 
-    describe("#wire_representation", function() {
+    describe("#dirty_wire_representation", function() {
       it("returns the dirty field values by column name", function() {
         var record = Blog.find('recipes');
         record.name("Booboo");
         record.user_id("farb");
 
 
-        expect(record.local_fieldset.wire_representation()).to(equal, {
+        expect(record.local_fieldset.dirty_wire_representation()).to(equal, {
           name: 'Booboo',
           user_id: 'farb'
+        });
+      });
+    });
+
+    describe("#wire_representation", function() {
+      it("returns all field values by column name", function() {
+        var record = Blog.find('recipes');
+
+
+        expect(record.local_fieldset.wire_representation()).to(equal, {
+          id: 'recipes',
+          name: 'Recipes from the Front',
+          user_id: 'mike',
+          started_at: 1253742029201,
+          owner_id: undefined
         });
       });
     });
