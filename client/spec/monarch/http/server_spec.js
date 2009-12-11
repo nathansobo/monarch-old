@@ -118,9 +118,11 @@ Screw.Unit(function(c) { with(c) {
           it("updates the remote field values and fires the before_events and after_events callbacks", function() {
             var record = Blog.find('recipes');
 
-            record.after_update = mock_function("optional after update method");
-            var update_callback = mock_function("update callback");
-            Blog.on_update(update_callback);
+            var table_update_callback = mock_function("table update callback");
+            var record_update_callback = mock_function("record update callback");
+            Blog.on_update(table_update_callback);
+            record.on_update(record_update_callback);
+            record.after_update = mock_function("optional record on update method");
 
             var fun_profit_name_before_update = record.fun_profit_name();
             var name_before_update = record.name();
@@ -137,34 +139,15 @@ Screw.Unit(function(c) { with(c) {
             expect(record.remote.fun_profit_name()).to(equal, fun_profit_name_before_update);
             expect(record.remote.user_id()).to(equal, user_id_before_update);
 
-            expect(update_callback).to_not(have_been_called);
-
             var before_events_callback = mock_function('before events callback', function() {
-              expect(update_callback).to_not(have_been_called);
+              expect(table_update_callback).to_not(have_been_called);
+              expect(record_update_callback).to_not(have_been_called);
+              expect(record.after_update).to_not(have_been_called);
             });
-
-            var expected_changeset = {
-              fun_profit_name: {
-                column: Blog.fun_profit_name,
-                old_value: fun_profit_name_before_update ,
-                new_value: "Fancy Programming Prime for Fun and Profit"
-              },
-              name: {
-                column: Blog.name_,
-                old_value: name_before_update,
-                new_value: "Fancy Programming Prime"
-              },
-              user_id: {
-                column: Blog.user_id,
-                old_value: user_id_before_update,
-                new_value: "wil"
-              }
-            };
-
             var after_events_callback = mock_function('after events callback', function() {
-              expect(update_callback).to(have_been_called, once);
-              expect(update_callback).to(have_been_called, with_args(record, expected_changeset));
-              expect(record.after_update).to(have_been_called, with_args(expected_changeset));
+              expect(table_update_callback).to(have_been_called, once);
+              expect(record_update_callback).to(have_been_called, once);
+              expect(record.after_update).to(have_been_called, once);
             });
 
             save_future.before_events(before_events_callback);
@@ -178,13 +161,13 @@ Screw.Unit(function(c) { with(c) {
               secondary: []
             });
 
-            expect(record.remote.fun_profit_name()).to(equal, "Fancy Programming Prime for Fun and Profit");
-            expect(record.remote.name()).to(equal, "Fancy Programming Prime");
-            expect(record.remote.user_id()).to(equal, "wil");
-
-            expect(record.local.fun_profit_name()).to(equal, "Fancy Programming Prime for Fun and Profit");
             expect(record.local.name()).to(equal, "Fancy Programming Prime");
+            expect(record.local.fun_profit_name()).to(equal, "Fancy Programming Prime for Fun and Profit");
             expect(record.local.user_id()).to(equal, "wil");
+
+            expect(record.remote.name()).to(equal, "Fancy Programming Prime");
+            expect(record.remote.fun_profit_name()).to(equal, "Fancy Programming Prime for Fun and Profit");
+            expect(record.remote.user_id()).to(equal, "wil");
 
             expect(before_events_callback).to(have_been_called);
             expect(after_events_callback).to(have_been_called);
@@ -192,12 +175,123 @@ Screw.Unit(function(c) { with(c) {
         });
 
         context("when the request is unsuccessful", function() {
+          it("adds validation errors to the local fields without changing remote fields and calls the on failure callback with the invalid record", function() {
+            var record = Blog.find('recipes');
+            var name_before_update = record.name();
+            var fun_profit_name_before_update = record.fun_profit_name();
+            var user_id_before_update = record.user_id();
 
+            record.local_update({
+              name: "Programming",
+              user_id: 'wil'
+            });
+
+            var on_failure_callback = mock_function("on_failure_callback");
+            server.save(record).on_failure(on_failure_callback);
+
+            var name_errors = ["This name is already taken"];
+            var user_id_errors = ["This name is already taken"];
+            server.posts.shift().simulate_failure({
+              index: 0,
+              errors: {
+                name: name_errors,
+                user_id: user_id_errors
+              }
+            });
+
+            expect(record.local.name()).to(equal, "Programming");
+            expect(record.local.fun_profit_name()).to(equal, "Programming for Fun and Profit");
+            expect(record.local.user_id()).to(equal, "wil");
+
+            expect(record.remote.name()).to(equal, name_before_update);
+            expect(record.remote.fun_profit_name()).to(equal, fun_profit_name_before_update);
+            expect(record.remote.user_id()).to(equal, user_id_before_update);
+
+            expect(on_failure_callback).to(have_been_called, once);
+            expect(record.local.field('name').validation_errors).to(equal, name_errors);
+            expect(record.local.field('user_id').validation_errors).to(equal, user_id_errors);
+          });
+        });
+      });
+
+      context("when given a record marked for destruction that exists in the remote repository", function() {
+        it("sends a destroy command", function() {
+          var record = User.find('jan');
+          record.local_destroy();
+          server.save(record);
+
+          expect(server.posts.length).to(equal, 1);
+          var post = server.posts.shift();
+
+          expect(post.url).to(equal, Repository.origin_url);
+          expect(post.data).to(equal, {
+            operations: [['destroy', 'users', 'jan']]
+          });
+        });
+
+        context("when the request is successful", function() {
+          it("deletes the remote record and fires the before_events and after_events callbacks", function() {
+            var remove_callback = mock_function("remove callback");
+            Blog.on_remove(remove_callback);
+
+            var record = Blog.find('recipes');
+            record.local_destroy();
+            var destroy_future = server.save(record);
+
+            expect(server.pending_commands).to(equal, {});
+
+            expect(server.posts.length).to(equal, 1);
+            var post = server.posts.shift();
+            expect(post.url).to(equal, Repository.origin_url);
+
+            expect(post.data).to(equal, { operations: [['destroy', 'blogs', 'recipes']] });
+
+            var before_events_callback = mock_function("before events", function() {
+              expect(remove_callback).to_not(have_been_called);
+            });
+            var after_events_callback = mock_function("after events", function() {
+              expect(remove_callback).to(have_been_called, once);
+            });
+            destroy_future.before_events(before_events_callback);
+            destroy_future.after_events(after_events_callback);
+
+            post.simulate_success({primary: [null], secondary: []});
+
+            expect(Blog.find('recipes')).to(be_null);
+
+            expect(before_events_callback).to(have_been_called);
+            expect(after_events_callback).to(have_been_called);
+          });
+        });
+
+        context("when the request is unsuccessful", function() {
+          it("adds validation errors to the local fields without changing remote fields and calls the on failure callback with the invalid record", function() {
+            var record = Blog.find('recipes');
+            var name_before_update = record.name();
+            var fun_profit_name_before_update = record.fun_profit_name();
+            var user_id_before_update = record.user_id();
+
+            record.local_destroy();
+
+            var on_failure_callback = mock_function("on_failure_callback");
+            server.save(record).on_failure(on_failure_callback);
+
+            var name_errors = ["For some reason, this name is too holy to destroy. Just wait till we can put errors on the record..."];
+            server.posts.shift().simulate_failure({
+              index: 0,
+              errors: {
+                name: name_errors
+              }
+            });
+
+            expect(record.mark_for_destroy).to(be_true);
+
+            expect(on_failure_callback).to(have_been_called, once);
+            expect(record.local.field('name').validation_errors).to(equal, name_errors);
+          });
         });
       });
     });
-
-
 
     describe("#create(relation, field_values)", function() {
       use_local_fixtures();
@@ -305,172 +399,6 @@ Screw.Unit(function(c) { with(c) {
 
           expect(record.valid()).to(be_false);
           expect(record.field('name').validation_errors).to(equal, ["This name is already taken"]);
-        });
-      });
-    });
-
-    describe("#update(record, field_values)", function() {
-      use_local_fixtures();
-
-      before(function() {
-        server.posts = [];
-        server.post = FakeServer.prototype.post;
-      });
-
-      context("when the server response indicates success", function() {
-        it("performs a pending local update, then sends the changes to the server and commits the (potentially changed) field values from the result, then calls #after_update on the record if it is defined", function() {
-          Repository.origin_url = "/repo";
-
-          var record = Blog.find('recipes');
-          record.fancy_name = function(plain_name) {
-            this.name("Fancy " + plain_name);
-          };
-
-          record.after_update = mock_function("optional after update method");
-          
-          var update_callback = mock_function("update callback");
-          Blog.on_update(update_callback);
-
-          var fun_profit_name_before_update = record.fun_profit_name();
-          var name_before_update = record.name();
-          var user_id_before_update = record.user_id();
-          var started_at_before_update = record.started_at();
-          var new_started_at = new Date();
-
-          record.local_update({
-            fancy_name: "Programming",
-            user_id: 'wil',
-            started_at: new_started_at
-          });
-
-          var update_future = server.update(record);
-
-          expect(record.remote.field('name').value()).to(equal, name_before_update);
-          expect(record.remote.field('user_id').value()).to(equal, user_id_before_update);
-          expect(record.remote.field('started_at').value()).to(equal, started_at_before_update);
-          expect(update_callback).to_not(have_been_called);
-
-          var before_events_callback = mock_function('before events callback', function() {
-            expect(update_callback).to_not(have_been_called);
-          });
-
-          var expected_changeset = {
-            fun_profit_name: {
-              column: Blog.fun_profit_name,
-              old_value: fun_profit_name_before_update ,
-              new_value: "Fancy Programming Prime for Fun and Profit"
-            },
-            name: {
-              column: Blog.name_,
-              old_value: name_before_update,
-              new_value: "Fancy Programming Prime"
-            },
-            user_id: {
-              column: Blog.user_id,
-              old_value: user_id_before_update,
-              new_value: "wil"
-            },
-            started_at: {
-              column: Blog.started_at,
-              old_value: started_at_before_update,
-              new_value: new_started_at
-            }
-          };
-
-          var after_events_callback = mock_function('after events callback', function() {
-
-            expect(update_callback).to(have_been_called, once);
-
-            expect(update_callback.most_recent_args[0] === record).to(be_true)
-            expect(update_callback.most_recent_args[1]).to(equal, expected_changeset);
-
-            expect(update_callback).to(have_been_called, with_args(record, expected_changeset));
-            
-          });
-          update_future.before_events(before_events_callback);
-          update_future.after_events(after_events_callback);
-
-          expect(server.pending_commands).to(equal, {});
-
-          expect(server.posts.length).to(equal, 1);
-          var post = server.posts.shift();
-
-          expect(post.url).to(equal, Repository.origin_url);
-          expect(post.data).to(equal, {
-            operations: [['update', 'blogs', 'recipes', {
-              name: "Fancy Programming",
-              user_id: "wil",
-              started_at: new_started_at.getTime()
-            }]]
-          });
-
-          post.simulate_success({
-            primary: [{
-              name: "Fancy Programming Prime", // server can change field values too
-              user_id: 'wil',
-              started_at: new_started_at.getTime()
-            }],
-            secondary: []
-          });
-
-          expect(record.name()).to(equal, "Fancy Programming Prime");
-          expect(record.user_id()).to(equal, "wil");
-          expect(record.started_at()).to(equal, new_started_at);
-
-          expect(before_events_callback).to(have_been_called);
-          expect(after_events_callback).to(have_been_called);
-
-          expect(record.after_update).to(have_been_called, with_args(expected_changeset));
-        });
-      });
-
-      context("when the server response indicates failure", function() {
-        it("assigns the indicated validation error messages to fields on the client side model and invokes the on_failure callbacks (with the model in its pending state) on the future", function() {
-          Repository.origin_url = "/repo";
-
-          var record = Blog.find('recipes');
-          var update_callback = mock_function("update callback");
-          Blog.on_update(update_callback);
-
-
-          record.local_update({
-            name: "Programming",
-            user_id: 'wil'
-          });
-          var update_future = server.update(record);
-
-          var before_events_callback = mock_function('before events callback');
-          var after_events_callback = mock_function('after events callback');
-          var on_failure_callback = mock_function('on failure callback', function(record) {
-            expect(record.name()).to(equal, "Programming");
-            expect(record.user_id()).to(equal, "wil");
-            expect(record.valid()).to(be_false);
-            expect(record.field('name').validation_errors).to(equal, ["Bad name"]);
-          });
-
-          update_future.before_events(before_events_callback);
-          update_future.after_events(after_events_callback);
-          update_future.on_failure(on_failure_callback);
-
-          expect(server.pending_commands).to(equal, {});
-
-          expect(server.posts.length).to(equal, 1);
-          var post = server.posts.shift();
-
-          expect(post.url).to(equal, Repository.origin_url);
-
-          expect(post.data).to(equal, {
-            operations: [['update', 'blogs', 'recipes', {
-              name: "Programming",
-              user_id: "wil"
-            }]]
-          });
-
-          post.simulate_failure({index: 0, errors: { name: ["Bad name"] }});
-          expect(update_callback).to_not(have_been_called);
-          expect(before_events_callback).to_not(have_been_called);
-          expect(after_events_callback).to_not(have_been_called);
-          expect(on_failure_callback).to(have_been_called, with_args(record));
         });
       });
     });
@@ -590,7 +518,7 @@ Screw.Unit(function(c) { with(c) {
 
 
           jan.full_name("Jan Christian Nelson");
-          server.update(jan)
+          server.save(jan)
             .before_events(function(record) {
               expect(record).to(equal, jan);
               expect_no_events_to_have_fired();
@@ -603,7 +531,7 @@ Screw.Unit(function(c) { with(c) {
             });
 
           recipes.name("Disgusting Recipes Involving Pork")
-          server.update(recipes)
+          server.save(recipes)
             .before_events(function(record) {
               expect(record).to(equal, recipes);
               expect_no_events_to_have_fired();

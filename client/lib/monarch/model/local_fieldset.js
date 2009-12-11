@@ -5,8 +5,7 @@ Monarch.constructor("Monarch.Model.LocalFieldset", Monarch.Model.Fieldset, {
     this.record = record;
     this.remote = remote;
     remote.local = this;
-
-    this.initialize_local_fields();
+    this.initialize_fields();
     this.connect_local_and_remote_fields();
   },
 
@@ -48,20 +47,16 @@ Monarch.constructor("Monarch.Model.LocalFieldset", Monarch.Model.Fieldset, {
 
   // private
 
-  initialize_local_fields: function() {
-    this.fields_by_column_name = {};
-    Monarch.Util.each(this.record.table().columns_by_name, function(column_name, column) {
-      this.fields_by_column_name[column_name] = new Monarch.Model.LocalField(this, column);
-      this.generate_field_accessor(column_name);
-    }.bind(this));
-  },
-
   connect_local_and_remote_fields: function() {
     Monarch.Util.each(this.fields_by_column_name, function(column_name, local_field) {
       var remote_field = this.remote.field(column_name);
       local_field.remote_field(remote_field);
       remote_field.local_field(local_field);
     }.bind(this));
+  },
+
+  create_new_field: function(column) {
+    return new Monarch.Model.LocalField(this, column);
   }
 });
 

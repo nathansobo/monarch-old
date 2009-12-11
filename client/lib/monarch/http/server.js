@@ -42,8 +42,14 @@ Monarch.constructor("Monarch.Http.Server", {
   },
 
   save: function(record) {
-    // update only for now
-    return this.update(record);
+    // update, destroy only for now
+    var command;
+    if (record.mark_for_destroy) {
+      command = new Monarch.Http.DestroyCommand(record);
+    } else {
+      command = new Monarch.Http.UpdateCommand(record);
+    }
+    return this.mutate(record.table(), command);
   },
 
   mutate: function(table, command) {
@@ -73,7 +79,7 @@ Monarch.constructor("Monarch.Http.Server", {
 
   handle_successful_mutation_response: function(pending_commands, response_data, requested_at) {
     Repository.pause_events();
-    
+
     Monarch.Util.each(response_data.primary, function(response, index) {
       pending_commands[index].complete(response, requested_at);
     });

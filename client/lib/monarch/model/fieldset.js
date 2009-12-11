@@ -22,10 +22,18 @@ Monarch.constructor("Monarch.Model.Fieldset", {
   },
 
   generate_field_accessor: function(column_name) {
-    this[column_name] = function() {
-      var field = this.field(column_name);
-      return field.value.apply(field, arguments);
-    }
+  },
+
+  initialize_fields: function() {
+    var self = this;
+    this.fields_by_column_name = {};
+    Monarch.Util.each(this.record.table().columns_by_name, function(column_name, column) {
+      this.fields_by_column_name[column_name] = this.create_new_field(column);
+      this[column_name] = function() {
+        var field = this.field(column_name);
+        return field.value.apply(field, arguments);
+      }
+    }.bind(this));
   }
 });
 

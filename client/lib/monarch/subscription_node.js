@@ -8,6 +8,7 @@ Monarch.constructor("Monarch.SubscriptionNode", {
   initialize: function() {
     this.subscriptions = [];
     this.paused = false;
+    this.delayed_events = [];
   },
 
   subscribe: function(callback) {
@@ -43,7 +44,6 @@ Monarch.constructor("Monarch.SubscriptionNode", {
 
   pause_events: function() {
     this.paused = true;
-    this.delayed_events = [];
   },
 
   resume_events: function() {

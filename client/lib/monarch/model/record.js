@@ -136,18 +136,11 @@ Monarch.constructor("Monarch.Model.Record", {
   initialize: function(field_values_by_column_name) {
     this.remote = new Monarch.Model.RemoteFieldset(this);
     this.local = new Monarch.Model.LocalFieldset(this, this.remote);
+    this.initialize_update_node();
 
     if (field_values_by_column_name) this.local_update(field_values_by_column_name);
     this.remote.initialize_synthetic_fields();
     this.local.initialize_synthetic_fields();
-  },
-
-  initialize_relations: function() {
-    var self = this;
-    this.relations_by_name = {};
-    Monarch.Util.each(this.constructor.relation_definitions, function(relation_definition) {
-      self.relations_by_name[relation_definition.name] = relation_definition.definition.call(self);
-    });
   },
 
   fetch: function() {
@@ -176,7 +169,6 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   on_update: function(callback) {
-    if (!this.on_update_node) this.on_update_node = new Monarch.SubscriptionNode();
     return this.on_update_node.subscribe(callback);
   },
 
@@ -189,7 +181,13 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   local_destroy: function() {
+    this.mark_for_destroy = true;
+    this.finalize_local_destroy();
+  },
+
+  finalize_local_destroy: function() {
     this.table().remove(this);
+    if (this.table.on_remove_node) this.table.on_remove_node.publish(this); // i know this doesn't belong here
     if (this.after_destroy) this.after_destroy();
   },
 
@@ -224,6 +222,30 @@ Monarch.constructor("Monarch.Model.Record", {
     } else {
       return column_or_constant;
     }
+  },
+
+  pause_events: function() {
+    this.on_update_node.pause_events();
+  },
+
+  resume_events: function() {
+    this.on_update_node.resume_events();
+  },
+
+  // private
+  initialize_update_node: function() {
+    this.on_update_node = new Monarch.SubscriptionNode();
+    this.on_update_node.subscribe(function(changeset) {
+      if (this.after_update) this.after_update(changeset);
+    }.bind(this));
+  },
+
+  initialize_relations: function() {
+    var self = this;
+    this.relations_by_name = {};
+    Monarch.Util.each(this.constructor.relation_definitions, function(relation_definition) {
+      self.relations_by_name[relation_definition.name] = relation_definition.definition.call(self);
+    });
   }
 });
 

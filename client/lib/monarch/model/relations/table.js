@@ -68,12 +68,18 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
     this.on_insert_node.pause_events();
     this.on_remove_node.pause_events();
     this.on_update_node.pause_events();
+    this.each(function(record) {
+      record.pause_events();
+    });
   },
 
   resume_events: function() {
     this.on_insert_node.resume_events();
     this.on_remove_node.resume_events();
     this.on_update_node.resume_events();
+    this.each(function(record) {
+      record.resume_events();
+    });
   },
 
   update: function(dataset) {

@@ -20,7 +20,7 @@ Monarch.constructor("Monarch.Http.CreateCommand", Monarch.Http.Command, {
   },
 
   complete: function(field_values_from_server) {
-    this.record.local_update(field_values_from_server);
+    this.record.remote.update(field_values_from_server);
     this.table.insert(this.record);
   },
 

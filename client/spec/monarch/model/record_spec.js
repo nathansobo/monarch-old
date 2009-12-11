@@ -180,12 +180,12 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
-    describe("#local_destroy", function() {
+    describe("#finalize_local_destroy", function() {
       it("removes the Record from its Table and calls #after_destroy if it is defined", function() {
         var record = User.find('jan');
         record.after_destroy = mock_function('after destroy hook');
 
-        record.local_destroy();
+        record.finalize_local_destroy();
         expect(User.find('jan')).to(be_null);
 
         expect(record.after_destroy).to(have_been_called);

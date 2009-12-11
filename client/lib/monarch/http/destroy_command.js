@@ -13,7 +13,7 @@ Monarch.constructor("Monarch.Http.DestroyCommand", Monarch.Http.Command, {
   },
 
   complete: function() {
-    this.record.local_destroy();
+    this.record.finalize_local_destroy();
   },
 
   handle_failure: function() {
