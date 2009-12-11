@@ -112,6 +112,10 @@ Monarch.constructor("Monarch.Model.Record", {
       this.table.each(fn);
     },
 
+    any: function(fn) {
+      return this.table.any(fn);
+    },
+
     on_insert: function(callback) {
       return this.table.on_insert(callback);
     },
@@ -136,7 +140,9 @@ Monarch.constructor("Monarch.Model.Record", {
   initialize: function(field_values_by_column_name) {
     this.remote = new Monarch.Model.RemoteFieldset(this);
     this.local = new Monarch.Model.LocalFieldset(this, this.remote);
-    this.initialize_update_node();
+    this.subscriptions = new Monarch.SubscriptionBundle();
+    this.initialize_subscription_nodes();
+    this.subscribe_to_self_mutations();
 
     if (field_values_by_column_name) this.local_update(field_values_by_column_name);
     this.remote.initialize_synthetic_fields();
@@ -172,6 +178,10 @@ Monarch.constructor("Monarch.Model.Record", {
     return this.on_update_node.subscribe(callback);
   },
 
+  on_remove: function(callback) {
+    return this.on_remove_node.subscribe(callback);
+  },
+
   local_update: function(values_by_method_name) {
     for (var method_name in values_by_method_name) {
       if (this[method_name]) {
@@ -181,18 +191,20 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   local_destroy: function() {
-    this.mark_for_destroy = true;
-    this.finalize_local_destroy();
+    this.locally_destroyed = true;
   },
 
   finalize_local_destroy: function() {
     this.table().remove(this);
-    if (this.table.on_remove_node) this.table.on_remove_node.publish(this); // i know this doesn't belong here
-    if (this.after_destroy) this.after_destroy();
+    this.on_remove_node.publish(this);
   },
 
   valid: function() {
     return this.local.valid();
+  },
+
+  dirty: function() {
+    return this.locally_destroyed || this.is_any_field_dirty();
   },
 
   table: function() {
@@ -226,18 +238,45 @@ Monarch.constructor("Monarch.Model.Record", {
 
   pause_events: function() {
     this.on_update_node.pause_events();
+    this.on_remove_node.pause_events();
   },
 
   resume_events: function() {
     this.on_update_node.resume_events();
+    this.on_remove_node.resume_events();
+  },
+
+  cleanup: function() {
+    this.subscriptions.destroy_all();
   },
 
   // private
-  initialize_update_node: function() {
+  initialize_subscription_nodes: function() {
+    var self = this;
     this.on_update_node = new Monarch.SubscriptionNode();
+    this.on_remove_node = new Monarch.SubscriptionNode();
+
+    this.subscriptions.add(this.table().on_pause_events(function() {
+      self.on_update_node.pause_events();
+      self.on_remove_node.pause_events();
+    }));
+
+    this.subscriptions.add(this.table().on_resume_events(function() {
+      self.on_update_node.resume_events();
+      self.on_remove_node.resume_events();
+    }));
+  },
+
+  subscribe_to_self_mutations: function() {
+    var self = this;
     this.on_update_node.subscribe(function(changeset) {
-      if (this.after_update) this.after_update(changeset);
-    }.bind(this));
+      if (self.after_update) self.after_update(changeset);
+    });
+
+    this.on_remove_node.subscribe(function(changeset) {
+      if (self.after_destroy) self.after_destroy(changeset);
+      self.cleanup();
+    });
   },
 
   initialize_relations: function() {
@@ -245,6 +284,12 @@ Monarch.constructor("Monarch.Model.Record", {
     this.relations_by_name = {};
     Monarch.Util.each(this.constructor.relation_definitions, function(relation_definition) {
       self.relations_by_name[relation_definition.name] = relation_definition.definition.call(self);
+    });
+  },
+
+  is_any_field_dirty: function() {
+    return Monarch.Util.any(this.fields_by_column_name, function(name, field) {
+      return field.dirty();
     });
   }
 });

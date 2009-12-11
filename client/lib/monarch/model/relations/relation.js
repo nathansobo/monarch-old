@@ -88,6 +88,10 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
     return Monarch.Util.map(this.records(), fn);
   },
 
+  any: function(fn) {
+    return Monarch.Util.any(this.records(), fn);
+  },
+
   empty: function() {
     return this.records().length == 0;
   },

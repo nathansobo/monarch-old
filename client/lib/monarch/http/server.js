@@ -44,7 +44,7 @@ Monarch.constructor("Monarch.Http.Server", {
   save: function(record) {
     // update, destroy only for now
     var command;
-    if (record.mark_for_destroy) {
+    if (record.locally_destroyed) {
       command = new Monarch.Http.DestroyCommand(record);
     } else {
       command = new Monarch.Http.UpdateCommand(record);

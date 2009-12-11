@@ -55,7 +55,7 @@ Monarch.constructor("Monarch.Model.Repository", {
     var table = this.tables[table_name];
     if (!table) return;
     var record = table.find(id);
-    if (record) record.local_destroy();
+    if (record) record.finalize_local_destroy();
   },
 
   register_table: function(table) {

@@ -12,6 +12,8 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
     this.records_by_id = {};
 
     this.initialize_events_system();
+    this.on_pause_events_node = new Monarch.SubscriptionNode();
+    this.on_resume_events_node = new Monarch.SubscriptionNode();
   },
 
   define_column: function(name, type) {
@@ -27,7 +29,9 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
   },
 
   records: function() {
-    return this._records.concat();
+    return Monarch.Util.select(this._records, function(record) {
+      return !record.locally_destroyed;
+    });
   },
 
   insert: function(record) {
@@ -51,7 +55,8 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
 
   find: function(predicate_or_id) {
     if (typeof predicate_or_id === "string") {
-      return this.records_by_id[predicate_or_id];
+      var record = this.records_by_id[predicate_or_id]
+      return (record && record.locally_destroyed) ? null : record;
     } else {
       return this.where(predicate_or_id).first();
     }
@@ -68,18 +73,22 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
     this.on_insert_node.pause_events();
     this.on_remove_node.pause_events();
     this.on_update_node.pause_events();
-    this.each(function(record) {
-      record.pause_events();
-    });
+    this.on_pause_events_node.publish();
   },
 
   resume_events: function() {
     this.on_insert_node.resume_events();
     this.on_remove_node.resume_events();
     this.on_update_node.resume_events();
-    this.each(function(record) {
-      record.resume_events();
-    });
+    this.on_resume_events_node.publish();
+  },
+
+  on_pause_events: function(callback) {
+    return this.on_pause_events_node.subscribe(callback);
+  },
+
+  on_resume_events: function(callback) {
+    return this.on_resume_events_node.subscribe(callback);
   },
 
   update: function(dataset) {

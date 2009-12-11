@@ -98,8 +98,8 @@ Screw.Unit(function(c) { with(c) {
         server.post = FakeServer.prototype.post;
         server.posts = [];
       });
-
-      context("when given a dirty record that exists in the remote repository", function() {
+      
+      context("when given a locally-updated record", function() {
         it("sends an update command", function() {
           var record = User.find('jan');
           record.full_name("Jesus Chang");
@@ -214,7 +214,7 @@ Screw.Unit(function(c) { with(c) {
         });
       });
 
-      context("when given a record marked for destruction that exists in the remote repository", function() {
+      context("when given a locally-destroyed record", function() {
         it("sends a destroy command", function() {
           var record = User.find('jan');
           record.local_destroy();
@@ -230,11 +230,15 @@ Screw.Unit(function(c) { with(c) {
         });
 
         context("when the request is successful", function() {
-          it("deletes the remote record and fires the before_events and after_events callbacks", function() {
-            var remove_callback = mock_function("remove callback");
-            Blog.on_remove(remove_callback);
-
+          it("finalizes the destruction of the record, firing on_remove callbacks in between the before_events and after_events callbacks", function() {
             var record = Blog.find('recipes');
+
+            var table_remove_callback = mock_function("table remove callback");
+            Blog.on_remove(table_remove_callback);
+            var record_remove_callback = mock_function("record remove callback");
+            record.on_remove(record_remove_callback)
+            record.after_destroy = mock_function("optional after_destroy method");
+
             record.local_destroy();
             var destroy_future = server.save(record);
 
@@ -247,10 +251,14 @@ Screw.Unit(function(c) { with(c) {
             expect(post.data).to(equal, { operations: [['destroy', 'blogs', 'recipes']] });
 
             var before_events_callback = mock_function("before events", function() {
-              expect(remove_callback).to_not(have_been_called);
+              expect(table_remove_callback).to_not(have_been_called);
+              expect(record_remove_callback).to_not(have_been_called);
+              expect(record.after_destroy).to_not(have_been_called);
             });
             var after_events_callback = mock_function("after events", function() {
-              expect(remove_callback).to(have_been_called, once);
+              expect(table_remove_callback).to(have_been_called, once);
+              expect(record_remove_callback).to(have_been_called, once);
+              expect(record.after_destroy).to(have_been_called, once);
             });
             destroy_future.before_events(before_events_callback);
             destroy_future.after_events(after_events_callback);
@@ -258,36 +266,10 @@ Screw.Unit(function(c) { with(c) {
             post.simulate_success({primary: [null], secondary: []});
 
             expect(Blog.find('recipes')).to(be_null);
+            expect('recipes' in Blog.table.records_by_id).to(be_false);
 
             expect(before_events_callback).to(have_been_called);
             expect(after_events_callback).to(have_been_called);
-          });
-        });
-
-        context("when the request is unsuccessful", function() {
-          it("adds validation errors to the local fields without changing remote fields and calls the on failure callback with the invalid record", function() {
-            var record = Blog.find('recipes');
-            var name_before_update = record.name();
-            var fun_profit_name_before_update = record.fun_profit_name();
-            var user_id_before_update = record.user_id();
-
-            record.local_destroy();
-
-            var on_failure_callback = mock_function("on_failure_callback");
-            server.save(record).on_failure(on_failure_callback);
-
-            var name_errors = ["For some reason, this name is too holy to destroy. Just wait till we can put errors on the record..."];
-            server.posts.shift().simulate_failure({
-              index: 0,
-              errors: {
-                name: name_errors
-              }
-            });
-
-            expect(record.mark_for_destroy).to(be_true);
-
-            expect(on_failure_callback).to(have_been_called, once);
-            expect(record.local.field('name').validation_errors).to(equal, name_errors);
           });
         });
       });

@@ -73,19 +73,27 @@ Monarch.module("Monarch.Util", {
     return values;
   },
 
-  all: function(array_or_hash, callback) {
+  all: function(array_or_hash, fn) {
     if (array_or_hash.length) {
-      return this.array_all(array_or_hash, callback);
+      return this.array_all(array_or_hash, fn);
     } else {
-      return this.hash_all(array_or_hash, callback);
+      return this.hash_all(array_or_hash, fn);
     }
   },
 
-  any: function(array, callback) {
+  any: function(array, fn) {
     for(var i = 0; i < array.length; i++) {
-      if (callback(array[i])) return true;
+      if (fn(array[i])) return true;
     }
     return false;
+  },
+
+  select: function(array, fn) {
+    var selected = [];
+    this.each(array, function(elt) {
+      if (fn(elt)) selected.push(elt);
+    });
+    return selected;
   },
 
   extend: function() {

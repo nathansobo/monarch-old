@@ -49,10 +49,11 @@ Monarch.constructor("Monarch.SubscriptionNode", {
   resume_events: function() {
     var self = this;
     this.paused = false;
-    Monarch.Util.each(this.delayed_events, function(event) {
+    var delayed_events = this.delayed_events;
+    this.delayed_events = [];
+    Monarch.Util.each(delayed_events, function(event) {
       self.publish.apply(self, event);
     });
-    this.delayed_events = [];
   }
 });
 

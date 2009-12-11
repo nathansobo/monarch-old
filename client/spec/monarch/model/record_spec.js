@@ -180,6 +180,17 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
+
+    describe("#local_destroy", function() {
+      it("causes the record to be dirty and no longer appear in queries or finds", function() {
+        var record = User.find('jan');
+        record.local_destroy();
+        expect(record.dirty()).to(be_true);
+        expect(User.any(function(user) { return user === record; })).to(be_false);
+        expect(User.find('jan')).to(be_null);
+      });
+    });
+
     describe("#finalize_local_destroy", function() {
       it("removes the Record from its Table and calls #after_destroy if it is defined", function() {
         var record = User.find('jan');
