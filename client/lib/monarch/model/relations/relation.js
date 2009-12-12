@@ -149,7 +149,10 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
   },
 
   record_inserted: function(record, options) {
-    this._records.push(record)
+    if (!this.contains(record)) {
+      debugger;
+      this._records.push(record)
+    }
     this.on_insert_node.publish(record);
   },
 
