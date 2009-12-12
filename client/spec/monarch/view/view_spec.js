@@ -48,6 +48,12 @@ Screw.Unit(function(c) { with(c) {
           baz: true,
           quux: 3
         });
+        model.finalize_local_create({
+          foo: "foo",
+          bar: "bar",
+          baz: true,
+          quux: 3
+        });  
       });
 
       describe("#field_values", function() {

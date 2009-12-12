@@ -43,15 +43,15 @@ Monarch.constructor("Monarch.Model.Relations.Difference", Monarch.Model.Relation
     }));
 
     this.operands_subscription_bundle.add(this.left_operand.on_update(function(record, changes) {
-      if (!self.right_operand.find(record.id())) self.record_updated(record, changes);
+      if (self.contains(record)) self.record_updated(record, changes);
     }));
 
     this.operands_subscription_bundle.add(this.left_operand.on_remove(function(record) {
-      if (!self.right_operand.find(record.id())) self.record_removed(record);
+      if (self.contains(record)) self.record_removed(record);
     }));
 
     this.operands_subscription_bundle.add(this.right_operand.on_insert(function(record) {
-      if (self.left_operand.find(record.id())) self.record_removed(record);
+      if (self.contains(record)) self.record_removed(record);
     }));
 
     this.operands_subscription_bundle.add(this.right_operand.on_remove(function(record) {

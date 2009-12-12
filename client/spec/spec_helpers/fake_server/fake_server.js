@@ -33,14 +33,17 @@ Monarch.constructor("FakeServer", {
   },
 
   create: function(table, field_values) {
-    return this.mutate(new Monarch.Http.CreateCommand(table, field_values));
+    var record  = table.local_create(field_values);
+    return this.mutate(new Monarch.Http.CreateCommand(record));
   },
 
   update: function(record, field_values) {
-    return this.mutate(new Monarch.Http.UpdateCommand(record, field_values));
+    record.local_update(field_values);
+    return this.mutate(new Monarch.Http.UpdateCommand(record));
   },
 
   destroy: function(record) {
+    record.local_destroy();
     return this.mutate(new Monarch.Http.DestroyCommand(record));
   },
 

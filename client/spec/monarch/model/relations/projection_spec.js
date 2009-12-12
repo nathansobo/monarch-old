@@ -46,7 +46,7 @@ Screw.Unit(function(c) { with(c) {
 
       describe("when a record is inserted into the operand", function() {
         it("triggers on_insert callbacks with the inserted record's corresponding ProjectionRecord", function() {
-          var operand_record = operand.local_create({name: "Radio Flyer"});
+          var operand_record = operand.create({name: "Radio Flyer"});
 
           expect(insert_callback).to(have_been_called, once);
           expect(insert_callback.most_recent_args[0].blog_name()).to(equal, "Radio Flyer");

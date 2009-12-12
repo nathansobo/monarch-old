@@ -41,7 +41,10 @@ Monarch.constructor("Monarch.Model.Repository", {
 
   perform_create_command: function(table_name, field_values) {
     var table = this.tables[table_name];
-    if (table && !table.find(field_values.id)) table.local_create(field_values);
+    if (table && !table.find(field_values.id)) {
+      var record = table.local_create(field_values);
+      record.finalize_local_create(field_values);
+    }
   },
 
   perform_update_command: function(table_name, id, field_values) {

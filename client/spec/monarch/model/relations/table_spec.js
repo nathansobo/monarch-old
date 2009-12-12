@@ -115,9 +115,11 @@ Screw.Unit(function(c) { with(c) {
           var insert_callback = mock_function("insert callback");
           User.table.on_insert(insert_callback);
 
-          var record = User.local_create({id: "emma", full_name: "Emma Cunningham"});
-          expect(insert_callback).to(have_been_called, once);
-          expect(insert_callback).to(have_been_called, with_args(record));
+          User.create({id: "emma", full_name: "Emma Cunningham"})
+            .after_events(function(record) {
+              expect(insert_callback).to(have_been_called, once);
+              expect(insert_callback).to(have_been_called, with_args(record));
+            });
         });
       });
 
@@ -176,7 +178,9 @@ Screw.Unit(function(c) { with(c) {
         User.table.pause_events();
 
         var record = User.local_create({id: "jake", full_name: "Jake Frautschi"});
+        record.finalize_local_create({id: "jake", full_name: "Jake Frautschi"});
         record.remote.update({ full_name: "Jacob Frautschi" });
+        record.local_destroy();
         record.finalize_local_destroy();
 
         expect(insert_callback).to_not(have_been_called);
@@ -199,8 +203,9 @@ Screw.Unit(function(c) { with(c) {
         insert_callback.clear();
         update_callback.clear();
         remove_callback.clear();
-        
+
         var record_2 = User.local_create({id: "nathan", full_name: "Nathan Sobo"});
+        record_2.finalize_local_create({id: "nathan", full_name: "Nathan Sobo"});
 
         expect(insert_callback).to(have_been_called, once);
         expect(insert_callback).to(have_been_called, with_args(record_2));

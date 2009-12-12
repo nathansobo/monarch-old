@@ -27,32 +27,37 @@ Monarch.constructor("Monarch.Http.Server", {
   },
 
   create: function(table, field_values) {
-    var command = new Monarch.Http.CreateCommand(table, field_values);
-    return this.mutate(table, command)
+    var record = table.local_create(field_values);
+    var command = new Monarch.Http.CreateCommand(record);
+    return this.mutate(command)
   },
 
-  update: function(record) {
+  update: function(record, field_values) {
+    if (!field_values) throw new Error("no field values");
+    record.local_update(field_values);
     var command = new Monarch.Http.UpdateCommand(record);
-    return this.mutate(record.table(), command);
+    return this.mutate(command);
   },
 
   destroy: function(record) {
+    record.local_destroy();
     var command = new Monarch.Http.DestroyCommand(record);
-    return this.mutate(record.table(), command);
+    return this.mutate(command);
   },
 
   save: function(record) {
-    // update, destroy only for now
     var command;
     if (record.locally_destroyed) {
       command = new Monarch.Http.DestroyCommand(record);
+    } else if (!record.remotely_created) {
+      command = new Monarch.Http.CreateCommand(record);
     } else {
       command = new Monarch.Http.UpdateCommand(record);
     }
-    return this.mutate(record.table(), command);
+    return this.mutate(command);
   },
 
-  mutate: function(table, command) {
+  mutate: function(command) {
     this.pending_commands.push(command);
     if (!this.batch_in_progress) this.perform_pending_mutations();
     return command.future;

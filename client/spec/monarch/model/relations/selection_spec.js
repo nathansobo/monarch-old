@@ -152,19 +152,21 @@ Screw.Unit(function(c) { with(c) {
       context("when a record is inserted in the Selection's #operand", function() {
         context("when that record matches #predicate", function() {
           it("triggers #on_insert callbacks with the inserted record", function() {
-            var record = User.local_create({id: "joe", age: 31});
-            expect(predicate.evaluate(record)).to(be_true);
-            
-            expect(insert_callback).to(have_been_called, with_args(record));
+            User.create({id: "joe", age: 31})
+              .after_events(function(record) {
+                expect(predicate.evaluate(record)).to(be_true);
+                expect(insert_callback).to(have_been_called, with_args(record));
+              });
           });
         });
 
         context("when that record does not match #predicate", function() {
           it("does not trigger #on_insert callbacks", function() {
-            var record = User.local_create({id: "mike", age: 22});
-            expect(predicate.evaluate(record)).to(be_false);
-
-            expect(insert_callback).to_not(have_been_called);
+            User.create({id: "mike", age: 22})
+              .after_events(function(record) {
+                expect(predicate.evaluate(record)).to(be_false);
+                expect(insert_callback).to_not(have_been_called);
+              });
           });
         });
       });

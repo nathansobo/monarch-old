@@ -6,7 +6,15 @@ Screw.Unit(function(c) { with(c) {
 
     var fake_server;
     before(function() {
+
+      expect(User.find('sharon')).to(be_null);
+
       fake_server = new FakeServer(false);
+
+      fake_server.Repository.tables.users.on_fake_repo = true;
+      fake_server.Repository.tables.blogs.on_fake_repo = true;
+      fake_server.Repository.tables.blog_posts.on_fake_repo = true;
+
       fake_server.Repository.load_fixtures({
         users: {
           sharon: {
@@ -42,7 +50,6 @@ Screw.Unit(function(c) { with(c) {
         });
 
         User.on_insert(insert_callback);
-
 
         expect(fake_server.fetches).to(be_empty);
         expect(User.find('sharon')).to(be_null);

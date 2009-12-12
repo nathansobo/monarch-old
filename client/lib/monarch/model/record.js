@@ -85,10 +85,7 @@ Monarch.constructor("Monarch.Model.Record", {
     },
 
     local_create: function(field_values) {
-      var record = new this();
-      record.remote.update(field_values);
-      this.table.insert(record);
-      return record;
+      return this.table.local_create(field_values);
     },
 
     human_name: function() {
@@ -182,6 +179,10 @@ Monarch.constructor("Monarch.Model.Record", {
     return this.on_remove_node.subscribe(callback);
   },
 
+  on_create: function(callback) {
+    return this.on_create_node.subscribe(callback)
+  },
+
   local_update: function(values_by_method_name) {
     for (var method_name in values_by_method_name) {
       if (this[method_name]) {
@@ -197,6 +198,12 @@ Monarch.constructor("Monarch.Model.Record", {
   finalize_local_destroy: function() {
     this.table().remove(this);
     this.on_remove_node.publish(this);
+  },
+
+  finalize_local_create: function(field_values) {
+    this.remote.update(field_values);
+    this.table().record_inserted(this);
+    this.on_create_node.publish(this);
   },
 
   valid: function() {
@@ -220,7 +227,6 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   field: function(column) {
-    if (!this.local) debugger;
     return this.local.field(column);
   },
 
@@ -255,13 +261,16 @@ Monarch.constructor("Monarch.Model.Record", {
     var self = this;
     this.on_update_node = new Monarch.SubscriptionNode();
     this.on_remove_node = new Monarch.SubscriptionNode();
+    this.on_create_node = new Monarch.SubscriptionNode();
 
     this.subscriptions.add(this.table().on_pause_events(function() {
+      self.on_create_node.pause_events();
       self.on_update_node.pause_events();
       self.on_remove_node.pause_events();
     }));
 
     this.subscriptions.add(this.table().on_resume_events(function() {
+      self.on_create_node.resume_events();
       self.on_update_node.resume_events();
       self.on_remove_node.resume_events();
     }));
@@ -269,12 +278,17 @@ Monarch.constructor("Monarch.Model.Record", {
 
   subscribe_to_self_mutations: function() {
     var self = this;
+
+    this.on_create_node.subscribe(function(changeset) {
+      if (self.after_create) self.after_create();
+    });
+
     this.on_update_node.subscribe(function(changeset) {
       if (self.after_update) self.after_update(changeset);
     });
 
-    this.on_remove_node.subscribe(function(changeset) {
-      if (self.after_destroy) self.after_destroy(changeset);
+    this.on_remove_node.subscribe(function() {
+      if (self.after_destroy) self.after_destroy();
       self.cleanup();
     });
   },

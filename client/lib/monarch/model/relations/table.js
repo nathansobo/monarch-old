@@ -35,9 +35,8 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
   },
 
   insert: function(record) {
-    this.records_by_id[record.id()] = record;
+    this._records.push(record);
     record.initialize_relations();
-    this.record_inserted(record);
   },
 
   remove: function(record) {
@@ -50,7 +49,17 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
   },
 
   local_create: function(field_values) {
-    return this.record_constructor.local_create(field_values);
+    var record = new this.record_constructor();
+    record.local_update(field_values);
+    record.remotely_created = false;
+    this.insert(record);
+    return record;
+  },
+
+  // remotely
+  record_inserted: function(record) {
+    this.records_by_id[record.id()] = record;
+    this.on_insert_node.publish(record);
   },
 
   find: function(predicate_or_id) {
@@ -93,12 +102,13 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
 
   update: function(dataset) {
     var self = this;
-    Monarch.Util.each(dataset, function(id, attributes) {
+    Monarch.Util.each(dataset, function(id, field_values) {
       var extant_record = self.find(id);
       if (extant_record) {
-        extant_record.local_update(attributes, true);
+        extant_record.remote.update(field_values);
       } else {
-        self.record_constructor.local_create(attributes)
+        var record = self.local_create(field_values)
+        record.finalize_local_create(field_values);
       }
     });
   },
@@ -118,10 +128,11 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
     if (!this.fixture_definitions) return;
     var self = this;
     Monarch.Util.each(this.fixture_definitions, function(id, properties) {
-      var attributes = Monarch.Util.extend({id: id}, properties)
-      var record = new self.record_constructor();
-      record.remote.update(attributes);
-      self.insert(record);
+      var field_values = Monarch.Util.extend({id: id}, properties)
+      var record = self.local_create(field_values);
+      record.remote.update(field_values);
+      self.record_inserted(record);
+      record.on_create_node.publish(record);
     });
   },
 
