@@ -114,6 +114,7 @@ Screw.Unit(function(c) { with(c) {
             var record = left_operand.find('recipes');
             var user_id_before_update = record.user_id();
             record.update({user_id: "bingcrosby"});
+            expect(update_callback).to(have_been_called, once);
             expect(update_callback).to(have_been_called, with_args(record, {user_id: {column: Blog.user_id, old_value: user_id_before_update, new_value: "bingcrosby" }}));
           });
         });
@@ -173,6 +174,66 @@ Screw.Unit(function(c) { with(c) {
             expect(insert_callback).to(have_been_called, with_args(record));
           });
         });
+      });
+    });
+
+    describe("when the difference is between two distinct but compatible relations", function() {
+      var difference, left_operand, right_operand, insert_callback, update_callback, remove_callback;
+      use_fake_server();
+
+
+      before(function() {
+        Monarch.constructor('A', Monarch.Model.Record);
+        Monarch.constructor('B', Monarch.Model.Record);
+        A.columns({ projected_id: "string", baz: "string" });
+        B.columns({ projected_id: "string", baz: "string" });
+
+        left_operand = A.project(A.projected_id.as('id'), A.baz);
+        right_operand = B.project(B.projected_id.as('id'), B.baz);
+
+        difference = new Monarch.Model.Relations.Difference(left_operand, right_operand);
+
+        insert_callback = mock_function('insert_callback');
+        update_callback = mock_function('update_callback');
+        remove_callback = mock_function('remove_callback');
+
+        difference.on_insert(insert_callback);
+        difference.on_update(update_callback);
+        difference.on_remove(remove_callback);
+      });
+
+      after(function() {
+        delete window.A;
+        delete window.B;
+        delete Repository.tables.as;
+        delete Repository.tables.bs;
+      });
+
+      it("only considers the 'id' property when performing the difference", function() {
+        A.create({projected_id: "foo", baz: "quux"});
+        expect(insert_callback).to(have_been_called, once);
+
+        A.find({projected_id: 'foo'}).update({baz: "morning"});
+        expect(update_callback).to(have_been_called, once);
+
+        B.create({projected_id: "foo"});
+        expect(remove_callback).to(have_been_called, once);
+
+        update_callback.clear();
+        var a_record = A.find({projected_id: 'foo'});
+        a_record.update({baz: "evening"});
+        expect(update_callback).to_not(have_been_called);
+
+        remove_callback.clear();
+        a_record.destroy();
+        expect(remove_callback).to_not(have_been_called);
+
+        insert_callback.clear();
+        A.create({projected_id: "foo", baz: "quux"});
+        expect(insert_callback).to_not(have_been_called);
+        
+        B.find({projected_id: 'foo'}).destroy();
+        expect(insert_callback).to(have_been_called, once);
       });
     });
   });

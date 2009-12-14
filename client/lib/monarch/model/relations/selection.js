@@ -38,17 +38,14 @@ Monarch.constructor("Monarch.Model.Relations.Selection", Monarch.Model.Relations
   subscribe_to_operands: function() {
     var self = this;
     this.operands_subscription_bundle.add(this.operand.on_insert(function(record) {
-      debugger;
       if (self.predicate.evaluate(record)) self.record_inserted(record);
     }));
 
     this.operands_subscription_bundle.add(this.operand.on_remove(function(record) {
-      debugger;
       if (self.predicate.evaluate(record)) self.record_removed(record);
     }));
 
     this.operands_subscription_bundle.add(this.operand.on_update(function(record, changed_fields) {
-      debugger; 
       if (self.contains(record)) {
         if (self.predicate.evaluate(record)) {
           self.record_updated(record, changed_fields);

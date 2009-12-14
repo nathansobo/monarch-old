@@ -7,8 +7,12 @@ Monarch.constructor("Monarch.Model.Relations.Difference", Monarch.Model.Relation
     this.initialize_events_system();
   },
 
+  contains: function(record) {
+    return record.id() in this.records_by_id;
+  },
+
   records: function() {
-    if (this._records) return this._records;
+    if (this.records_by_id) return Monarch.Util.values(this.records_by_id);
     var records = [];
 
     var left_records = this.left_operand.records().sort(function(a, b) {
@@ -36,6 +40,8 @@ Monarch.constructor("Monarch.Model.Relations.Difference", Monarch.Model.Relation
     return records;
   },
 
+  // private
+
   subscribe_to_operands: function() {
     var self = this;
     this.operands_subscription_bundle.add(this.left_operand.on_insert(function(record) {
@@ -57,6 +63,28 @@ Monarch.constructor("Monarch.Model.Relations.Difference", Monarch.Model.Relation
     this.operands_subscription_bundle.add(this.right_operand.on_remove(function(record) {
       if (self.left_operand.find(record.id())) self.record_inserted(record);
     }));
+  },
+
+  memoize_records: function() {
+    var records_by_id = {};
+    this.each(function(record) {
+      records_by_id[record.id()] = record;
+    }.bind(this));
+    this.records_by_id = records_by_id;
+  },
+
+  record_inserted: function(record, options) {
+    this.records_by_id[record.id()] = record;
+    this.on_insert_node.publish(record);
+  },
+
+  record_updated: function(record, update_data) {
+    this.on_update_node.publish(record, update_data);
+  },
+
+  record_removed: function(record) {
+    delete this.records_by_id[record.id()];
+    this.on_remove_node.publish(record);
   }
 });
 

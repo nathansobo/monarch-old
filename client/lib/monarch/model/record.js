@@ -129,6 +129,10 @@ Monarch.constructor("Monarch.Model.Record", {
       return this.table.where(predicate);
     },
 
+    project: function() {
+      return this.table.project.apply(this.table, arguments);
+    },
+
     empty: function() {
       return this.table.empty();
     }
