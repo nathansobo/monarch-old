@@ -13,7 +13,8 @@ Monarch.constructor("Monarch.Model.RemoteFieldset", Monarch.Model.Fieldset, {
     this.batched_updates = {};
 
     Monarch.Util.each(field_values, function(column_name, field_value) {
-      this.field(column_name).value(field_value, requested_at);
+      var field = this.field(column_name);
+      if (field) field.value(field_value, requested_at);
     }.bind(this));
 
     var changeset = this.batched_updates;

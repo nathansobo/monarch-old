@@ -48,7 +48,8 @@ Screw.Unit(function(c) { with(c) {
           users: {
             nathan: {
               id: 'nathan',
-              full_name: 'Nathan Sobo'
+              full_name: 'Nathan Sobo',
+              bogus_column: 'Should not cause exception'
             },
             jan: {
               id: 'jan',
