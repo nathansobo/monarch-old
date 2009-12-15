@@ -180,8 +180,8 @@ Monarch.constructor("Monarch.Model.Record", {
     return this.on_update_node.subscribe(callback);
   },
 
-  on_remove: function(callback) {
-    return this.on_remove_node.subscribe(callback);
+  on_destroy: function(callback) {
+    return this.on_destroy_node.subscribe(callback);
   },
 
   on_create: function(callback) {
@@ -202,7 +202,7 @@ Monarch.constructor("Monarch.Model.Record", {
 
   finalize_local_destroy: function() {
     this.table().remove(this);
-    this.on_remove_node.publish(this);
+    this.on_destroy_node.publish(this);
   },
 
   finalize_local_create: function(field_values) {
@@ -248,13 +248,15 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   pause_events: function() {
+    this.on_create_node.pause_events();
     this.on_update_node.pause_events();
-    this.on_remove_node.pause_events();
+    this.on_destroy_node.pause_events();
   },
 
   resume_events: function() {
+    this.on_create_node.resume_events();
     this.on_update_node.resume_events();
-    this.on_remove_node.resume_events();
+    this.on_destroy_node.resume_events();
   },
 
   cleanup: function() {
@@ -265,19 +267,15 @@ Monarch.constructor("Monarch.Model.Record", {
   initialize_subscription_nodes: function() {
     var self = this;
     this.on_update_node = new Monarch.SubscriptionNode();
-    this.on_remove_node = new Monarch.SubscriptionNode();
+    this.on_destroy_node = new Monarch.SubscriptionNode();
     this.on_create_node = new Monarch.SubscriptionNode();
 
     this.subscriptions.add(this.table().on_pause_events(function() {
-      self.on_create_node.pause_events();
-      self.on_update_node.pause_events();
-      self.on_remove_node.pause_events();
+      self.pause_events();
     }));
 
     this.subscriptions.add(this.table().on_resume_events(function() {
-      self.on_create_node.resume_events();
-      self.on_update_node.resume_events();
-      self.on_remove_node.resume_events();
+      self.resume_events();
     }));
   },
 
@@ -292,7 +290,7 @@ Monarch.constructor("Monarch.Model.Record", {
       if (self.after_update) self.after_update(changeset);
     });
 
-    this.on_remove_node.subscribe(function() {
+    this.on_destroy_node.subscribe(function() {
       if (self.after_destroy) self.after_destroy();
       self.cleanup();
     });
