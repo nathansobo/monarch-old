@@ -83,6 +83,38 @@ Screw.Unit(function(c) { with(c) {
         expect(Blog.tuples()).to_not(be_empty);
       });
     });
+
+    describe("#get, #put, #post, and #delete_", function() {
+      they("add fake requests to the fake server, which fire future callbacks and removes themselves when their success is simulated", function() {
+        var success_callback = mock_function('success_callback');
+        var failure_callback = mock_function('failure_callback');
+
+        fake_server.get('/foo', {foo: 'bar'})
+          .on_failure(failure_callback);
+        fake_server.get('/bang', {glorp: 'buzz'})
+          .on_success(success_callback);
+
+
+        expect(fake_server.gets.length).to(equal, 2);
+        expect(fake_server.last_get).to(equal, fake_server.gets[1]);
+        expect(fake_server.last_get.url).to(equal, '/bang');
+        expect(fake_server.last_get.data).to(equal, {glorp: 'buzz'});
+
+        fake_server.last_get.simulate_success({baz: 'quux'});
+        expect(success_callback).to(have_been_called, with_args({baz: 'quux'}));
+
+        expect(fake_server.gets.length).to(equal, 1);
+        expect(fake_server.last_get).to(equal, fake_server.gets[0]);
+        expect(fake_server.last_get.url).to(equal, '/foo');
+        expect(fake_server.last_get.data).to(equal, {foo: 'bar'});
+
+        fake_server.last_get.simulate_failure({bar: 'foo'});
+        expect(failure_callback).to(have_been_called, with_args({bar: 'foo'}));
+
+        expect(fake_server.gets).to(be_empty);
+        expect(fake_server.last_get).to(be_null);
+      });
+    });
   });
 }});
 

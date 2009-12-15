@@ -43,42 +43,38 @@ Monarch.constructor("FakeServer", Monarch.Http.Server, {
   },
 
   post: function(url, data) {
-    var fake_post = new FakeServer.FakeRequest('POST', url, data)
-    this.last_post = fake_post;
-    this.posts.push(fake_post);
-    return fake_post.future;
+    return this.request('post', url, data);
   },
 
   get: function(url, data) {
-    var fake_get = new FakeServer.FakeRequest('GET', url, data)
-    this.last_get = fake_get;
-    this.gets.push(fake_get);
-    return fake_get.future;
+    return this.request('get', url, data);
   },
 
   put: function(url, data) {
-    var fake_put = new FakeServer.FakeRequest('PUT', url, data)
-    this.last_put = fake_put;
-    this.puts.push(fake_put);
-    return fake_put.future;
+    return this.request('put', url, data);
   },
 
   delete_: function(url, data) {
-    var fake_delete = new FakeServer.FakeRequest('DELETE', url, data)
-    this.last_delete = fake_delete;
-    this.deletes.push(fake_delete);
-    return fake_delete.future;
-  },
-
-  add_request: function(request) {
-    var requests_array = this[Monarch.Inflection.pluralize(request.type)];
-    requests_array.push(request);
-    this["last_" + request.type] = request;
+    return this.request('delete', url, data);
   },
 
   remove_request: function(request) {
     var requests_array = this[Monarch.Inflection.pluralize(request.type)];
     Monarch.Util.remove(requests_array, request);
     this["last_" + request.type] = requests_array[requests_array.length - 1];
+  },
+
+  // private
+
+  request: function(type, url, data) {
+    var fake_request = new FakeServer.FakeRequest(type, url, data, this);
+    this.add_request(fake_request);
+    return fake_request.future;
+  },
+
+  add_request: function(request) {
+    var requests_array = this[Monarch.Inflection.pluralize(request.type)];
+    requests_array.push(request);
+    this["last_" + request.type] = request;
   }
 });
