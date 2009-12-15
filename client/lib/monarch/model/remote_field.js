@@ -14,30 +14,15 @@ Monarch.constructor("Monarch.Model.RemoteField", Monarch.Model.ConcreteField, {
     }
   },
 
-  value: function(value, requested_at) {
-    if (arguments.length == 0) {
-      return this._value;
-    } else {
-      this.assign_value(value)
-      if (this._local_field.clean() || this._local_field.not_modified_after(requested_at)) {
-        this._local_field.value(value)
-        this._local_field.mark_clean();
-      }
-      return value;
-    }
-  },
-  
   // private
 
-  assign_value: function(value) {
-    value = this.column.convert_value_for_field(value);
-    if (!this.value_equals(value)) {
-      var old_value = this._value;
-      this._value = value;
-      this.fieldset.field_updated(this, this._value, old_value);
-      if (this.fieldset.update_events_enabled && this.on_update_node) this.on_update_node.publish(this._value, old_value)
+  value_assigned: function(new_value, old_value, requested_at) {
+    this.fieldset.field_updated(this, new_value, old_value);
+    if (this.fieldset.update_events_enabled && this.on_update_node) this.on_update_node.publish(new_value, old_value)
+    if (this._local_field.clean() || this._local_field.not_modified_after(requested_at)) {
+      this._local_field.value(new_value);
+      this._local_field.mark_clean();
     }
-    return value;
   }
 });
 

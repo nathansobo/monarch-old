@@ -15,14 +15,6 @@ Monarch.constructor("Monarch.Model.LocalField", Monarch.Model.ConcreteField, {
     }
   },
 
-  value: function(value) {
-    if (arguments.length == 0) {
-      return this._value;
-    } else {
-      return this.assign_value(value)
-    }
-  },
-
   dirty: function() {
     return this.last_modified_at && !this.value_equals(this._remote_field.value())
   },
@@ -40,7 +32,7 @@ Monarch.constructor("Monarch.Model.LocalField", Monarch.Model.ConcreteField, {
   },
 
   signal: function(optional_transformer) {
-    return new Monarch.Model.Signal(this, this._remote_field, optional_transformer);
+    return new Monarch.Model.Signal(this, this.remote_field(), optional_transformer);
   },
 
   value_wire_representation: function() {
@@ -52,16 +44,10 @@ Monarch.constructor("Monarch.Model.LocalField", Monarch.Model.ConcreteField, {
   },
 
   // private
-
-  assign_value: function(value) {
-    var old_value = this._value;
-    value = this.column.convert_value_for_field(value);
-    if (!this.value_equals(value)) {
-      this._value = value;
-      this.last_modified_at = new Date();
-      if (this.fieldset.remote.update_events_enabled && this.on_update_node) this.on_update_node.publish(this._value, old_value)
-    }
-    return value;
+  
+  value_assigned: function(new_value, old_value) {
+    this.last_modified_at = new Date();
+    if (this.fieldset.remote.update_events_enabled && this.on_update_node) this.on_update_node.publish(new_value, old_value)
   }
 });
 
