@@ -23,14 +23,6 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
-    describe("#tuples", function() {
-      it("returns a copy of the sets tuples", function() {
-        var tuples_copy = User.table.tuples();
-        tuples_copy.push(1);
-        expect(User.table.tuples()).to_not(equal, tuples_copy);
-      });
-    });
-
     describe("query methods", function() {
       var locally_created, locally_updated, locally_destroyed, clean_record;
       before(function() {
@@ -56,9 +48,9 @@ Screw.Unit(function(c) { with(c) {
         });
       });
 
-      describe("#tuples", function() {
+      describe("#local_tuples", function() {
         it("excludes records that are locally destroyed but includes all others", function() {
-          var tuples = User.table.tuples();
+          var tuples = User.table.local_tuples();
 
           expect(Monarch.Util.contains(tuples, locally_destroyed)).to(be_false);
           expect(Monarch.Util.contains(tuples, clean_record)).to(be_true);

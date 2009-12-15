@@ -217,9 +217,27 @@ Screw.Unit(function(c) { with(c) {
               expect(record.after_update).to_not(have_been_called);
             });
             var after_events_callback = mock_function('after events callback', function() {
-              expect(table_update_callback).to(have_been_called, once);
-              expect(record_update_callback).to(have_been_called, once);
-              expect(record.after_update).to(have_been_called, once);
+              var expected_changset = {
+                user_id: {
+                  column: Blog.user_id,
+                  old_value: user_id_before_update,
+                  new_value: 'wil'
+                },
+                name: {
+                  column: Blog.name_,
+                  old_value: name_before_update,
+                  new_value: 'Programming Prime'
+                },
+                fun_profit_name: {
+                  column: Blog.fun_profit_name,
+                  old_value: fun_profit_name_before_update,
+                  new_value: 'Programming Prime for Fun and Profit'
+                }
+              };
+
+              expect(table_update_callback).to(have_been_called, with_args(record, expected_changset));
+              expect(record_update_callback).to(have_been_called, with_args(expected_changset));
+              expect(record.after_update).to(have_been_called, with_args(expected_changset));
             });
 
             save_future.before_events(before_events_callback);
@@ -227,18 +245,18 @@ Screw.Unit(function(c) { with(c) {
 
             server.posts.shift().simulate_success({
               primary: [{
-                name: "Fancy Programming Prime", // server can change field values too
+                name: "Programming Prime", // server can change field values too
                 user_id: 'wil'
               }],
               secondary: []
             });
 
-            expect(record.local.name()).to(equal, "Fancy Programming Prime");
-            expect(record.local.fun_profit_name()).to(equal, "Fancy Programming Prime for Fun and Profit");
+            expect(record.local.name()).to(equal, "Programming Prime");
+            expect(record.local.fun_profit_name()).to(equal, "Programming Prime for Fun and Profit");
             expect(record.local.user_id()).to(equal, "wil");
 
-            expect(record.remote.name()).to(equal, "Fancy Programming Prime");
-            expect(record.remote.fun_profit_name()).to(equal, "Fancy Programming Prime for Fun and Profit");
+            expect(record.remote.name()).to(equal, "Programming Prime");
+            expect(record.remote.fun_profit_name()).to(equal, "Programming Prime for Fun and Profit");
             expect(record.remote.user_id()).to(equal, "wil");
 
             expect(before_events_callback).to(have_been_called);

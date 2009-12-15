@@ -81,6 +81,10 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
   },
 
   tuples: function() {
+    return this.local_tuples();
+  },
+
+  local_tuples: function() {
     return Monarch.Util.select(this.all_tuples(), function(record) {
       return !record.locally_destroyed;
     });
