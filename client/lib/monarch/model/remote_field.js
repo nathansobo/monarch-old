@@ -26,12 +26,7 @@ Monarch.constructor("Monarch.Model.RemoteField", Monarch.Model.ConcreteField, {
       return value;
     }
   },
-
-  on_update: function(update_callback) {
-    if (!this.on_update_node) this.on_update_node = new Monarch.SubscriptionNode();
-    this.on_update_node.subscribe(update_callback);
-  },
-
+  
   // private
 
   assign_value: function(value) {
@@ -43,13 +38,6 @@ Monarch.constructor("Monarch.Model.RemoteField", Monarch.Model.ConcreteField, {
       if (this.fieldset.update_events_enabled && this.on_update_node) this.on_update_node.publish(this._value, old_value)
     }
     return value;
-  },
-
-  value_equals: function(value) {
-    if (this.column.type == "datetime" && this._value && value) {
-      return this._value.getTime() == value.getTime();
-    }
-    return this._value == value;
   }
 });
 

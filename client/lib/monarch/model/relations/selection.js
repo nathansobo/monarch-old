@@ -31,6 +31,20 @@ Monarch.constructor("Monarch.Model.Relations.Selection", Monarch.Model.Relations
     };
   },
 
+  evaluate_in_repository: function(repository) {
+    return new Monarch.Model.Relations.Selection(this.operand.evaluate_in_repository(repository), this.predicate);
+  },
+
+  primary_table: function() {
+    return this.operand.primary_table();
+  },
+
+  column: function(name) {
+    return this.operand.column(name);
+  },
+
+  // private
+
   subscribe_to_operands: function() {
     var self = this;
     this.operands_subscription_bundle.add(this.operand.on_insert(function(record) {
@@ -52,18 +66,6 @@ Monarch.constructor("Monarch.Model.Relations.Selection", Monarch.Model.Relations
         if (self.predicate.evaluate(record)) self.record_inserted(record);
       }
     }));
-  },
-
-  evaluate_in_repository: function(repository) {
-    return new Monarch.Model.Relations.Selection(this.operand.evaluate_in_repository(repository), this.predicate);
-  },
-
-  primary_table: function() {
-    return this.operand.primary_table();
-  },
-
-  column: function(name) {
-    return this.operand.column(name);
   }
 });
 

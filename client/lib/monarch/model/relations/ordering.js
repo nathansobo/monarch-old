@@ -47,6 +47,8 @@ Monarch.constructor("Monarch.Model.Relations.Ordering", Monarch.Model.Relations.
     return this.operand.wire_representation();
   },
 
+  // private
+
   subscribe_to_operands: function() {
     var self = this;
     this.operands_subscription_bundle.add(this.operand.on_insert(function(record) {

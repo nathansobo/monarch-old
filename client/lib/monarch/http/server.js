@@ -34,6 +34,25 @@ Monarch.constructor("Monarch.Http.Server", {
     return batch.perform();
   },
 
+  post: function(url, data) {
+    return this.request('POST', url, data);
+  },
+
+  get: function(url, data) {
+    return this.request('GET', url, data);
+  },
+
+  put: function(url, data) {
+    return this.request('PUT', url, data);
+  },
+
+  delete_: function(url, data) {
+    var url_encoded_data = jQuery.param(this.stringify_json_data(data));
+    return this.request('DELETE', url + "?" + url_encoded_data);
+  },
+
+  // private
+
   extract_dirty_records: function(records_or_relations) {
     var dirty_records = []
     Monarch.Util.each(records_or_relations, function(arg) {
@@ -54,23 +73,6 @@ Monarch.constructor("Monarch.Http.Server", {
     } else {
       return new Monarch.Http.UpdateCommand(record);
     }
-  },
-
-  post: function(url, data) {
-    return this.request('POST', url, data);
-  },
-
-  get: function(url, data) {
-    return this.request('GET', url, data);
-  },
-
-  put: function(url, data) {
-    return this.request('PUT', url, data);
-  },
-
-  delete_: function(url, data) {
-    var url_encoded_data = jQuery.param(this.stringify_json_data(data));
-    return this.request('DELETE', url + "?" + url_encoded_data);
   },
 
   request: function(type, url, data) {
