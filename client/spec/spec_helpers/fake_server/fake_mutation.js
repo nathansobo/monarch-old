@@ -3,24 +3,17 @@ Monarch.constructor("FakeServer.FakeMutation", {
     this.id_counter = 1;
   },
 
-  initialize: function(url, command, fake_server) {
+  initialize: function(url, command, batch) {
     this.url = url;
     this.command = command;
-    this.fake_server = fake_server;
+    this.batch = batch;
 
     this.type = Monarch.Inflection.underscore(command.constructor.basename).split("_")[0];
     this.table = command.table;
     this.record = command.record;
-
-    if (this.type == "create") {
-      this.field_values = command.wire_representation()[2];
-    } else if (this.type == "update") {
-      this.field_values = command.wire_representation()[3]
-    }
+    this.field_values = command.field_values;
 
     this.table_name = command.table_name;
-    this.command_id = command.command_id;
-    this.future = command.future;
   },
 
   complete: function(field_values) {
@@ -46,7 +39,7 @@ Monarch.constructor("FakeServer.FakeMutation", {
     }
   },
 
-  simulate_success: function(fake_response_wire_representation) {
-    this.batch.simulate_success([fake_response_wire_representation || this.response_wire_representation()]);
+  simulate_success: function(fake_response) {
+    this.batch.simulate_success(fake_response ? [fake_response] : null);
   }
 });

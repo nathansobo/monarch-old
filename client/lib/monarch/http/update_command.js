@@ -4,12 +4,12 @@ Monarch.constructor("Monarch.Http.UpdateCommand", Monarch.Http.Command, {
   initialize: function(record) {
     this.record = record;
     this.table_name = this.record.table().global_name;
-    this.command_id = record.id();
-    this.future = new Monarch.Http.RepositoryUpdateFuture();
+    this.id = this.record.id();
+    this.field_values = this.record.local.dirty_wire_representation();
   },
 
   wire_representation: function() {
-    return ['update', this.table_name, this.command_id, this.record.local.dirty_wire_representation()];
+    return ['update', this.table_name, this.id, this.field_values];
   },
 
   complete: function(field_values_from_server, requested_at) {
@@ -18,7 +18,6 @@ Monarch.constructor("Monarch.Http.UpdateCommand", Monarch.Http.Command, {
 
   handle_failure: function(errors_by_field_name) {
     if (errors_by_field_name) this.record.populate_fields_with_errors(errors_by_field_name);
-    this.future.trigger_on_failure(this.record);
   }
 });
 

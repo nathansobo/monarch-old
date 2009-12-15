@@ -2,6 +2,7 @@
 
 Monarch.constructor("Monarch.Model.Relations.Relation", {
   has_operands: true,
+  __relation__: true,
 
   initialize_events_system: function() {
     this.on_insert_node = new Monarch.SubscriptionNode();

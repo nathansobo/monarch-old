@@ -26,98 +26,34 @@ Monarch.constructor("Monarch.Http.Server", {
     return fetch_future;
   },
 
-  create: function(table, field_values) {
-    var record = table.local_create(field_values);
-    var command = new Monarch.Http.CreateCommand(record);
-    return this.mutate(command)
+  save: function() {
+    var commands = Monarch.Util.map(this.extract_dirty_records(arguments), function(dirty_record) {
+      return this.build_appropriate_command(dirty_record);
+    }.bind(this));
+    var batch = new Monarch.Http.CommandBatch(this, commands);
+    return batch.perform();
   },
 
-  update: function(record, field_values) {
-    if (!field_values) throw new Error("no field values");
-    record.local_update(field_values);
-    var command = new Monarch.Http.UpdateCommand(record);
-    return this.mutate(command);
-  },
-
-  destroy: function(record) {
-    record.local_destroy();
-    var command = new Monarch.Http.DestroyCommand(record);
-    return this.mutate(command);
-  },
-
-  save: function(record) {
-    var command;
-    if (record.locally_destroyed) {
-      command = new Monarch.Http.DestroyCommand(record);
-    } else if (!record.remotely_created) {
-      command = new Monarch.Http.CreateCommand(record);
-    } else {
-      command = new Monarch.Http.UpdateCommand(record);
-    }
-    return this.mutate(command);
-  },
-
-  mutate: function(command) {
-    this.pending_commands.push(command);
-    if (!this.batch_in_progress) this.perform_pending_mutations();
-    return command.future;
-  },
-
-  perform_pending_mutations: function() {
-    var self = this;
-    var operation_wire_representations = Monarch.Util.map(this.pending_commands, function(command) {
-      return command.wire_representation();
-    });
-
-    var pending_commands = this.pending_commands;
-    this.pending_commands = [];
-
-    var requested_at = new Date();
-    this.post(Repository.origin_url, { operations: operation_wire_representations })
-      .on_success(function(response_data) {
-        self.handle_successful_mutation_response(pending_commands, response_data, requested_at);
-      })
-      .on_failure(function(response_data) {
-        self.handle_unsuccessful_mutation_response(pending_commands, response_data, requested_at);
-      });
-  },
-
-  handle_successful_mutation_response: function(pending_commands, response_data, requested_at) {
-    Repository.pause_events();
-
-    Monarch.Util.each(response_data.primary, function(response, index) {
-      pending_commands[index].complete(response, requested_at);
-    });
-    Repository.mutate(response_data.secondary);
-
-    Monarch.Util.each(response_data.primary, function(response, index) {
-      pending_commands[index].trigger_before_events();
-    });
-    Repository.resume_events();
-    Monarch.Util.each(pending_commands, function(command) {
-      command.trigger_after_events();
-    });
-  },
-
-  handle_unsuccessful_mutation_response: function(pending_commands, response_data) {
-    Monarch.Util.each(pending_commands, function(command, index) {
-      if (index == response_data.index) {
-        command.handle_failure(response_data.errors)
+  extract_dirty_records: function(records_or_relations) {
+    var dirty_records = []
+    Monarch.Util.each(records_or_relations, function(arg) {
+      if (arg.__relation__) {
+        dirty_records.push.apply(dirty_records, arg.dirty_tuples());
       } else {
-        command.handle_failure(null);
+        if (arg.dirty()) dirty_records.push(arg);
       }
     });
+    return dirty_records;
   },
 
-  start_batch: function() {
-    if (this.batch_in_progress) throw new Error("Batch already in progress");
-    this.batch_in_progress = true;
-  },
-
-  finish_batch: function() {
-    if (!this.batch_in_progress) throw new Error("No batch in progress");
-    this.batch_in_progress = false;
-    this.perform_pending_mutations();
+  build_appropriate_command: function(record) {
+    if (record.locally_destroyed) {
+      return new Monarch.Http.DestroyCommand(record);
+    } else if (!record.remotely_created) {
+      return new Monarch.Http.CreateCommand(record);
+    } else {
+      return new Monarch.Http.UpdateCommand(record);
+    }
   },
 
   post: function(url, data) {

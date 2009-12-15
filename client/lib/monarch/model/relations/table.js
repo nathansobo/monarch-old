@@ -43,7 +43,8 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
   },
 
   create: function(field_values) {
-    return Server.create(this, field_values);
+    var record = this.local_create(field_values);
+    return Server.save(record);
   },
 
   local_create: function(field_values) {

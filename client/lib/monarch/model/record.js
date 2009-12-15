@@ -156,15 +156,16 @@ Monarch.constructor("Monarch.Model.Record", {
 
   update: function(values_by_method_name) {
     this.local_update(values_by_method_name);
-    return Server.update(this);
+    return this.save();
   },
 
   save: function() {
-    return Server.update(this);
+    return Server.save(this);
   },
 
   destroy: function() {
-    return Server.destroy(this);
+    this.local_destroy();
+    return Server.save(this);
   },
 
   populate_fields_with_errors: function(errors_by_field_name) {
