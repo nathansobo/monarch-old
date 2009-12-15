@@ -3,7 +3,8 @@
 Monarch.constructor("Monarch.Http.CreateCommand", Monarch.Http.Command, {
   initialize: function(record) {
     this.record = record;
-    this.table_name = this.record.table().global_name;
+    this.table = this.record.table();
+    this.table_name = this.table.global_name;
     this.field_values = record.dirty_wire_representation();
   },
 

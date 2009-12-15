@@ -8,7 +8,7 @@ Monarch.constructor("FakeServer.FakeCommandBatch", {
   },
 
   find_update: function(record) {
-    return Monarch.Util.detect(this.mutations, function(mutation) {
+    return Monarch.Util.detect(this.commands, function(mutation) {
       return mutation.record === record
     });
   },

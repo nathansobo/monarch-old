@@ -40,6 +40,6 @@ Monarch.constructor("FakeServer.FakeMutation", {
   },
 
   simulate_success: function(fake_response) {
-    this.batch.simulate_success(fake_response ? [fake_response] : null);
+    this.batch.simulate_success(fake_response ? { primary: [fake_response], secondary: []} : null);
   }
 });
