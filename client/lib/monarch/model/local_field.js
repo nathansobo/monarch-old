@@ -47,7 +47,7 @@ Monarch.constructor("Monarch.Model.LocalField", Monarch.Model.ConcreteField, {
   
   value_assigned: function(new_value, old_value) {
     this.last_modified_at = new Date();
-    if (this.fieldset.remote.update_events_enabled && this.on_update_node) this.on_update_node.publish(new_value, old_value)
+    if (this.on_update_node) this.on_update_node.publish(new_value, old_value)
   }
 });
 
