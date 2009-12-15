@@ -23,8 +23,8 @@ Monarch.constructor("Monarch.Model.Relations.Ordering", Monarch.Model.Relations.
     this.initialize_events_system();
   },
 
-  records: function() {
-    return this.operand.records().sort(this.comparator);
+  tuples: function() {
+    return this.operand.tuples().sort(this.comparator);
   },
 
   create: function(field_values) {

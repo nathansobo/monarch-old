@@ -36,7 +36,7 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("#update", function() {
-      it("inserts records that don't exist and updates those that do", function() {
+      it("inserts tuples that don't exist and updates those that do", function() {
         expect(User.find('nathan')).to(be_null);
         expect(Blog.find('metacircular')).to(be_null);
         expect(Blog.find('travel')).to(be_null);
@@ -84,7 +84,7 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("#delta", function() {
-      it("inserts records that don't exist, updates those that do, and removes records that are not present in the given snapshot", function() {
+      it("inserts tuples that don't exist, updates those that do, and removes tuples that are not present in the given snapshot", function() {
         expect(User.find('nathan')).to(be_null);
         expect(Blog.find('metacircular')).to(be_null);
         expect(Blog.find('travel')).to(be_null);
@@ -169,37 +169,37 @@ Screw.Unit(function(c) { with(c) {
 
     describe("#clear", function() {
       it("removes all data from all tables", function() {
-        expect(Blog.records()).to_not(be_empty);
-        expect(User.records()).to_not(be_empty);
+        expect(Blog.tuples()).to_not(be_empty);
+        expect(User.tuples()).to_not(be_empty);
         repository.clear();
-        expect(User.records()).to(be_empty);
-        expect(Blog.records()).to(be_empty);
+        expect(User.tuples()).to(be_empty);
+        expect(Blog.tuples()).to(be_empty);
       });
     });
 
     describe("#clone_schema", function() {
       it("makes another Repository with the cloned schemas of all its Tables", function() {
         expect(repository.tables.users).to_not(be_null);
-        expect(repository.tables.users.records()).to_not(be_empty);
+        expect(repository.tables.users.tuples()).to_not(be_empty);
         expect(repository.tables.blogs).to_not(be_null);
-        expect(repository.tables.blogs.records()).to_not(be_empty);
+        expect(repository.tables.blogs.tuples()).to_not(be_empty);
 
         var clone = repository.clone_schema();
 
         // same tables
         expect(clone.tables.users).to_not(be_null);
-        expect(clone.tables.users.records()).to(be_empty);
+        expect(clone.tables.users.tuples()).to(be_empty);
         expect(clone.tables.blogs).to_not(be_null);
-        expect(clone.tables.blogs.records()).to(be_empty);
+        expect(clone.tables.blogs.tuples()).to(be_empty);
 
         // with same columns (schema)
         expect(clone.tables.users.columns_by_name).to(equal, repository.tables.users.columns_by_name);
         expect(clone.tables.users.column('full_name')).to(equal, repository.tables.users.column('full_name'));
 
         // but different data stores
-        var num_users_in_original_repository = repository.tables.users.records().length;
+        var num_users_in_original_repository = repository.tables.users.tuples().length;
         clone.tables.users.insert(new User({full_name: "Wil Bierbaum"}));
-        expect(repository.tables.users.records().length).to(equal, num_users_in_original_repository);
+        expect(repository.tables.users.tuples().length).to(equal, num_users_in_original_repository);
       });
     });
   });

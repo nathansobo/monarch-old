@@ -67,7 +67,7 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe(".synthetic_column(name, definition)", function() {
-      it("causes records to have synthetic fields that are based on signals returned by the definition", function() {
+      it("causes tuples to have synthetic fields that are based on signals returned by the definition", function() {
         var record = Blog.find('recipes')
         expect(record.fun_profit_name()).to(equal, record.name() + " for Fun and Profit");
       });

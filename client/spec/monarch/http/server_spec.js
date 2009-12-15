@@ -338,8 +338,8 @@ Screw.Unit(function(c) { with(c) {
             post.simulate_success({primary: [null], secondary: []});
 
             expect(Blog.find('recipes')).to(be_null);
-            expect(Monarch.Util.any(Blog.table._records, function(r) { r === record})).to(be_false);
-            expect('recipes' in Blog.table.records_by_id).to(be_false);
+            expect(Monarch.Util.any(Blog.table._tuples, function(r) { r === record})).to(be_false);
+            expect('recipes' in Blog.table.tuples_by_id).to(be_false);
 
             expect(before_events_callback).to(have_been_called);
             expect(after_events_callback).to(have_been_called);
@@ -504,7 +504,7 @@ Screw.Unit(function(c) { with(c) {
 
 //    describe("#start_batch() and #finish_batch()", function() {
 //      use_local_fixtures();
-//      var jan, wil, recipes, motorcycle, records_from_insert_events, records_from_update_events, records_from_remove_events, original_global_server;
+//      var jan, wil, recipes, motorcycle, tuples_from_insert_events, tuples_from_update_events, tuples_from_remove_events, original_global_server;
 //      var insert_callback, update_callback, remove_callback, before_events_callback, after_events_callback;
 //
 //      before(function() {

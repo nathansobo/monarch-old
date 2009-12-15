@@ -8,8 +8,8 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
     this.record_constructor = record_constructor;
     this.columns_by_name = {};
     this.synthetic_columns_by_name = {};
-    this._records = [];
-    this.records_by_id = {};
+    this._tuples = [];
+    this.tuples_by_id = {};
 
     this.initialize_events_system();
     this.on_pause_events_node = new Monarch.SubscriptionNode();
@@ -28,19 +28,17 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
     return this.columns_by_name[name];
   },
 
-  records: function() {
-    return Monarch.Util.select(this._records, function(record) {
-      return !record.locally_destroyed;
-    });
+  all_tuples: function() {
+    return this._tuples.concat();
   },
 
   insert: function(record) {
-    this._records.push(record);
+    this._tuples.push(record);
     record.initialize_relations();
   },
 
   remove: function(record) {
-    delete this.records_by_id[record.id()];
+    delete this.tuples_by_id[record.id()];
     this.record_removed(record);
   },
 
@@ -58,13 +56,13 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
 
   // remotely
   record_inserted: function(record) {
-    this.records_by_id[record.id()] = record;
+    this.tuples_by_id[record.id()] = record;
     this.on_insert_node.publish(record);
   },
 
   find: function(predicate_or_id) {
     if (typeof predicate_or_id === "string") {
-      var record = this.records_by_id[predicate_or_id]
+      var record = this.tuples_by_id[predicate_or_id]
       return (record && record.locally_destroyed) ? null : record;
     } else {
       return this.where(predicate_or_id).first();
@@ -137,8 +135,8 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
   },
 
   clear: function() {
-    this._records = [];
-    this.records_by_id = {}
+    this._tuples = [];
+    this.tuples_by_id = {}
   },
 
   clone_schema: function() {

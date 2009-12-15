@@ -8,20 +8,20 @@ Monarch.constructor("Monarch.Model.Relations.Difference", Monarch.Model.Relation
   },
 
   contains: function(record) {
-    return record.id() in this.records_by_id;
+    return record.id() in this.tuples_by_id;
   },
 
-  records: function() {
-    if (this.records_by_id) return Monarch.Util.values(this.records_by_id);
-    var records = [];
+  tuples: function() {
+    if (this.tuples_by_id) return Monarch.Util.values(this.tuples_by_id);
+    var tuples = [];
 
-    var left_records = this.left_operand.records().sort(function(a, b) {
+    var left_tuples = this.left_operand.tuples().sort(function(a, b) {
       if (a.id() < b.id()) return -1;
       if (a.id() > b.id()) return 1;
       return 0;
     });
 
-    var right_records = this.right_operand.records().sort(function(a, b) {
+    var right_tuples = this.right_operand.tuples().sort(function(a, b) {
       if (a.id() < b.id()) return -1;
       if (a.id() > b.id()) return 1;
       return 0;
@@ -29,15 +29,15 @@ Monarch.constructor("Monarch.Model.Relations.Difference", Monarch.Model.Relation
 
     var right_index = 0;
 
-    Monarch.Util.each(left_records, function(left_record, index) {
-      if (right_records[right_index] && left_record.id() === right_records[right_index].id()) {
+    Monarch.Util.each(left_tuples, function(left_record, index) {
+      if (right_tuples[right_index] && left_record.id() === right_tuples[right_index].id()) {
         right_index++;
       } else {
-        records.push(left_record);
+        tuples.push(left_record);
       }
     });
 
-    return records;
+    return tuples;
   },
 
   // private
@@ -65,16 +65,16 @@ Monarch.constructor("Monarch.Model.Relations.Difference", Monarch.Model.Relation
     }));
   },
 
-  memoize_records: function() {
-    var records_by_id = {};
+  memoize_tuples: function() {
+    var tuples_by_id = {};
     this.each(function(record) {
-      records_by_id[record.id()] = record;
+      tuples_by_id[record.id()] = record;
     }.bind(this));
-    this.records_by_id = records_by_id;
+    this.tuples_by_id = tuples_by_id;
   },
 
   record_inserted: function(record, options) {
-    this.records_by_id[record.id()] = record;
+    this.tuples_by_id[record.id()] = record;
     this.on_insert_node.publish(record);
   },
 
@@ -83,7 +83,7 @@ Monarch.constructor("Monarch.Model.Relations.Difference", Monarch.Model.Relation
   },
 
   record_removed: function(record) {
-    delete this.records_by_id[record.id()];
+    delete this.tuples_by_id[record.id()];
     this.on_remove_node.publish(record);
   }
 });

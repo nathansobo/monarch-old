@@ -77,10 +77,10 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("#simulate_fetch", function() {
-      it("immediately fetches records from the FakeServer's repository to the local repository", function() {
-        expect(Blog.records()).to(be_empty);
+      it("immediately fetches tuples from the FakeServer's repository to the local repository", function() {
+        expect(Blog.tuples()).to(be_empty);
         fake_server.simulate_fetch([Blog.table]);
-        expect(Blog.records()).to_not(be_empty);
+        expect(Blog.tuples()).to_not(be_empty);
       });
     });
 
@@ -281,7 +281,7 @@ Screw.Unit(function(c) { with(c) {
 
       describe("#start_batch and #finish_batch", function() {
         use_local_fixtures();
-        var jan, wil, recipes, motorcycle, records_from_insert_events, records_from_update_events, records_from_remove_events, original_global_server;
+        var jan, wil, recipes, motorcycle, tuples_from_insert_events, tuples_from_update_events, tuples_from_remove_events, original_global_server;
         var insert_callback, update_callback, remove_callback, before_events_callback, after_events_callback;
 
         before(function() {

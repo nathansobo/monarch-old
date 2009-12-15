@@ -80,29 +80,41 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
     return new Monarch.Model.Relations.Difference(this, right_operand);
   },
 
+  tuples: function() {
+    return Monarch.Util.select(this.all_tuples(), function(record) {
+      return !record.locally_destroyed;
+    });
+  },
+
+  dirty_tuples: function() {
+    return Monarch.Util.select(this.all_tuples(), function(record) {
+      return record.dirty();
+    });
+  },
+
   each: function(fn) {
-    Monarch.Util.each(this.records(), fn);
+    Monarch.Util.each(this.tuples(), fn);
   },
 
   map: function(fn) {
-    return Monarch.Util.map(this.records(), fn);
+    return Monarch.Util.map(this.tuples(), fn);
   },
 
   any: function(fn) {
-    return Monarch.Util.any(this.records(), fn);
+    return Monarch.Util.any(this.tuples(), fn);
   },
 
   empty: function() {
-    return this.records().length == 0;
+    return this.tuples().length == 0;
   },
 
   first: function() {
-    return this.records()[0];
+    return this.tuples()[0];
   },
 
   last: function() {
-    var records = this.records();
-    return records[records.length-1];
+    var tuples = this.tuples();
+    return tuples[tuples.length-1];
   },
 
   find: function(predicate_or_id_or_hash) {
@@ -114,13 +126,13 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
   },
 
   size: function() {
-    return this.records().length;
+    return this.tuples().length;
   },
 
   at: function(i) {
-    return this.records()[i];
+    return this.tuples()[i];
   },
-  
+
   on_insert: function(on_insert_callback) {
     this.subscribe_to_operands_if_needed();
     return this.on_insert_node.subscribe(on_insert_callback);
@@ -144,13 +156,13 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
     return Server.fetch([this]);
   },
 
-  memoize_records: function() {
-    this._records = this.records();
+  memoize_tuples: function() {
+    this._tuples = this.tuples();
   },
 
   record_inserted: function(record, options) {
     if (!this.contains(record)) {
-      this._records.push(record)
+      this._tuples.push(record)
     }
     this.on_insert_node.publish(record);
   },
@@ -160,14 +172,14 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
   },
 
   record_removed: function(record) {
-    Monarch.Util.remove(this._records, record);
+    Monarch.Util.remove(this._tuples, record);
     this.on_remove_node.publish(record);
   },
 
   contains: function(record) {
-    var records = this.records();
-    for(var i = 0; i < records.length; i++) {
-      if (records[i] == record) return true;
+    var tuples = this.tuples();
+    for(var i = 0; i < tuples.length; i++) {
+      if (tuples[i] == record) return true;
     }
     return false;
   },
@@ -175,7 +187,7 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
   subscribe_to_operands_if_needed: function() {
     if (this.has_operands && !this.has_subscribers()) {
       this.subscribe_to_operands();
-      this.memoize_records();
+      this.memoize_tuples();
     }
   },
 
@@ -192,7 +204,7 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
 
   unsubscribe_from_operands: function() {
     this.operands_subscription_bundle.destroy_all();
-    this._records = null;
+    this._tuples = null;
   }
 });
 

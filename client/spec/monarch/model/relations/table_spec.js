@@ -23,21 +23,69 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
-    describe("#records", function() {
-      it("returns a copy of the sets records", function() {
-        var records_copy = User.table.records();
-        records_copy.push(1);
-        expect(User.table.records()).to_not(equal, records_copy);
+    describe("#tuples", function() {
+      it("returns a copy of the sets tuples", function() {
+        var tuples_copy = User.table.tuples();
+        tuples_copy.push(1);
+        expect(User.table.tuples()).to_not(equal, tuples_copy);
+      });
+    });
+
+    describe("query methods", function() {
+      var locally_created, locally_updated, locally_destroyed, clean_record;
+      before(function() {
+        clean_record = User.find('mike');
+        locally_created = User.local_create({ id: 'barbara' });
+        locally_updated = User.find('wil');
+        locally_updated.local_update({full_name: "Kaiser Wilhelm"});
+        locally_destroyed = User.find('jan');
+        locally_destroyed.local_destroy();
+      });
+
+      describe("#all_tuples", function() {
+        it("returns a copy of all records in the table, including those that are locally created and destroyed", function() {
+          var tuples = User.table.all_tuples();
+
+          expect(Monarch.Util.contains(tuples, clean_record)).to(be_true);
+          expect(Monarch.Util.contains(tuples, locally_updated)).to(be_true);
+          expect(Monarch.Util.contains(tuples, locally_created)).to(be_true);
+          expect(Monarch.Util.contains(tuples, locally_destroyed)).to(be_true);
+
+          tuples.push(1);
+          expect(User.table.all_tuples()).to_not(equal, tuples);
+        });
+      });
+
+      describe("#tuples", function() {
+        it("excludes records that are locally destroyed but includes all others", function() {
+          var tuples = User.table.tuples();
+
+          expect(Monarch.Util.contains(tuples, locally_destroyed)).to(be_false);
+          expect(Monarch.Util.contains(tuples, clean_record)).to(be_true);
+          expect(Monarch.Util.contains(tuples, locally_updated)).to(be_true);
+          expect(Monarch.Util.contains(tuples, locally_created)).to(be_true);
+        });
+      });
+
+      describe("#dirty_tuples", function() {
+        it("excludes clean records but includes all others", function() {
+          var tuples = User.table.dirty_tuples();
+
+          expect(Monarch.Util.contains(tuples, clean_record)).to(be_false);
+          expect(Monarch.Util.contains(tuples, locally_created)).to(be_true);
+          expect(Monarch.Util.contains(tuples, locally_updated)).to(be_true);
+          expect(Monarch.Util.contains(tuples, locally_destroyed)).to(be_true);
+        });
       });
     });
 
     describe("#insert", function() {
-      it("adds the given Record to the array returned by #records", function() {
+      it("adds the given Record to the array returned by #tuples", function() {
         var record = new User();
 
-        expect(User.table.records()).to_not(contain, record);
+        expect(User.table.tuples()).to_not(contain, record);
         User.table.insert(record)
-        expect(User.table.records()).to(contain, record);
+        expect(User.table.tuples()).to(contain, record);
       });
     });
 
@@ -227,7 +275,7 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("#clear", function() {
-      it("removes records data from the table and its index", function() {
+      it("removes tuples data from the table and its index", function() {
         expect(User.find('jan')).to_not(be_null);
         User.table.clear();
         expect(User.table.empty()).to(be_true);

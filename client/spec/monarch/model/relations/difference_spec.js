@@ -4,24 +4,24 @@ Screw.Unit(function(c) { with(c) {
   describe("Monarch.Model.Relations.Difference", function() {
     use_local_fixtures();
 
-    describe("#records", function() {
+    describe("#tuples", function() {
       var left_operand, right_operand, difference;
       before(function() {
         left_operand = User.table;
         right_operand = User.where(User.age.eq(28));
-        expect(left_operand.records()).to_not(be_empty);
-        expect(right_operand.records()).to_not(be_empty);
+        expect(left_operand.tuples()).to_not(be_empty);
+        expect(right_operand.tuples()).to_not(be_empty);
 
         difference = new Monarch.Model.Relations.Difference(left_operand, right_operand);
       });
 
-      it("returns the records in the left operand which do not correspond to records with the same id in the right operand", function() {
-        var difference_records = difference.records();
+      it("returns the tuples in the left operand which do not correspond to tuples with the same id in the right operand", function() {
+        var difference_tuples = difference.tuples();
 
-        expect(difference_records).to_not(be_empty);
-        expect(difference_records.length).to(equal, left_operand.size() - right_operand.size());
+        expect(difference_tuples).to_not(be_empty);
+        expect(difference_tuples.length).to(equal, left_operand.size() - right_operand.size());
 
-        Monarch.Util.each(difference_records, function(record) {
+        Monarch.Util.each(difference_tuples, function(record) {
           expect(right_operand.find(record.id())).to(be_null);
         });
       });

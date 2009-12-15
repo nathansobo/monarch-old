@@ -101,8 +101,8 @@ Monarch.constructor("Monarch.Model.Record", {
       return this.table.fetch();
     },
 
-    records: function() {
-      return this.table.records();
+    tuples: function() {
+      return this.table.tuples();
     },
 
     each: function(fn) {
@@ -215,7 +215,7 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   dirty: function() {
-    return this.locally_destroyed || this.is_any_field_dirty();
+    return this.locally_destroyed || !this.remotely_created || this.local.dirty();
   },
 
   table: function() {
@@ -302,12 +302,6 @@ Monarch.constructor("Monarch.Model.Record", {
     this.relations_by_name = {};
     Monarch.Util.each(this.constructor.relation_definitions, function(relation_definition) {
       self.relations_by_name[relation_definition.name] = relation_definition.definition.call(self);
-    });
-  },
-
-  is_any_field_dirty: function() {
-    return Monarch.Util.any(this.fields_by_column_name, function(name, field) {
-      return field.dirty();
     });
   }
 });

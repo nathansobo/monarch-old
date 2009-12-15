@@ -16,15 +16,15 @@ Monarch.constructor("Monarch.Model.Relations.Projection", Monarch.Model.Relation
     this.initialize_events_system();
   },
 
-  records: function() {
+  tuples: function() {
     var self = this;
-    if (this._records) return this._records;
+    if (this._tuples) return this._tuples;
 
     var record_constructor = this.record_constructor;
-    this.records_by_operand_record_id = {};
+    this.tuples_by_operand_record_id = {};
     return this.operand.map(function(operand_record) {
       var record = new record_constructor(operand_record);
-      self.records_by_operand_record_id[operand_record.id()] = record;
+      self.tuples_by_operand_record_id[operand_record.id()] = record;
       return record;
     });
   },
@@ -37,16 +37,16 @@ Monarch.constructor("Monarch.Model.Relations.Projection", Monarch.Model.Relation
     var self = this;
     this.operands_subscription_bundle.add(this.operand.on_insert(function(operand_record) {
       var record = new self.record_constructor(operand_record);
-      self.records_by_operand_record_id[operand_record.id()] = record;
+      self.tuples_by_operand_record_id[operand_record.id()] = record;
       self.record_inserted(record);
     }));
     this.operands_subscription_bundle.add(this.operand.on_update(function(operand_record, operand_changes) {
       var changes = self.translate_update_changes(operand_changes);
       if (Monarch.Util.is_empty(changes)) return;
-      self.record_updated(self.records_by_operand_record_id[operand_record.id()], changes);
+      self.record_updated(self.tuples_by_operand_record_id[operand_record.id()], changes);
     }));
     this.operands_subscription_bundle.add(this.operand.on_remove(function(operand_record) {
-      self.record_removed(self.records_by_operand_record_id[operand_record.id()]);
+      self.record_removed(self.tuples_by_operand_record_id[operand_record.id()]);
     }));
   },
 

@@ -45,6 +45,12 @@ Monarch.constructor("Monarch.Model.LocalFieldset", Monarch.Model.Fieldset, {
     // TODO  
   },
 
+  dirty: function() {
+    return Monarch.Util.any(this.fields_by_column_name, function(name, field) {
+      return field.dirty();
+    });
+  },
+
   // private
 
   connect_local_and_remote_fields: function() {

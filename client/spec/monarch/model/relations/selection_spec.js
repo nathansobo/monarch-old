@@ -12,10 +12,10 @@ Screw.Unit(function(c) { with(c) {
       selection = new Monarch.Model.Relations.Selection(operand, predicate);
     });
 
-    describe("#records", function() {
-      it("returns only the #records of #operand that match #predicate", function() {
+    describe("#tuples", function() {
+      it("returns only the #tuples of #operand that match #predicate", function() {
         var expected_tuples = [];
-        var operand_tuples = operand.records();
+        var operand_tuples = operand.tuples();
 
         for (var i = 0; i < operand_tuples.length; i++) {
           var tuple = operand_tuples[i];
@@ -25,7 +25,7 @@ Screw.Unit(function(c) { with(c) {
         }
 
         expect(expected_tuples).to_not(be_empty);
-        expect(selection.records()).to(equal, expected_tuples);
+        expect(selection.tuples()).to(equal, expected_tuples);
       });
     });
 
@@ -362,24 +362,24 @@ Screw.Unit(function(c) { with(c) {
           });
         });
 
-        it("subscribes to its #operand and memoizes records, then unsubscribes and clears the memoization, then resubscribes and rememoizes", function() {
+        it("subscribes to its #operand and memoizes tuples, then unsubscribes and clears the memoization, then resubscribes and rememoizes", function() {
           expect(operand.has_subscribers()).to(be_false);
-          expect(selection._records).to(be_null);
+          expect(selection._tuples).to(be_null);
 
           var subscription = selection[event_type].call(selection, function() {});
 
           expect(operand.has_subscribers()).to(be_true);
-          expect(selection._records).to_not(be_null);
+          expect(selection._tuples).to_not(be_null);
 
           subscription.destroy();
 
           expect(operand.has_subscribers()).to(be_false);
-          expect(selection._records).to(be_null);
+          expect(selection._tuples).to(be_null);
 
           selection.on_update(function() {});
 
           expect(operand.has_subscribers()).to(be_true);
-          expect(selection._records).to_not(be_null);
+          expect(selection._tuples).to_not(be_null);
         });
       });
     });

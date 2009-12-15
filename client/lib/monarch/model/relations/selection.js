@@ -8,15 +8,15 @@ Monarch.constructor("Monarch.Model.Relations.Selection", Monarch.Model.Relations
     this.initialize_events_system();
   },
 
-  records: function() {
-    if (this._records) return this._records;
+  tuples: function() {
+    if (this._tuples) return this._tuples;
 
     var predicate = this.predicate;
-    var records = [];
+    var tuples = [];
     this.operand.each(function() {
-      if (predicate.evaluate(this)) records.push(this);
+      if (predicate.evaluate(this)) tuples.push(this);
     });
-    return records;
+    return tuples;
   },
 
   create: function(field_values) {

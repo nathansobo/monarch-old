@@ -40,7 +40,7 @@ Screw.Unit(function(c) { with(c) {
 //    });
 //
 //    describe("#initialize(record)", function() {
-//      it("instantiates a Field in #fields_by_column_name for each Column on the given Records's .table", function() {
+//      it("instantiates a Field in #fields_by_column_name for each Column on the given tuples's .table", function() {
 //        var name_field = fieldset.field('name');
 //        var user_id_field = fieldset.field('user_id');
 //

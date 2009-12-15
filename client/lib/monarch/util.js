@@ -81,11 +81,12 @@ Monarch.module("Monarch.Util", {
     }
   },
 
-  any: function(array, fn) {
-    for(var i = 0; i < array.length; i++) {
-      if (fn(array[i])) return true;
+  any: function(array_or_hash, fn) {
+    if (array_or_hash.length) {
+      return this.array_any(array_or_hash, fn);
+    } else {
+      return this.hash_any(array_or_hash, fn);
     }
-    return false;
   },
 
   select: function(array, fn) {
@@ -136,18 +137,32 @@ Monarch.module("Monarch.Util", {
     return null;
   },
   
-  array_all: function(array, callback) {
+  array_all: function(array, fn) {
     for(var i = 0; i < array.length; i++) {
-      if (!callback(array[i])) return false;
+      if (!fn(array[i])) return false;
     }
     return true;
   },
 
-  hash_all: function(hash, callback) {
+  hash_all: function(hash, fn) {
     for(var key in hash) {
-      if (!callback(key, hash[key])) return false;
+      if (!fn(key, hash[key])) return false;
     }
     return true;
+  },
+
+  array_any: function(array, fn) {
+    for(var i = 0; i < array.length; i++) {
+      if (fn(array[i])) return true;
+    }
+    return false;
+  },
+
+  hash_any: function(hash, fn) {
+    for(var key in hash) {
+      if (fn(key, hash[key])) return true;
+    }
+    return false;
   }
 });
 
