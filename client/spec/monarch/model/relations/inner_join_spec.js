@@ -73,6 +73,13 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
+    describe("#column", function() {
+      it("returns the first matching column from either operand", function() {
+        expect(join.column('name')).to(equal, Blog.name_);
+        expect(join.column('body')).to(equal, BlogPost.body);
+      });
+    });
+
     describe("#on_insert", function() {
       it("returns a Monarch.Subscription with #on_insert_node as its #node", function() {
         var subscription = join.on_insert(function() {});
@@ -466,18 +473,17 @@ Screw.Unit(function(c) { with(c) {
         });
       });
     });
-//
-//    describe("#evaluate_in_repository(repository)", function() {
-//      it("returns the same Selection with its #operand evaluated in the repository", function() {
-//        var other_repo = Repository.clone_schema();
-//        var selection_in_other_repo = selection.evaluate_in_repository(other_repo);
-//
-//        expect(selection_in_other_repo.operand).to(equal, selection.operand.evaluate_in_repository(other_repo));
-//        expect(selection_in_other_repo.predicate).to(equal, selection.predicate);
-//
-//        var table_in_other_repo = User.table.evaluate_in_repository(other_repo);
-//        expect(table_in_other_repo).to(equal, other_repo.tables.users);
-//      });
-//    });
+
+    describe("#evaluate_in_repository(repository)", function() {
+      it("returns the same Selection with its #operand evaluated in the repository", function() {
+        var other_repo = Repository.clone_schema();
+        var join_in_other_repo = join.evaluate_in_repository(other_repo);
+
+        expect(join_in_other_repo.predicate).to(equal, join.predicate);
+        expect(join_in_other_repo.left_operand.operand).to(equal, join.left_operand.operand.evaluate_in_repository(other_repo));
+        expect(join_in_other_repo.left_operand.predicate).to(equal, join.left_operand.predicate);
+        expect(join_in_other_repo.right_operand).to(equal, join.right_operand.evaluate_in_repository(other_repo));
+      });
+    });
   });
 }});

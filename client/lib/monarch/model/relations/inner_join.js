@@ -26,6 +26,18 @@ Monarch.constructor("Monarch.Model.Relations.InnerJoin", Monarch.Model.Relations
     };
   },
 
+  column: function(name) {
+    return this.left_operand.column(name) || this.right_operand.column(name);
+  },
+
+  evaluate_in_repository: function(repository) {
+    return new Monarch.Model.Relations.InnerJoin(
+      this.left_operand.evaluate_in_repository(repository),
+      this.right_operand.evaluate_in_repository(repository),
+      this.predicate
+    );
+  },
+
   // private
 
   cartesian_product: function() {
@@ -38,22 +50,6 @@ Monarch.constructor("Monarch.Model.Relations.InnerJoin", Monarch.Model.Relations
     })
     return product;
   },
-
-//  evaluate_in_repository: function(repository) {
-//    return new Monarch.Model.Relations.Selection(this.operand.evaluate_in_repository(repository), this.predicate);
-//  },
-
-//  primary_table: function() {
-//    return this.operand.primary_table();
-//  },
-
-//  column: function(name) {
-//    return this.operand.column(name);
-//  },
-
-  // private
-
-
 
   subscribe_to_operands: function() {
     var self = this;

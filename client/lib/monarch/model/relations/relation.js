@@ -52,9 +52,9 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
         var column_name = parts[0];
         var direction = parts[1] || 'asc';
         if (direction == 'desc') {
-          return self.primary_table().columns_by_name[column_name].desc();
+          return self.column(column_name).desc();
         } else {
-          return self.primary_table().columns_by_name[column_name].asc();
+          return self.column(column_name).asc();
         }
       } else {
         throw new Error("You can only order by Columns, OrderByColumns, or 'column_name direction' strings");
