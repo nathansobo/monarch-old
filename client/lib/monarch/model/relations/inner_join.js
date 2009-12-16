@@ -85,7 +85,6 @@ Monarch.constructor("Monarch.Model.Relations.InnerJoin", Monarch.Model.Relations
         var extant_composite_tuple = self.find_composite_tuple_that_matches(new_composite_tuple);
         if (self.predicate.evaluate(new_composite_tuple)) {
           if (extant_composite_tuple) {
-            console.debug(extant_composite_tuple);
             self.tuple_updated(extant_composite_tuple, changeset);
           } else {
             self.tuple_inserted(new_composite_tuple);
