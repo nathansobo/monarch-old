@@ -3,6 +3,7 @@
 //= require "model/repository"
 //= require "model/record"
 //= require "model/projection_record"
+//= require "model/composite_tuple"
 //= require "model/field"
 //= require "model/concrete_field"
 //= require "model/synthetic_field"

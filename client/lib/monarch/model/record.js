@@ -247,6 +247,10 @@ Monarch.constructor("Monarch.Model.Record", {
     }
   },
 
+  record: function(table) {
+    return this.table() === table ? this : null;
+  },
+
   pause_events: function() {
     this.on_create_node.pause_events();
     this.on_update_node.pause_events();

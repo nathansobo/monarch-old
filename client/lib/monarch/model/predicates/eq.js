@@ -6,8 +6,9 @@ Monarch.constructor("Monarch.Model.Predicates.Eq", Monarch.Model.Predicates.Pred
     this.right_operand = right_operand;
   },
 
-  evaluate: function(record) {
-    return record.evaluate(this.left_operand) == record.evaluate(this.right_operand);
+  evaluate: function(tuple) {
+//    if (window.debug) debugger;
+    return tuple.evaluate(this.left_operand) == tuple.evaluate(this.right_operand);
   },
 
   wire_representation: function() {
