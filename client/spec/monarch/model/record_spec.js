@@ -291,6 +291,7 @@ Screw.Unit(function(c) { with(c) {
       use_fake_server();
 
       it("fetches just the current record from the server", function() {
+        Server.auto = false;
         var record = Blog.find('recipes');
         record.fetch();
 

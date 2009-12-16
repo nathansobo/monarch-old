@@ -5,12 +5,12 @@
 //= require "fake_server/fake_mutation"
 
 Screw.Unit(function(c) {
-  c.use_fake_server = function(auto_mutate) {
+  c.use_fake_server = function(auto_interact) {
     var original_server;
 
     c.init(function() {
       original_server = Server;
-      Server = new FakeServer(auto_mutate);
+      Server = new FakeServer(auto_interact);
     });
 
     c.after(function() {

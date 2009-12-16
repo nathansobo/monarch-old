@@ -1,5 +1,5 @@
 Monarch.constructor("FakeServer", Monarch.Http.Server, {
-  initialize: function(auto_mutate) {
+  initialize: function(auto) {
     this.posts = [];
     this.puts = [];
     this.deletes = [];
@@ -10,8 +10,7 @@ Monarch.constructor("FakeServer", Monarch.Http.Server, {
     this.destroys = [];
     this.batches = [];
 
-    this.auto_fetch = false;
-    this.auto_mutate = (auto_mutate === undefined) ? true : auto_mutate;
+    this.auto = (auto === undefined) ? true : auto;
 
     this.Repository = Repository.clone_schema();
 
@@ -20,7 +19,7 @@ Monarch.constructor("FakeServer", Monarch.Http.Server, {
 
   fetch: function(relations) {
     var fake_fetch = new FakeServer.FakeFetch(Repository.origin_url, relations, this.Repository);
-    if (this.auto_fetch) {
+    if (this.auto) {
       fake_fetch.simulate_success();
     } else {
       this.last_fetch = fake_fetch;
@@ -29,9 +28,11 @@ Monarch.constructor("FakeServer", Monarch.Http.Server, {
     return fake_fetch.future;
   },
 
-  simulate_fetch: function(relations) {
+  auto_fetch: function(relations) {
+    var prev_auto_value = this.auto;
+    this.auto = true;
     this.fetch(relations);
-    if (!this.auto_fetch) this.fetches.shift().simulate_success();
+    this.auto = prev_auto_value;
   },
 
   save: function() {

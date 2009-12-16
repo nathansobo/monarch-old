@@ -76,10 +76,10 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
-    describe("#simulate_fetch", function() {
+    describe("#auto_fetch", function() {
       it("immediately fetches tuples from the FakeServer's repository to the local repository", function() {
         expect(Blog.tuples()).to(be_empty);
-        fake_server.simulate_fetch([Blog.table]);
+        fake_server.auto_fetch([Blog.table]);
         expect(Blog.tuples()).to_not(be_empty);
       });
     });

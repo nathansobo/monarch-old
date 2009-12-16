@@ -21,7 +21,7 @@ Monarch.constructor("FakeServer.FakeCommandBatch", {
       this.future.trigger_before_events();
       this.future.trigger_after_events();
     } else {
-      if (this.fake_server.auto_mutate) {
+      if (this.fake_server.auto) {
         this.simulate_success();
       } else {
         if (this.commands.length == 1) {
