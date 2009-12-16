@@ -45,23 +45,23 @@ Monarch.constructor("Monarch.Model.Relations.Difference", Monarch.Model.Relation
   subscribe_to_operands: function() {
     var self = this;
     this.operands_subscription_bundle.add(this.left_operand.on_insert(function(record) {
-      if (!self.right_operand.find(record.id())) self.record_inserted(record);
+      if (!self.right_operand.find(record.id())) self.tuple_inserted(record);
     }));
 
     this.operands_subscription_bundle.add(this.left_operand.on_update(function(record, changes) {
-      if (self.contains(record)) self.record_updated(record, changes);
+      if (self.contains(record)) self.tuple_updated(record, changes);
     }));
 
     this.operands_subscription_bundle.add(this.left_operand.on_remove(function(record) {
-      if (self.contains(record)) self.record_removed(record);
+      if (self.contains(record)) self.tuple_removed(record);
     }));
 
     this.operands_subscription_bundle.add(this.right_operand.on_insert(function(record) {
-      if (self.contains(record)) self.record_removed(record);
+      if (self.contains(record)) self.tuple_removed(record);
     }));
 
     this.operands_subscription_bundle.add(this.right_operand.on_remove(function(record) {
-      if (self.left_operand.find(record.id())) self.record_inserted(record);
+      if (self.left_operand.find(record.id())) self.tuple_inserted(record);
     }));
   },
 
@@ -73,16 +73,16 @@ Monarch.constructor("Monarch.Model.Relations.Difference", Monarch.Model.Relation
     this.tuples_by_id = tuples_by_id;
   },
 
-  record_inserted: function(record, options) {
+  tuple_inserted: function(record, options) {
     this.tuples_by_id[record.id()] = record;
     this.on_insert_node.publish(record);
   },
 
-  record_updated: function(record, update_data) {
+  tuple_updated: function(record, update_data) {
     this.on_update_node.publish(record, update_data);
   },
 
-  record_removed: function(record) {
+  tuple_removed: function(record) {
     delete this.tuples_by_id[record.id()];
     this.on_remove_node.publish(record);
   }

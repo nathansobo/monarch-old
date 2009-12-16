@@ -39,7 +39,7 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
 
   remove: function(record) {
     delete this.tuples_by_id[record.id()];
-    this.record_removed(record);
+    this.tuple_removed(record);
   },
 
   create: function(field_values) {
@@ -56,7 +56,7 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
   },
 
   // remotely
-  record_inserted: function(record) {
+  tuple_inserted: function(record) {
     this.tuples_by_id[record.id()] = record;
     this.on_insert_node.publish(record);
   },
@@ -130,7 +130,7 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
       var field_values = Monarch.Util.extend({id: id}, properties)
       var record = self.local_create(field_values);
       record.remote.update(field_values);
-      self.record_inserted(record);
+      self.tuple_inserted(record);
       record.on_create_node.publish(record);
     });
   },

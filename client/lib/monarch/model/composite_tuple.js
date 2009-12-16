@@ -20,6 +20,11 @@ Monarch.constructor("Monarch.Model.CompositeTuple", {
 
   record: function(table) {
     return this.left_tuple.record(table) || this.right_tuple.record(table);
+  },
+
+  equals: function(other) {
+    if (!other.constructor === this.constructor) return false;
+    return this.left_tuple.equals(other.left_tuple) && this.right_tuple.equals(other.right_tuple);
   }
 });
 

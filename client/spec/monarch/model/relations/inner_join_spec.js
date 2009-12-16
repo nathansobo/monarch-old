@@ -11,10 +11,11 @@ Screw.Unit(function(c) { with(c) {
       user = User.local_create({id: 'saltpeter', full_name: "Salt Peter"});
       blog_1 = user.blogs().local_create({id: 'blog_1'});
       blog_2 = user.blogs().local_create({id: 'blog_2'});
-      post_1 = blog_1.blog_posts().local_create({id: 'post_1'});
-      post_2 = blog_1.blog_posts().local_create({id: 'post_2'});
-      post_3 = blog_2.blog_posts().local_create({id: 'post_3'});
-
+      post_1 = blog_1.blog_posts().local_create({id: 'post_1', body: "this is post 1"});
+      post_2 = blog_1.blog_posts().local_create({id: 'post_2', body: "this is post 2"});
+      post_3 = blog_2.blog_posts().local_create({id: 'post_3', body: "this is post 3"});
+      Server.save(user, blog_1, blog_2, post_1, post_2, post_3);
+      
       left_operand = user.blogs();
       right_operand = BlogPost.table;
       predicate = BlogPost.blog_id.eq(Blog.id);
@@ -41,316 +42,380 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
-//    describe("#create", function() {
-//      use_fake_server(false);
-//
-//      it("calls #create on its operand with the given attributes extended with an attribute value that satisfies the predicate", function() {
-//        var create_future = selection.create({full_name: "John Lennon"});
-//        expect(Server.creates.length).to(equal, 1);
-//
-//        var create_callback = mock_function('create callback', function(record) {
-//          expect(record.age()).to(equal, 31);
-//          expect(record.full_name()).to(equal, "John Lennon");
-//        });
-//        create_future.after_events(create_callback);
-//
-//        Server.creates.shift().simulate_success();
-//
-//        expect(create_callback).to(have_been_called);
-//      });
-//
-//      context("if called with no arguments", function() {
-//        it("still introduces the necessary field values in a call to #create on its operand", function() {
-//          mock(operand, 'create');
-//          selection.create();
-//          expect(operand.create).to(have_been_called, with_args({age: 31}));
-//        });
-//      });
-//    });
-//
-//    describe("#wire_representation", function() {
-//      it("returns the JSON representation of the Selection", function() {
-//        expect(selection.wire_representation()).to(equal, {
-//          type: "selection",
-//          operand: {
-//            type: "table",
-//            name: "users"
-//          },
-//          predicate: {
-//            type: "eq",
-//            left_operand: {
-//              type: "column",
-//              table: "users",
-//              name: "age"
-//            },
-//            right_operand: {
-//              type: "scalar",
-//              value: 31
-//            }
-//          }
-//        });
-//      });
-//    });
-//
-//    describe("#on_insert", function() {
-//      it("returns a Monarch.Subscription with #on_insert_node as its #node", function() {
-//        var subscription = selection.on_insert(function() {});
-//        expect(subscription.node).to(equal, selection.on_insert_node);
-//      });
-//    });
-//
-//    describe("#on_remove", function() {
-//      it("returns a Monarch.Subscription with #on_remove_node as its #node", function() {
-//        var subscription = selection.on_remove(function() {});
-//        expect(subscription.node).to(equal, selection.on_remove_node);
-//      });
-//    });
-//
-//    describe("#on_update", function() {
-//      it("returns a Monarch.Subscription with #on_update_node as its #node", function() {
-//        var subscription = selection.on_update(function() {});
-//        expect(subscription.node).to(equal, selection.on_update_node);
-//      });
-//    });
-//
-//    describe("#has_subscribers", function() {
-//      context("if a callback has been registered with #on_insert", function() {
-//        it("returns true", function() {
-//          selection.on_insert(function() {});
-//          expect(selection.has_subscribers()).to(be_true);
-//        });
-//      });
-//
-//      context("if a callback has been registered with #on_remove", function() {
-//        it("returns true", function() {
-//          selection.on_remove(function() {});
-//          expect(selection.has_subscribers()).to(be_true);
-//        });
-//      });
-//
-//      context("if a callback has been registered with #on_update", function() {
-//        it("returns true", function() {
-//          selection.on_update(function() {});
-//          expect(selection.has_subscribers()).to(be_true);
-//        });
-//      });
-//
-//      context("if no callbacks have been registered", function() {
-//        it("returns false", function() {
-//          expect(selection.has_subscribers()).to(be_false);
-//        });
-//      });
-//    });
-//
-//    describe("event handling", function() {
-//      use_fake_server();
-//
-//      var insert_callback, remove_callback, update_callback, tuple;
-//      before(function() {
-//        insert_callback = mock_function("insert callback", function(record) {
-//          expect(selection.contains(record)).to(be_true);
-//        });
-//        selection.on_insert(insert_callback);
-//
-//        remove_callback = mock_function("remove callback", function(record) {
-//          expect(selection.contains(record)).to(be_false);
-//        });
-//        selection.on_remove(remove_callback);
-//
-//        update_callback = mock_function("update callback");
-//        selection.on_update(update_callback);
-//      });
-//
-//      context("when a record is inserted in the Selection's #operand", function() {
-//        context("when that record matches #predicate", function() {
-//          it("triggers #on_insert callbacks with the inserted record", function() {
-//            User.create({id: "joe", age: 31})
-//              .after_events(function(record) {
-//                expect(predicate.evaluate(record)).to(be_true);
-//                expect(insert_callback).to(have_been_called, with_args(record));
-//              });
-//          });
-//        });
-//
-//        context("when that record does not match #predicate", function() {
-//          it("does not trigger #on_insert callbacks", function() {
-//            User.create({id: "mike", age: 22})
-//              .after_events(function(record) {
-//                expect(predicate.evaluate(record)).to(be_false);
-//                expect(insert_callback).to_not(have_been_called);
-//              });
-//          });
-//        });
-//      });
-//
-//      context("when a record is removed from the Selection's #operand", function() {
-//        context("when that record matches #predicate", function() {
-//          it("triggers #on_remove callbacks with the removed record", function() {
-//            var record = operand.find("jan");
-//            expect(predicate.evaluate(record)).to(be_true);
-//
-//            operand.remove(record)
-//
-//            expect(remove_callback).to(have_been_called, with_args(record));
-//          });
-//        });
-//
-//        context("when that record does not match #predicate", function() {
-//          var record;
-//          before(function() {
-//            record = operand.find("mike");
-//            expect(predicate.evaluate(record)).to(be_false);
-//          });
-//
-//          it("does not trigger #on_remove callbacks and continues to not #contain the removed record", function() {
-//            expect(selection.contains(record)).to(be_false);
-//            operand.remove(record);
-//            expect(selection.contains(record)).to(be_false);
-//            expect(remove_callback).to_not(have_been_called);
-//          });
-//        });
-//      });
-//
-//      context("when a record in the Selection's #operand is updated", function() {
-//        context("when that record matched #predicate before the update", function() {
-//          var record;
-//          before(function() {
-//            record = operand.find("jan");
-//            expect(predicate.evaluate(record)).to(be_true);
-//          });
-//
-//          context("when that record matches #predicate after the update", function() {
-//            it("does not trigger #on_insert callbacks", function() {
-//              record.full_name("Janford Nelsan");
-//              expect(predicate.evaluate(record)).to(be_true);
-//              expect(insert_callback).to_not(have_been_called);
-//            });
-//
-//            it("does not trigger #on_remove callbacks", function() {
-//              record.full_name("Janford Nelsan");
-//              expect(predicate.evaluate(record)).to(be_true);
-//              expect(remove_callback).to_not(have_been_called);
-//            });
-//
-//            it("triggers #on_update callbacks with the updated record and a change object and continues to #contain the record", function() {
-//              var old_value = record.full_name();
-//              var new_value = "Janand Nelson";
-//
-//              expect(selection.contains(record)).to(be_true);
-//              record.full_name(new_value);
-//              record.save();
-//              expect(selection.contains(record)).to(be_true);
-//
-//              expect(predicate.evaluate(record)).to(be_true);
-//
-//              expect(update_callback).to(have_been_called, once);
-//
-//              var updated_record = update_callback.most_recent_args[0];
-//              var updated_attributes = update_callback.most_recent_args[1];
-//              expect(updated_record).to(equal, record);
-//              expect(updated_attributes.full_name.column).to(equal, User.full_name);
-//              expect(updated_attributes.full_name.old_value).to(equal, old_value);
-//              expect(updated_attributes.full_name.new_value).to(equal, new_value);
-//            });
-//          });
-//
-//          context("when that record does not match #predicate after the update", function() {
-//            it("does not trigger #on_insert callbacks", function() {
-//              record.update({age: 34});
-//              expect(predicate.evaluate(record)).to(be_false);
-//              expect(insert_callback).to_not(have_been_called);
-//            });
-//
-//            it("triggers #on_remove callbacks to be invoked with the updated record", function() {
-//              record.update({age: 34});
-//              expect(predicate.evaluate(record)).to(be_false);
-//              expect(remove_callback).to(have_been_called, with_args(record));
-//            });
-//
-//            it("does not trigger #on_update callbacks", function() {
-//              record.update({age: 34});
-//              expect(predicate.evaluate(record)).to(be_false);
-//              expect(update_callback).to_not(have_been_called);
-//            });
-//
-//            it("does not #contain the updated record before the #on_remove callbacks are triggered", function() {
-//              var on_remove_callback = mock_function('on_remove_callback', function() {
-//                expect(selection.contains(record)).to(be_false);
-//              });
-//              selection.on_remove(on_remove_callback);
-//
-//              expect(selection.contains(record)).to(be_true);
-//              record.update({age: 34});
-//              expect(on_remove_callback).to(have_been_called);
-//            });
-//          });
-//        });
-//
-//        context("when that record did not match #predicate before the update", function() {
-//          before(function() {
-//            record = operand.find("mike");
-//            expect(predicate.evaluate(record)).to(be_false);
-//          });
-//
-//          context("when that record matches #predicate after the update", function() {
-//            it("triggers #on_insert callbacks with the updated record", function() {
-//              record.update({age: 31});
-//              expect(predicate.evaluate(record)).to(be_true);
-//              expect(insert_callback).to(have_been_called);
-//            });
-//
-//            it("does not trigger #on_remove callbacks", function() {
-//              record.update({age: 31});
-//              expect(predicate.evaluate(record)).to(be_true);
-//              expect(remove_callback).to_not(have_been_called);
-//            });
-//
-//            it("does not trigger #on_update callbacks", function() {
-//              record.update({age: 31});
-//              expect(predicate.evaluate(record)).to(be_true);
-//              expect(update_callback).to_not(have_been_called);
-//            });
-//
-//            it("#contains the record before #on_insert callbacks are fired", function() {
-//              var on_insert_callback = mock_function('on_insert_callback', function(record) {
-//                expect(selection.contains(record)).to(be_true);
-//              });
-//              selection.on_insert(on_insert_callback);
-//
-//              expect(selection.contains(record)).to(be_false);
-//              record.update({age: 31});
-//              expect(on_insert_callback).to(have_been_called);
-//            });
-//          });
-//
-//          context("when that record does not match #predicate after the update", function() {
-//            it("does not cause #on_insert callbacks to be invoked with the updated record", function() {
-//              record.full_name("JarJar Nelson");
-//              expect(predicate.evaluate(record)).to(be_false);
-//              expect(insert_callback).to_not(have_been_called);
-//            });
-//
-//            it("does not cause #on_remove callbacks to be invoked with the updated record", function() {
-//              record.full_name("JarJar Nelson");
-//              expect(predicate.evaluate(record)).to(be_false);
-//              expect(remove_callback).to_not(have_been_called);
-//            });
-//
-//            it("does not trigger #on_update callbacks", function() {
-//              record.full_name("JarJar Nelson");
-//              expect(predicate.evaluate(record)).to(be_false);
-//              expect(update_callback).to_not(have_been_called);
-//            });
-//
-//            it("continues to not #contain the record", function() {
-//              expect(selection.contains(record)).to(be_false);
-//              record.full_name("JarJar Nelson");
-//              expect(selection.contains(record)).to(be_false);
-//            });
-//          });
-//        });
-//      });
-//    });
+    describe("#wire_representation", function() {
+      it("returns the JSON representation of the Selection", function() {
+        it("returns the JSON representation of the InnerJoin", function() {
+          expect(join.wire_representation()).to(equal, {
+            type: "inner_join",
+            left_operand: {
+              type: "set",
+              name: "blogs"
+            },
+            right_operand: {
+              type: "set",
+              name: "blog_posts"
+            },
+            predicate: {
+              type: "eq",
+              left_operand: {
+                type: "attribute",
+                set: "blog_posts",
+                name: "blog_id"
+              },
+              right_operand: {
+                type: "attribute",
+                set: "blogs",
+                name: "id"
+              }
+            }
+          });
+        });
+      });
+    });
+
+    describe("#on_insert", function() {
+      it("returns a Monarch.Subscription with #on_insert_node as its #node", function() {
+        var subscription = join.on_insert(function() {});
+        expect(subscription.node).to(equal, join.on_insert_node);
+      });
+    });
+
+    describe("#on_update", function() {
+      it("returns a Monarch.Subscription with #on_update_node as its #node", function() {
+        var subscription = join.on_update(function() {});
+        expect(subscription.node).to(equal, join.on_update_node);
+      });
+    });
+
+    describe("#on_remove", function() {
+      it("returns a Monarch.Subscription with #on_remove_node as its #node", function() {
+        var subscription = join.on_remove(function() {});
+        expect(subscription.node).to(equal, join.on_remove_node);
+      });
+    });
+
+    describe("#has_subscribers", function() {
+      context("if a callback has been registered with #on_insert", function() {
+        it("returns true", function() {
+          join.on_insert(function() {});
+          expect(join.has_subscribers()).to(be_true);
+        });
+      });
+
+      context("if a callback has been registered with #on_remove", function() {
+        it("returns true", function() {
+          join.on_remove(function() {});
+          expect(join.has_subscribers()).to(be_true);
+        });
+      });
+
+      context("if a callback has been registered with #on_update", function() {
+        it("returns true", function() {
+          join.on_update(function() {});
+          expect(join.has_subscribers()).to(be_true);
+        });
+      });
+
+      context("if no callbacks have been registered", function() {
+        it("returns false", function() {
+          expect(join.has_subscribers()).to(be_false);
+        });
+      });
+    });
+
+    describe("event handling", function() {
+      use_fake_server();
+
+      var insert_handler, remove_handler, update_handler;
+      before(function() {
+        insert_handler = mock_function("insert handler");
+        join.on_insert(insert_handler, function(composite_tuple) {
+          expect(join.contains(composite_tuple)).to(be_true);
+        });
+
+        remove_handler = mock_function("remove handler");
+        join.on_remove(remove_handler, function(composite_tuple) {
+          expect(join.contains(composite_tuple)).to(be_false);
+        });
+
+        update_handler = mock_function("update handler");
+        join.on_update(update_handler, function(composite_tuple) {
+          expect(join.contains(composite_tuple)).to(be_true);
+        });
+      });
+
+      describe("insertion events on operands", function() {
+        context("when a tuple is inserted into the left operand", function() {
+          context("when the insertion causes #cartesean_product to contain a new CompositeTuple that matches the predicate", function() {
+            it("triggers #on_insert handlers with the new CompositeTuple", function() {
+              var blog_post;
+
+              BlogPost.create({ id: 'fofo', blog_id: 'blog_3'}).after_events(function(record) {
+                blog_post = record;
+              });
+
+              user.blogs().create({id: "blog_3"}).after_events(function(blog) {
+                expect(insert_handler).to(have_been_called, once);
+                var composite_tuple = insert_handler.most_recent_args[0];
+                expect(composite_tuple.left_tuple).to(equal, blog);
+                expect(composite_tuple.right_tuple).to(equal, blog_post);
+              });
+            });
+          });
+
+          context("when the insertion does NOT cause #cartesean_product to contain a new CompositeTuple that matches the predicate", function() {
+            it("does not trigger #on_insert handlers or modify the contents of join", function() {
+              var size_before_blog_create = join.size();
+              user.blogs().create().after_events(function() {
+                expect(insert_handler).to_not(have_been_called);
+                expect(join.size()).to(equal, size_before_blog_create);
+              });
+            });
+          });
+        });
+
+        context("when a tuple is inserted into the right operand", function() {
+          context("when the insertion causes #cartesean_product to contain a new CompositeTuple that matches the predicate", function() {
+            it("triggers #on_insert handlers with the new CompositeTuple", function() {
+              blog_1.blog_posts().create().after_events(function(blog_post) {
+                expect(insert_handler).to(have_been_called, once);
+                var composite_tuple = insert_handler.most_recent_args[0];
+                expect(composite_tuple.left_tuple).to(equal, blog_1);
+                expect(composite_tuple.right_tuple).to(equal, blog_post);
+              });
+            });
+          });
+
+          context("when the insertion does NOT cause #cartesean_product to contain a new CompositeTuple that matches the predicate", function() {
+            it("does not trigger #on_insert handlers", function() {
+              BlogPost.create();
+              expect(insert_handler).to_not(have_been_called);
+            });
+
+            it("does not modify the contents of #all_tuples", function() {
+              var num_tuples_before_insertion = join.all_tuples().length;
+              BlogPost.create();
+              expect(join.all_tuples().length).to(equal, num_tuples_before_insertion);
+            });
+          });
+        });
+      });
+
+      describe("removal events on operands", function() {
+        context("when a tuple is removed from the left operand", function() {
+          context("when the removal causes the removal of a CompositeTuple from #cartesean_product that matched #predicate", function() {
+            it("triggers #on_remove handlers with the removed CompositeTuple", function() {
+              blog_2.destroy();
+
+              expect(remove_handler).to(have_been_called, once);
+              var removed_composite_tuple = remove_handler.most_recent_args[0];
+              expect(removed_composite_tuple.left_tuple).to(equal, blog_2);
+              expect(removed_composite_tuple.right_tuple).to(equal, post_3);
+            });
+          });
+
+          context("when the removal does not cause the removal of any CompositeTuples from #cartesean_product that match #predicate", function() {
+            it("does not trigger #on_remove handlers or modify the contents of the relation", function() {
+              var size_before = join.size();
+              user.blogs().create().after_events(function(blog) {
+                blog.destroy();
+              })
+              expect(remove_handler).to_not(have_been_called);
+              expect(join.size()).to(equal, size_before);
+            });
+          });
+        });
+
+        context("when a tuple is removed from the right operand", function() {
+          context("when the removal causes the removal of a CompositeTuple from #cartesean_product that matched #predicate", function() {
+            it("triggers #on_remove handlers with the removed CompositeTuple", function() {
+              post_3.destroy();
+              expect(remove_handler).to(have_been_called, once);
+              var removed_composite_tuple = remove_handler.most_recent_args[0];
+              expect(removed_composite_tuple.left_tuple).to(equal, blog_2);
+              expect(removed_composite_tuple.right_tuple).to(equal, post_3);
+            });
+          });
+
+          context("when the removal does not cause the removal of any CompositeTuples from #cartesean_product that match #predicate", function() {
+            it("does not trigger #on_remove handlers or modify the contents of the relation", function() {
+              var size_before = join.size();
+              BlogPost.create().after_events(function(post) {
+                post.destroy();
+              });
+              expect(remove_handler).to_not(have_been_called);
+              expect(join.size()).to(equal, size_before);
+            });
+          });
+        });
+      });
+
+      describe("update events on operands", function() {
+        context("when a tuple is updated in the left operand", function() {
+          context("when the updated tuple is the #left component of a CompositeTuple that is a member of #all before the update", function() {
+            context("when the CompositeTuple continues to match #predicate after the update", function() {
+              it("triggers only #on_update handlers with the updated CompositeTuple and a changed attributes object and does not modify the contents of the relation", function() {
+                var size_before = join.size();
+
+                var old_value = blog_2.name();
+                var new_value = "Railsnuts Racoon's daily beat";
+                blog_2.name(new_value);
+                Server.save(blog_2);
+                expect(update_handler).to(have_been_called, once);
+                expect(remove_handler).to_not(have_been_called);
+                expect(insert_handler).to_not(have_been_called);
+
+                var updated_tuple = update_handler.most_recent_args[0];
+                var changed_attributes = update_handler.most_recent_args[1];
+
+                expect(updated_tuple.left_tuple).to(equal, blog_2);
+                expect(updated_tuple.right_tuple).to(equal, post_3);
+
+                expect(changed_attributes.name.column).to(equal, Blog.name_);
+                expect(changed_attributes.name.old_value).to(equal, old_value);
+                expect(changed_attributes.name.new_value).to(equal, new_value);
+
+                expect(join.size()).to(equal, size_before);
+              });
+            });
+
+            context("when the CompositeTuple no longer matches #predicate after the update", function() {
+              it("triggers only #on_remove handlers with the updated CompositeTuple", function() {
+                blog_2.update({id: "booboo"});
+                expect(remove_handler).to(have_been_called, once);
+                expect(remove_handler.most_recent_args[0].left_tuple).to(equal, blog_2);
+                expect(remove_handler.most_recent_args[0].right_tuple).to(equal, post_3);
+                expect(insert_handler).to_not(have_been_called);
+                expect(update_handler).to_not(have_been_called);
+              });
+            });
+          });
+
+          context("when the updated tuple is not a component of a CompositeTuple that is a member of the relation before the update", function() {
+            context("when the update causes #cartesean_product to contain a CompositeTuple that matches #predicate", function() {
+              it("triggers only the #on_insert handlers with the updated CompositeTuple", function() {
+                var blog = user.blogs().local_create({id: 'junky'});
+                var blog_post = BlogPost.local_create({blog_id: 'nice'});
+                Server.save(blog, blog_post);
+
+                blog.update({id: "nice"});
+                expect(insert_handler).to(have_been_called, once);
+                expect(update_handler).to_not(have_been_called);
+                expect(remove_handler).to_not(have_been_called);
+
+                var composite_tuple = insert_handler.most_recent_args[0];
+                expect(composite_tuple.left_tuple).to(equal, blog);
+                expect(composite_tuple.right_tuple).to(equal, blog_post);
+              });
+            });
+
+            context("when the update does not cause #cartesean_product to contain a CompositeTuple that matches #predicate", function() {
+              it("does not trigger any event handlers", function() {
+                var blog = user.blogs().local_create({name: "Junkfood Diet"});
+                blog.save();
+                blog.update({name: "Healthfood Diet"});
+
+                expect(insert_handler).to_not(have_been_called);
+                expect(update_handler).to_not(have_been_called);
+                expect(remove_handler).to_not(have_been_called);
+              });
+            });
+          });
+        });
+
+        context("when a tuple is updated in the right operand", function() {
+          context("when the updated tuple is the #right component of a CompositeTuple that is a member of the relation before the update", function() {
+            context("when the CompositeTuple continues to match #predicate after the update", function() {
+              it("triggers only #on_update handlers with the updated CompositeTuple and does not modify the contents of the relation", function() {
+                var size_before = join.size();
+
+                var old_value = post_3.body();
+                var new_value = "Today sucked mum.";
+                post_3.update({ body: new_value });
+
+                expect(update_handler).to(have_been_called, once);
+                expect(insert_handler).to_not(have_been_called);
+                expect(remove_handler).to_not(have_been_called);
+
+                var updated_tuple = update_handler.most_recent_args[0];
+                var changed_attributes = update_handler.most_recent_args[1];
+
+                expect(updated_tuple.left_tuple).to(equal, blog_2);
+                expect(updated_tuple.right_tuple).to(equal, post_3);
+                expect(changed_attributes.body.column).to(equal, BlogPost.body);
+                expect(changed_attributes.body.old_value).to(equal, old_value);
+                expect(changed_attributes.body.new_value).to(equal, new_value);
+
+                expect(join.size()).to(equal, size_before);
+              });
+            });
+
+            context("when the CompositeTuple no longer matches #predicate after the update", function() {
+              it("triggers only #on_remove handlers with the updated CompositeTuple", function() {
+                post_3.update({blog_id: 'guns'});
+
+                expect(remove_handler).to(have_been_called, once);
+                expect(insert_handler).to_not(have_been_called);
+                expect(update_handler).to_not(have_been_called);
+                expect(remove_handler.most_recent_args[0].left_tuple).to(equal, blog_2);
+                expect(remove_handler.most_recent_args[0].right_tuple).to(equal, post_3);
+              });
+            });
+          });
+
+          context("when the updated tuple is not a part of a composite tuple in the relation before the update", function() {
+            var post;
+
+            before(function() {
+              post = BlogPost.local_create({ blog_id: "homer", body: "PAIN!" });
+              post.save();
+            });
+
+            context("when the update causes #cartesean_product to contain a composite tuple that matches #predicate", function() {
+              it("triggers only #on_insert handlers with the new CompositeTuple", function() {
+                post.update({blog_id: "blog_2"});
+
+                expect(insert_handler).to(have_been_called, once);
+                expect(update_handler).to_not(have_been_called);
+                expect(remove_handler).to_not(have_been_called);
+
+                var composite_tuple = insert_handler.most_recent_args[0];
+                expect(composite_tuple.left_tuple).to(equal, blog_2);
+                expect(composite_tuple.right_tuple).to(equal, post);
+              });
+            });
+
+            context("when the update does not cause the #cartesean_product to contain a composite tuple that matches #predicate", function() {
+              it("does not trigger any event handlers", function() {
+                post.update({ body: "Flabby flabby flabby why are you this way?"});
+                expect(insert_handler).to_not(have_been_called);
+                expect(update_handler).to_not(have_been_called);
+                expect(remove_handler).to_not(have_been_called);
+              });
+            });
+          });
+        });
+
+        context("when a tuple is updated in a way that should insert one CompositeTuple and remove another", function() {
+          it("fires #on_insert handlers for the inserted tuple and #on_remove handlers for the removed one", function() {
+            post_3.update({blog_id: 'blog_1'});
+
+            expect(insert_handler).to(have_been_called, once);
+
+            var inserted_tuple = insert_handler.most_recent_args[0];
+            expect(inserted_tuple.left_tuple).to(equal, blog_1);
+            expect(inserted_tuple.right_tuple).to(equal, post_3);
+
+
+            expect(remove_handler).to(have_been_called, once);
+            var removed_tuple = remove_handler.most_recent_args[0];
+            expect(removed_tuple.left_tuple).to(equal, blog_2);
+            expect(removed_tuple.right_tuple).to(equal, post_3);
+          });
+        });
+      });
+    });
+
 //
 //    describe("subscription propagation", function() {
 //      describe("when a Monarch.Subscription is registered for the Selection, destroyed, and another Monarch.Subscription is registered", function() {

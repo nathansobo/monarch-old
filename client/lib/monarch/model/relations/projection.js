@@ -36,15 +36,15 @@ Monarch.constructor("Monarch.Model.Relations.Projection", Monarch.Model.Relation
     this.operands_subscription_bundle.add(this.operand.on_insert(function(operand_record) {
       var record = new self.tuple_constructor(operand_record);
       self.tuples_by_operand_record_id[operand_record.id()] = record;
-      self.record_inserted(record);
+      self.tuple_inserted(record);
     }));
     this.operands_subscription_bundle.add(this.operand.on_update(function(operand_record, operand_changes) {
       var changes = self.translate_update_changes(operand_changes);
       if (Monarch.Util.is_empty(changes)) return;
-      self.record_updated(self.tuples_by_operand_record_id[operand_record.id()], changes);
+      self.tuple_updated(self.tuples_by_operand_record_id[operand_record.id()], changes);
     }));
     this.operands_subscription_bundle.add(this.operand.on_remove(function(operand_record) {
-      self.record_removed(self.tuples_by_operand_record_id[operand_record.id()]);
+      self.tuple_removed(self.tuples_by_operand_record_id[operand_record.id()]);
     }));
   },
 

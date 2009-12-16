@@ -12,10 +12,7 @@ Monarch.constructor("Monarch.Model.Relations.InnerJoin", Monarch.Model.Relations
   all_tuples: function() {
     if (this._tuples) return this._tuples;
 
-    var cp = this.cartesian_product();
-    window.debug = true;
-
-    return Monarch.Util.select(cp, function(composite_tuple) {
+    return Monarch.Util.select(this.cartesian_product(), function(composite_tuple) {
       return this.predicate.evaluate(composite_tuple);
     }.bind(this));
   },
@@ -24,7 +21,7 @@ Monarch.constructor("Monarch.Model.Relations.InnerJoin", Monarch.Model.Relations
     return {
       type: "inner_join",
       left_operand: this.left_operand.wire_representation(),
-      right_operand: this.left_operand.wire_representation(),
+      right_operand: this.right_operand.wire_representation(),
       predicate: this.predicate.wire_representation()
     };
   },
@@ -56,8 +53,75 @@ Monarch.constructor("Monarch.Model.Relations.InnerJoin", Monarch.Model.Relations
 
   // private
 
+
+
   subscribe_to_operands: function() {
     var self = this;
+    this.operands_subscription_bundle.add(this.left_operand.on_insert(function(left_tuple) {
+      Monarch.Util.each(self.right_operand.all_tuples(), function(right_tuple) {
+        var composite_tuple = new Monarch.Model.CompositeTuple(left_tuple, right_tuple);
+        if (self.predicate.evaluate(composite_tuple)) self.tuple_inserted(composite_tuple);
+      });
+    }));
+
+    this.operands_subscription_bundle.add(this.right_operand.on_insert(function(right_tuple) {
+      Monarch.Util.each(self.left_operand.all_tuples(), function(left_tuple) {
+        var composite_tuple = new Monarch.Model.CompositeTuple(left_tuple, right_tuple);
+        if (self.predicate.evaluate(composite_tuple)) self.tuple_inserted(composite_tuple);
+      });
+    }));
+
+    this.operands_subscription_bundle.add(this.left_operand.on_remove(function(left_tuple) {
+      Monarch.Util.each(self.all_tuples(), function(composite_tuple) {
+        if (composite_tuple.left_tuple == left_tuple) self.tuple_removed(composite_tuple);
+      });
+    }));
+
+    this.operands_subscription_bundle.add(this.right_operand.on_remove(function(right_tuple) {
+      Monarch.Util.each(self.all_tuples(), function(composite_tuple) {
+        if (composite_tuple.right_tuple == right_tuple) self.tuple_removed(composite_tuple);
+      });
+    }));
+
+    this.operands_subscription_bundle.add(this.left_operand.on_update(function(left_tuple, changeset) {
+      Monarch.Util.each(self.right_operand.all_tuples(), function(right_tuple) {
+        var new_composite_tuple = new Monarch.Model.CompositeTuple(left_tuple, right_tuple);
+        var extant_composite_tuple = self.find_composite_tuple_that_matches(new_composite_tuple);
+        if (self.predicate.evaluate(new_composite_tuple)) {
+          if (extant_composite_tuple) {
+            console.debug(extant_composite_tuple);
+            self.tuple_updated(extant_composite_tuple, changeset);
+          } else {
+            self.tuple_inserted(new_composite_tuple);
+          }
+        } else {
+          if (extant_composite_tuple) self.tuple_removed(extant_composite_tuple);
+        }
+      });
+    }));
+
+    this.operands_subscription_bundle.add(this.right_operand.on_update(function(right_tuple, changeset) {
+
+      Monarch.Util.each(self.left_operand.all_tuples(), function(left_tuple) {
+        var new_composite_tuple = new Monarch.Model.CompositeTuple(left_tuple, right_tuple);
+        var extant_composite_tuple = self.find_composite_tuple_that_matches(new_composite_tuple);
+        if (self.predicate.evaluate(new_composite_tuple)) {
+          if (extant_composite_tuple) {
+            self.tuple_updated(extant_composite_tuple, changeset);
+          } else {
+            self.tuple_inserted(new_composite_tuple);
+          }
+        } else {
+          if (extant_composite_tuple) self.tuple_removed(extant_composite_tuple);
+        }
+      })
+    }));
+  },
+
+  find_composite_tuple_that_matches: function(composite_tuple_1) {
+    return Monarch.Util.detect(this.all_tuples(), function(composite_tuple_2) {
+      return composite_tuple_1.equals(composite_tuple_2);
+    })
   }
 });
 

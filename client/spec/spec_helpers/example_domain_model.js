@@ -31,7 +31,8 @@ Screw.Unit(function(c) {
       Monarch.ModuleSystem.constructor("BlogPost", Monarch.Model.Record, {
         constructor_initialize: function() {
           this.columns({
-            blog_id: "string"
+            blog_id: "string",
+            body: "string"
           });
         }
       });

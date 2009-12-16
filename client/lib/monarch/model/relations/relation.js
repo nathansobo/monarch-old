@@ -165,18 +165,18 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
     this._tuples = this.tuples();
   },
 
-  record_inserted: function(record, options) {
+  tuple_inserted: function(record, options) {
     if (!this.contains(record)) {
       this._tuples.push(record)
     }
     this.on_insert_node.publish(record);
   },
 
-  record_updated: function(record, update_data) {
+  tuple_updated: function(record, update_data) {
     this.on_update_node.publish(record, update_data);
   },
 
-  record_removed: function(record) {
+  tuple_removed: function(record) {
     Monarch.Util.remove(this._tuples, record);
     this.on_remove_node.publish(record);
   },
