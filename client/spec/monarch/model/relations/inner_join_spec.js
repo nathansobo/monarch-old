@@ -416,50 +416,56 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
-//
-//    describe("subscription propagation", function() {
-//      describe("when a Monarch.Subscription is registered for the Selection, destroyed, and another Monarch.Subscription is registered", function() {
-//        var event_type;
-//
-//        scenario("for on_insert callbacks", function() {
-//          init(function() {
-//            event_type = "on_insert";
-//          });
-//        });
-//
-//        scenario("for on_update callbacks", function() {
-//          init(function() {
-//            event_type = "on_update";
-//          });
-//        });
-//
-//        scenario("for on_remove callbacks", function() {
-//          init(function() {
-//            event_type = "on_remove";
-//          });
-//        });
-//
-//        it("subscribes to its #operand and memoizes tuples, then unsubscribes and clears the memoization, then resubscribes and rememoizes", function() {
-//          expect(operand.has_subscribers()).to(be_false);
-//          expect(selection._tuples).to(be_null);
-//
-//          var subscription = selection[event_type].call(selection, function() {});
-//
-//          expect(operand.has_subscribers()).to(be_true);
-//          expect(selection._tuples).to_not(be_null);
-//
-//          subscription.destroy();
-//
-//          expect(operand.has_subscribers()).to(be_false);
-//          expect(selection._tuples).to(be_null);
-//
-//          selection.on_update(function() {});
-//
-//          expect(operand.has_subscribers()).to(be_true);
-//          expect(selection._tuples).to_not(be_null);
-//        });
-//      });
-//    });
+
+    describe("subscription propagation", function() {
+      describe("when a Monarch.Subscription is registered for the Selection, destroyed, and another Monarch.Subscription is registered", function() {
+        var event_type;
+
+        scenario("for on_insert callbacks", function() {
+          init(function() {
+            event_type = "on_insert";
+          });
+        });
+
+        scenario("for on_update callbacks", function() {
+          init(function() {
+            event_type = "on_update";
+          });
+        });
+
+        scenario("for on_remove callbacks", function() {
+          init(function() {
+            event_type = "on_remove";
+          });
+        });
+
+        it("subscribes to its #operand and memoizes tuples, then unsubscribes and clears the memoization, then resubscribes and rememoizes", function() {
+          expect(left_operand.has_subscribers()).to(be_false);
+          expect(right_operand.has_subscribers()).to(be_false);
+
+          expect(join._tuples).to(be_null);
+
+          var subscription = join[event_type].call(join, function() {});
+
+          expect(left_operand.has_subscribers()).to(be_true);
+          expect(right_operand.has_subscribers()).to(be_true);
+
+          expect(join._tuples).to_not(be_null);
+
+          subscription.destroy();
+
+          expect(left_operand.has_subscribers()).to(be_false);
+          expect(right_operand.has_subscribers()).to(be_false);
+          expect(join._tuples).to(be_null);
+
+          join.on_update(function() {});
+
+          expect(left_operand.has_subscribers()).to(be_true);
+          expect(right_operand.has_subscribers()).to(be_true);
+          expect(join._tuples).to_not(be_null);
+        });
+      });
+    });
 //
 //    describe("#evaluate_in_repository(repository)", function() {
 //      it("returns the same Selection with its #operand evaluated in the repository", function() {
