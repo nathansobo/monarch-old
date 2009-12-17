@@ -26,6 +26,30 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
 
   },
 
+  project: function() {
+    if (arguments.length == 1) {
+      var table;
+      if (_.isFunction(arguments[0])) {
+        table = arguments[0].table;
+      } else if (arguments[0] instanceof Monarch.Model.Relations.Table) {
+        table = arguments[0];
+      }
+
+      if (table) return new Monarch.Model.Relations.TableProjection(this, table);
+    }
+
+    var projected_columns = Monarch.Util.map(Monarch.Util.to_array(arguments), function(arg) {
+      if (arg instanceof Monarch.Model.ProjectedColumn) {
+        return arg;
+      } else if (arg instanceof Monarch.Model.Column) {
+        return new Monarch.Model.ProjectedColumn(arg);
+      } else {
+        throw new Error("#project takes Columns or ProjectedColumns only");
+      }
+    });
+    return new Monarch.Model.Relations.Projection(this, projected_columns);
+  },
+
   join: function(right_operand) {
     if (typeof right_operand === 'function') right_operand = right_operand.table;
     var left_operand = this;
@@ -34,20 +58,6 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
         return new Monarch.Model.Relations.InnerJoin(left_operand, right_operand, predicate);
       }
     };
-  },
-
-  predicate_from_hash: function(hash) {
-    var self = this;
-    var predicates = [];
-    Monarch.Util.each(hash, function(key, value) {
-      predicates.push(self.column(key).eq(value))
-    });
-
-    if (predicates.length == 1) {
-      return predicates[0];
-    } else {
-      return new Monarch.Model.Predicates.And(predicates);
-    }
   },
 
   order_by: function() {
@@ -72,19 +82,6 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
     });
 
     return new Monarch.Model.Relations.Ordering(this, order_by_columns);
-  },
-
-  project: function() {
-    var projected_columns = Monarch.Util.map(Monarch.Util.to_array(arguments), function(arg) {
-      if (arg instanceof Monarch.Model.ProjectedColumn) {
-        return arg;
-      } else if (arg instanceof Monarch.Model.Column) {
-        return new Monarch.Model.ProjectedColumn(arg);
-      } else {
-        throw new Error("#project takes Columns or ProjectedColumns only");
-      }
-    });
-    return new Monarch.Model.Relations.Projection(this, projected_columns);
   },
 
   difference: function(right_operand) {
@@ -220,6 +217,22 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
   unsubscribe_from_operands: function() {
     this.operands_subscription_bundle.destroy_all();
     this._tuples = null;
+  },
+
+  // private
+
+  predicate_from_hash: function(hash) {
+    var self = this;
+    var predicates = [];
+    Monarch.Util.each(hash, function(key, value) {
+      predicates.push(self.column(key).eq(value))
+    });
+
+    if (predicates.length == 1) {
+      return predicates[0];
+    } else {
+      return new Monarch.Model.Predicates.And(predicates);
+    }
   }
 });
 

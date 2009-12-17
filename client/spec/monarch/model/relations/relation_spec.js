@@ -190,6 +190,24 @@ Screw.Unit(function(c) { with(c) {
           expect(projection.projected_columns_by_name[column_2.name].column).to(equal, column_2);
         });
       });
+
+      context("when passed a record constructor", function() {
+        it("returns a table projection based on the given constructor's table", function() {
+          var projection = relation.project(BlogPost);
+          expect(projection).to(be_an_instance_of, Monarch.Model.Relations.TableProjection);
+          expect(projection.operand).to(equal, relation);
+          expect(projection.projected_table).to(equal, BlogPost.table);
+        });
+      });
+
+      context("when passed a table", function() {
+        it("returns a table projection based on the given table", function() {
+          var projection = relation.project(BlogPost.table);
+          expect(projection).to(be_an_instance_of, Monarch.Model.Relations.TableProjection);
+          expect(projection.operand).to(equal, relation);
+          expect(projection.projected_table).to(equal, BlogPost.table);
+        });
+      });
     });
 
     describe("#difference(right_operand)", function() {
