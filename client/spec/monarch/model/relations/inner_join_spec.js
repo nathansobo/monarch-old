@@ -131,8 +131,6 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("event handling", function() {
-      use_fake_server();
-
       var insert_handler, remove_handler, update_handler;
       before(function() {
         insert_handler = mock_function("insert handler");

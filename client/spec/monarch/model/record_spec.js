@@ -221,8 +221,6 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("when a synthetic field changes", function() {
-      use_fake_server();
-
       it("triggers update callbacks on the table of its record", function() {
         var record = Blog.find('recipes');
         var update_callback = mock_function('update_callback');
@@ -236,8 +234,6 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("column accessor functions", function() {
-      use_fake_server();
-      
       var record;
       before(function() {
         record = Blog.find('recipes');
@@ -288,8 +284,6 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("#fetch", function() {
-      use_fake_server();
-
       it("fetches just the current record from the server", function() {
         Server.auto = false;
         var record = Blog.find('recipes');

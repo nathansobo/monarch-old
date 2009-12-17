@@ -177,8 +177,6 @@ Screw.Unit(function(c) { with(c) {
       });
 
       describe("when a record in the Table is updated", function() {
-        use_fake_server();
-
         it("triggers #on_update callbacks with the updated record and a changed attributes object", function() {
           var update_callback = mock_function("update callback");
           User.table.on_update(update_callback);
@@ -204,8 +202,6 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("#pause_events and #resume_events", function() {
-      use_fake_server();
-
       specify("#pause_events delays #on_insert, #on_remove, and #on_update triggers until #resume_events is called. Then delayed events are flushed and future events are no longer delayed", function() {
         var insert_callback = mock_function("insert callback");
         var update_callback = mock_function("update callback");

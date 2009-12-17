@@ -32,8 +32,6 @@ Screw.Unit(function(c) { with(c) {
 
 
     describe("event handling", function() {
-      use_fake_server();
-
       var insert_callback, update_callback, remove_callback;
       before(function() {
         insert_callback = mock_function("insert_callback");

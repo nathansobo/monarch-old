@@ -28,8 +28,6 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("event handling", function() {
-      use_fake_server();
-
       var table_1, table_2, difference, record, insert_callback, update_callback, remove_callback;
       init(function() {
         left_operand = Blog.table;
@@ -179,8 +177,6 @@ Screw.Unit(function(c) { with(c) {
 
     describe("when the difference is between two distinct but compatible relations", function() {
       var difference, left_operand, right_operand, insert_callback, update_callback, remove_callback;
-      use_fake_server();
-
 
       before(function() {
         Monarch.constructor('A', Monarch.Model.Record);

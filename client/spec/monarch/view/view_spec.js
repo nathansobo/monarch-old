@@ -83,8 +83,6 @@ Screw.Unit(function(c) { with(c) {
       });
 
       describe("#model(model)", function() {
-        use_fake_server();
-
         it("populates text fields by calling methods on the given model corresponding to their names and keeps them updated as model changes", function() {
           expect(view.foo.val()).to(equal, "Foo");
           expect(view.bar.val()).to(equal, "Bar");
