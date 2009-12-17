@@ -4,6 +4,7 @@
 //= require <jquery.history>
 //= require <jquery.cookie>
 //= require <htmlescape>
+//= require <underscore>
 //= require <json>
 //= require "monarch/language_extensions"
 //= require "monarch/module_system"

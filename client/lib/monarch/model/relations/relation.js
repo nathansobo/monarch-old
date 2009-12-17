@@ -26,6 +26,16 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
 
   },
 
+  join: function(right_operand) {
+    if (typeof right_operand === 'function') right_operand = right_operand.table;
+    var left_operand = this;
+    return {
+      on: function(predicate) {
+        return new Monarch.Model.Relations.InnerJoin(left_operand, right_operand, predicate);
+      }
+    };
+  },
+
   predicate_from_hash: function(hash) {
     var self = this;
     var predicates = [];

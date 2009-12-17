@@ -7,7 +7,6 @@ Monarch.constructor("Monarch.Model.Predicates.Eq", Monarch.Model.Predicates.Pred
   },
 
   evaluate: function(tuple) {
-//    if (window.debug) debugger;
     return tuple.evaluate(this.left_operand) == tuple.evaluate(this.right_operand);
   },
 

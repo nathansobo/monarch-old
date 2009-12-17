@@ -117,6 +117,24 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
+    describe("#join(right_operand).on(predicate)", function() {
+      it("constructs an inner join using self as the left operand, plus the given right operand and predicate", function() {
+        var predicate = BlogPost.blog_id.eq(Blog.id)
+        var join = relation.join(BlogPost.table).on(predicate);
+        expect(join.constructor).to(equal, Monarch.Model.Relations.InnerJoin);
+        expect(join.left_operand).to(equal, relation);
+        expect(join.right_operand).to(equal, BlogPost.table);
+        expect(join.predicate).to(equal, predicate);
+      });
+
+      context("when given a record constructor as a right_operand", function() {
+        it("uses the constructor's table as the right_operand", function() {
+          var join = relation.join(BlogPost).on(BlogPost.blog_id.eq(Blog.id));
+          expect(join.right_operand).to(equal, BlogPost.table);
+        });
+      });
+    });
+
     describe("#order_by(order_by_columns...)", function() {
       context("when passed OrderByColumns", function() {
         it("builds an Ordering relation with the receiver as its #operand and the given #order_by_columns", function() {
