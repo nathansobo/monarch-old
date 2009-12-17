@@ -20,6 +20,10 @@ Monarch.constructor("Monarch.Model.Relations.TableProjection", Monarch.Model.Rel
     return all_tuples;
   },
 
+  surface_tables: function() {
+    return [this.projected_table];
+  },
+
   // private
 
   subscribe_to_operands: function() {

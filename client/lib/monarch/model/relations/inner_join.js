@@ -38,6 +38,10 @@ Monarch.constructor("Monarch.Model.Relations.InnerJoin", Monarch.Model.Relations
     );
   },
 
+  surface_tables: function() {
+    return this.left_operand.surface_tables().concat(this.right_operand.surface_tables());
+  },
+
   // private
 
   cartesian_product: function() {

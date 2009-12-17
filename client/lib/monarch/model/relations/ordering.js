@@ -47,6 +47,10 @@ Monarch.constructor("Monarch.Model.Relations.Ordering", Monarch.Model.Relations.
     return this.operand.wire_representation();
   },
 
+  surface_tables: function() {
+    return this.operand.surface_tables();
+  },
+
   // private
 
   subscribe_to_operands: function() {

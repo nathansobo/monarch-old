@@ -135,6 +135,35 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
+    describe("#join_to(right_operand)", function() {
+      it("constructs an inner join using self as the left operand, plus the given right operand and an inferred predicate", function() {
+        var user = User.find("jan");
+        var join = user.blogs().join_to(BlogPost);
+        expect(join.constructor).to(equal, Monarch.Model.Relations.InnerJoin);
+        expect(join.left_operand).to(equal, user.blogs());
+        expect(join.right_operand).to(equal, BlogPost.table);
+        expect(join.predicate.constructor).to(equal, Monarch.Model.Predicates.Eq);
+        expect(join.predicate.left_operand).to(equal, Blog.id);
+        expect(join.predicate.right_operand).to(equal, BlogPost.blog_id);
+      });
+    });
+
+    describe("#join_through(table)", function() {
+      it("constructs an inner join to the given table with #join_to, then projects the given table", function() {
+        var user = User.find("jan");
+        var projection = user.blogs().join_through(BlogPost);
+        expect(projection.constructor).to(equal, Monarch.Model.Relations.TableProjection);
+        expect(projection.projected_table).to(equal, BlogPost.table);
+        var join = projection.operand;
+        expect(join.constructor).to(equal, Monarch.Model.Relations.InnerJoin);
+        expect(join.left_operand).to(equal, user.blogs());
+        expect(join.right_operand).to(equal, BlogPost.table);
+        expect(join.predicate.constructor).to(equal, Monarch.Model.Predicates.Eq);
+        expect(join.predicate.left_operand).to(equal, Blog.id);
+        expect(join.predicate.right_operand).to(equal, BlogPost.blog_id);
+      });
+    });
+
     describe("#order_by(order_by_columns...)", function() {
       context("when passed OrderByColumns", function() {
         it("builds an Ordering relation with the receiver as its #operand and the given #order_by_columns", function() {

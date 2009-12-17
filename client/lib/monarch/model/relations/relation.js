@@ -60,6 +60,19 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
     };
   },
 
+  join_to: function(right_operand) {
+    if (typeof right_operand === 'function') right_operand = right_operand.table;
+    var left_surface_tables = this.surface_tables();
+    var right_surface_tables = right_operand.surface_tables();
+    var join_columns = this.find_join_columns(_.last(left_surface_tables), _.first(right_surface_tables));
+    return this.join(right_operand).on(join_columns[0].eq(join_columns[1]));
+  },
+
+  join_through: function(right_operand) {
+    if (typeof right_operand === 'function') right_operand = right_operand.table;
+    return this.join_to(right_operand).project(right_operand);
+  },
+
   order_by: function() {
     var self = this;
     var order_by_columns = Monarch.Util.map(Monarch.Util.to_array(arguments), function(order_by_column) {
@@ -233,7 +246,19 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
     } else {
       return new Monarch.Model.Predicates.And(predicates);
     }
+  },
+
+  find_join_columns: function(left, right) {
+    var foreign_key;
+    if (foreign_key = right.column(Monarch.Inflection.singularize(left.global_name) + "_id")) {
+      return [left.column("id"), foreign_key];
+    } else if (foreign_key = left.column(Monarch.Inflection.singularize(right.global_name) + "_id")) {
+      return [foreign_key, right.column("id")];
+    } else {
+      throw new Error("No foreign key found for #join_to operation");
+    }
   }
+
 });
 
 })(Monarch);

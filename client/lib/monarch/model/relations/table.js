@@ -55,6 +55,10 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
     return record;
   },
 
+  surface_tables: function() {
+    return [this];
+  },
+
   // remotely
   tuple_inserted: function(record) {
     this.tuples_by_id[record.id()] = record;

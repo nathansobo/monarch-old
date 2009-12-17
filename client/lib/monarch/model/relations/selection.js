@@ -43,6 +43,10 @@ Monarch.constructor("Monarch.Model.Relations.Selection", Monarch.Model.Relations
     return this.operand.column(name);
   },
 
+  surface_tables: function() {
+    return this.operand.surface_tables();
+  },
+
   // private
 
   subscribe_to_operands: function() {

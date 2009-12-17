@@ -29,6 +29,10 @@ Monarch.constructor("Monarch.Model.Relations.Projection", Monarch.Model.Relation
     return this.projected_columns_by_name[name];
   },
 
+  surface_tables: function() {
+    throw new Error("Projections do not have surface tables");
+  },
+
   // private
 
   subscribe_to_operands: function() {
