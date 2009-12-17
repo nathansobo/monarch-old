@@ -147,12 +147,12 @@ Screw.Unit(function(c) { with(c) {
       it("builds an instance of the Record with the given field_values and inserts it in .table before returning it", function() {
         mock(Blog.table, 'insert');
         var record = Blog.local_create({
-          id: 'recipes',
-          name: 'Recipes'
+          id: 'index',
+          name: 'Index Cards'
         });
         expect(Blog.table.insert).to(have_been_called, with_args(record));
-        expect(record.id()).to(equal, 'recipes');
-        expect(record.name()).to(equal, 'Recipes');
+        expect(record.id()).to(equal, 'index');
+        expect(record.name()).to(equal, 'Index Cards');
       });
 
       it("does not trigger update events on its Table", function() {
@@ -160,11 +160,28 @@ Screw.Unit(function(c) { with(c) {
         Blog.table.on_update(update_callback);
 
         var record = Blog.local_create({
-          id: 'recipes',
-          name: 'Recipes'
+          id: 'index',
+          name: 'Index Cards'
         });
 
         expect(update_callback).to_not(have_been_called);
+      });
+
+      it("makes the record findable by id if one is provided, but waits for the remote save if the the id is initially undefined", function() {
+        var record = Blog.local_create({
+          id: 'tina',
+          name: 'What Ever Happened To Tina Turner?'
+        });
+
+        var record_2 = Blog.local_create({
+          name: 'Ike For President'
+        });
+
+        expect(Blog.find('tina')).to(equal, record);
+        expect(undefined in Blog.table.tuples_by_id).to(be_false);
+
+        record_2.save();
+        expect(Blog.find(record_2.id())).to(equal, record_2)
       });
     });
 

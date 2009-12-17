@@ -241,6 +241,8 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
       predicates.push(self.column(key).eq(value))
     });
 
+    if (_.isEmpty(predicates)) throw new Error("No key value pairs provided for predication");
+
     if (predicates.length == 1) {
       return predicates[0];
     } else {
