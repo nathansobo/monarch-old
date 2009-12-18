@@ -4,13 +4,10 @@
 //= require <jquery.history>
 //= require <jquery.cookie>
 //= require <htmlescape>
-<<<<<<< HEAD:client/lib/monarch.js
-=======
 //= require <underscore>
 //= require <json>
 //= require <md5>
 //= require "monarch/language_extensions"
->>>>>>> master:client/lib/monarch.js
 //= require "monarch/module_system"
 //= require "monarch/util"
 //= require "monarch/object"
