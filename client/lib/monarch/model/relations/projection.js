@@ -9,7 +9,7 @@ Monarch.constructor("Monarch.Model.Relations.Projection", Monarch.Model.Relation
       self.projected_columns_by_name[projected_column.name()] = projected_column;
     });
 
-    this.tuple_constructor = Monarch.ModuleSystem.constructor(Monarch.Model.ProjectionRecord);
+    this.tuple_constructor = Monarch.ModuleSystem.constructor(Monarch.Model.Tuple);
     this.tuple_constructor.projected_columns_by_name = this.projected_columns_by_name;
     this.tuple_constructor.initialize_field_readers();
 

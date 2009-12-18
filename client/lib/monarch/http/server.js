@@ -53,17 +53,15 @@ Monarch.constructor("Monarch.Http.Server", {
 
   // private
 
-  extract_dirty_records: function(records_arrays_or_relations) {
+  extract_dirty_records: function(records_or_relations) {
     var dirty_records = []
-    Monarch.Util.each(records_arrays_or_relations, function(arg) {
+    Monarch.Util.each(records_or_relations, function(arg) {
       if (arg.__relation__) {
         dirty_records.push.apply(dirty_records, arg.dirty_tuples());
-      } else if (arg.length) {
-        dirty_records.push.apply(dirty_records, this.extract_dirty_records(arg));
       } else {
         if (arg.dirty()) dirty_records.push(arg);
       }
-    }.bind(this));
+    });
     return dirty_records;
   },
 

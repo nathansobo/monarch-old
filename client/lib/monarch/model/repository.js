@@ -26,14 +26,9 @@ Monarch.constructor("Monarch.Model.Repository", {
 
   delta: function(dataset) {
     var self = this;
-<<<<<<< HEAD:client/lib/monarch/model/repository.js
-    Monarch.Util.each(dataset, function(table_name, table_dataset) {
-      self.tables[table_name].delta(table_dataset);
-=======
     Monarch.Util.each(this.tables, function(table_name, table) {
-     var table_dataset = dataset[table_name] || {};
+      var table_dataset = dataset[table_name] || {};
       table.delta(table_dataset);
->>>>>>> 2413d2f... Server#save takes arrays of records (or arrays of arrays, etc). Fixed bug in delta where records were not deleted if a table was not present at all in a snapshot.:client/lib/monarch/model/repository.js
     });
   },
 

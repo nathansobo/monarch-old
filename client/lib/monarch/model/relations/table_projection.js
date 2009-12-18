@@ -29,8 +29,8 @@ Monarch.constructor("Monarch.Model.Relations.TableProjection", Monarch.Model.Rel
   subscribe_to_operands: function() {
     var self = this;
     this.operands_subscription_bundle.add(this.operand.on_insert(function(composite_tuple) {
-      var projected_record = composite_tuple.record(self.projected_table);
-      if (!self.contains(projected_record)) self.tuple_inserted(projected_record);
+      var tuple = composite_tuple.record(self.projected_table);
+      if (!self.contains(tuple)) self.tuple_inserted(tuple);
     }));
 
     this.operands_subscription_bundle.add(this.operand.on_update(function(composite_tuple, changeset) {
@@ -46,9 +46,9 @@ Monarch.constructor("Monarch.Model.Relations.TableProjection", Monarch.Model.Rel
     }));
 
     this.operands_subscription_bundle.add(this.operand.on_remove(function(composite_tuple) {
-      var projected_record = composite_tuple.record(self.projected_table);
-      if (!self.operand.find(self.projected_table.column('id').eq(projected_record.id()))) {
-        self.tuple_removed(projected_record);
+      var tuple = composite_tuple.record(self.projected_table);
+      if (!self.operand.find(self.projected_table.column('id').eq(tuple.id()))) {
+        self.tuple_removed(tuple);
       }
     }));
   },

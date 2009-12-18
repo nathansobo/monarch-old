@@ -1,8 +1,8 @@
 (function(Monarch) {
 
 //= require "model/repository"
+//= require "model/tuple"
 //= require "model/record"
-//= require "model/projection_record"
 //= require "model/composite_tuple"
 //= require "model/field"
 //= require "model/concrete_field"
