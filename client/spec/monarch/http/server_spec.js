@@ -436,7 +436,7 @@ Screw.Unit(function(c) { with(c) {
           });
 
           it("performs a batch mutation representing the state of all the dirty records", function() {
-            server.save(locally_created, locally_updated, locally_updated.blogs());
+            server.save(locally_created, [locally_updated], locally_updated.blogs());
 
             expect(server.posts.length).to(equal, 1);
 
