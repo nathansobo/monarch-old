@@ -5,15 +5,14 @@ Monarch.constructor("Monarch.Http.Server", {
     this.pending_commands = [];
   },
 
-  fetch: function(relations) {
+  fetch: function(relations, subscribe) {
     var fetch_future = new Monarch.Http.RepositoryUpdateFuture();
-
-    start = new Date().getTime();
 
     this.get(Repository.origin_url, {
       relations: Monarch.Util.map(relations, function(relation) {
         return relation.wire_representation();
-      })
+      }),
+      subscribe: subscribe ? true : false
     })
       .on_success(function(data) {
         Repository.pause_events();
@@ -24,6 +23,10 @@ Monarch.constructor("Monarch.Http.Server", {
       });
 
     return fetch_future;
+  },
+
+  subscribe: function(relations) {
+    return this.fetch(relations, true);
   },
 
   create: function(table, field_values) {
@@ -123,7 +126,7 @@ Monarch.constructor("Monarch.Http.Server", {
       url: url,
       type: type,
       dataType: 'json',
-      data: data ? this.stringify_json_data(data) : null,
+      data: jQuery.extend({ comet_client_id: COMET_CLIENT_ID }, data ? this.stringify_json_data(data) : null),
       success: function(response) {
         future.handle_response(response);
       }
