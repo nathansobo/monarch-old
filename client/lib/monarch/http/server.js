@@ -29,78 +29,12 @@ Monarch.constructor("Monarch.Http.Server", {
     return this.fetch(relations, true);
   },
 
-  create: function(table, field_values) {
-    var command = new Monarch.Http.CreateCommand(table, field_values);
-    return this.mutate(table, command)
-  },
-
-  update: function(record, values_by_method_name) {
-    var command = new Monarch.Http.UpdateCommand(record, values_by_method_name);
-    return this.mutate(record.table(), command);
-  },
-
-  destroy: function(record) {
-    var command = new Monarch.Http.DestroyCommand(record);
-    return this.mutate(record.table(), command);
-  },
-
-  mutate: function(table, command) {
-    this.pending_commands.push(command);
-    if (!this.batch_in_progress) this.perform_pending_mutations();
-    return command.future;
-  },
-
-  perform_pending_mutations: function() {
-    var self = this;
-    var operation_wire_representations = Monarch.Util.map(this.pending_commands, function(command) {
-      return command.wire_representation();
-    });
-
-    var pending_commands = this.pending_commands;
-    this.pending_commands = [];
-
-    this.post(Repository.origin_url, { operations: operation_wire_representations })
-      .on_success(function(response_data) {
-        self.handle_successful_mutation_response(pending_commands, response_data);
-      })
-      .on_failure(function(response_data) {
-        self.handle_unsuccessful_mutation_response(pending_commands, response_data);
-      });
-  },
-
-  handle_successful_mutation_response: function(pending_commands, response_data) {
-    Repository.pause_events();
-
-    Monarch.Util.each(response_data, function(response, index) {
-      pending_commands[index].complete_and_trigger_before_events(response);
-    });
-
-    Repository.resume_events();
-
-    Monarch.Util.each(pending_commands, function(command) {
-      command.trigger_after_events();
-    });
-  },
-
-  handle_unsuccessful_mutation_response: function(pending_commands, response_data) {
-    Monarch.Util.each(pending_commands, function(command, index) {
-      if (index == response_data.index) {
-        command.handle_failure(response_data.errors)
-      } else {
-        command.handle_failure(null);
-      }
-    });
-  },
-
-  start_batch: function() {
-    if (this.batch_in_progress) throw new Error("Batch already in progress");
-    this.batch_in_progress = true;
-  },
-
-  finish_batch: function() {
-    if (!this.batch_in_progress) throw new Error("No batch in progress");
-    this.batch_in_progress = false;
-    this.perform_pending_mutations();
+  save: function() {
+    var commands = Monarch.Util.map(this.extract_dirty_records(arguments), function(dirty_record) {
+      return this.build_appropriate_command(dirty_record);
+    }.bind(this));
+    var batch = new Monarch.Http.CommandBatch(this, commands);
+    return batch.perform();
   },
 
   post: function(url, data) {
@@ -120,6 +54,30 @@ Monarch.constructor("Monarch.Http.Server", {
     return this.request('DELETE', url + "?" + url_encoded_data);
   },
 
+  // private
+
+  extract_dirty_records: function(records_or_relations) {
+    var dirty_records = []
+    Monarch.Util.each(records_or_relations, function(arg) {
+      if (arg.__relation__) {
+        dirty_records.push.apply(dirty_records, arg.dirty_tuples());
+      } else {
+        if (arg.dirty()) dirty_records.push(arg);
+      }
+    });
+    return dirty_records;
+  },
+
+  build_appropriate_command: function(record) {
+    if (record.locally_destroyed) {
+      return new Monarch.Http.DestroyCommand(record);
+    } else if (!record.remotely_created) {
+      return new Monarch.Http.CreateCommand(record);
+    } else {
+      return new Monarch.Http.UpdateCommand(record);
+    }
+  },
+
   request: function(type, url, data) {
     var future = new Monarch.Http.AjaxFuture();
     jQuery.ajax({
@@ -137,7 +95,7 @@ Monarch.constructor("Monarch.Http.Server", {
   stringify_json_data: function(data) {
     var stringified_data = {};
     Monarch.Util.each(data, function(key, value) {
-      if (typeof value == "object") value = JSON.stringify(value);
+      if (typeof value != "string") value = JSON.stringify(value);
       stringified_data[key] = value;
     });
     return stringified_data;
