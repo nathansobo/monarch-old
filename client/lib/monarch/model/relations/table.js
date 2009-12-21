@@ -34,6 +34,7 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
 
   insert: function(record) {
     this._tuples.push(record);
+    if (record.id()) this.tuples_by_id[record.id()] = record;
     record.initialize_relations();
   },
 

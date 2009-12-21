@@ -6,6 +6,7 @@
 //= require <htmlescape>
 //= require <underscore>
 //= require <json>
+//= require <md5>
 //= require "monarch/language_extensions"
 //= require "monarch/module_system"
 //= require "monarch/util"

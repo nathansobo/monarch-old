@@ -275,6 +275,10 @@ Monarch.constructor("Monarch.Model.Record", {
     return this === other;
   },
 
+  hash_code: function() {
+    return this.id();
+  },
+
   // private
   initialize_subscription_nodes: function() {
     var self = this;

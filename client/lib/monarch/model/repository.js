@@ -26,8 +26,9 @@ Monarch.constructor("Monarch.Model.Repository", {
 
   delta: function(dataset) {
     var self = this;
-    Monarch.Util.each(dataset, function(table_name, table_dataset) {
-      self.tables[table_name].delta(table_dataset);
+    Monarch.Util.each(this.tables, function(table_name, table) {
+      var table_dataset = dataset[table_name] || {};
+      table.delta(table_dataset);
     });
   },
 

@@ -3,8 +3,6 @@
 Screw.Unit(function(c) { with(c) {
   describe("Monarch.Model.Relations.TableProjection", function() {
     var projection, operand, user, blog_1, blog_2, post_1, post_2, post_3;
-
-    use_fake_server();
     use_example_domain_model();
 
     before(function() {

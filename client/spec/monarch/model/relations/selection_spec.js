@@ -27,7 +27,9 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("#create", function() {
-      use_fake_server(false);
+      before(function() {
+        Server.auto = false;
+      });
 
       it("calls #create on its operand with the given attributes extended with an attribute value that satisfies the predicate", function() {
         var create_future = selection.create({full_name: "John Lennon"});
@@ -128,8 +130,6 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("event handling", function() {
-      use_fake_server();
-
       var insert_callback, remove_callback, update_callback, tuple;
       before(function() {
         insert_callback = mock_function("insert callback", function(record) {
