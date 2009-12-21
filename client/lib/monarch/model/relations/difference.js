@@ -40,6 +40,10 @@ Monarch.constructor("Monarch.Model.Relations.Difference", Monarch.Model.Relation
     return tuples;
   },
 
+  column: function(name) {
+    return this.left_operand.column(name);
+  },
+
   surface_tables: function() {
     return this.left_operand.surface_tables();
   },

@@ -51,6 +51,10 @@ Monarch.constructor("Monarch.Model.Relations.Ordering", Monarch.Model.Relations.
     return this.operand.surface_tables();
   },
 
+  column: function(name) {
+    return this.operand.column(name);
+  },
+
   // private
 
   subscribe_to_operands: function() {
