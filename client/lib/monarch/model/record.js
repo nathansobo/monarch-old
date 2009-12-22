@@ -211,6 +211,7 @@ Monarch.constructor("Monarch.Model.Record", {
 
   finalize_local_create: function(field_values) {
     this.remote.update(field_values);
+    this.initialize_relations();
     this.table().tuple_inserted(this);
     this.on_create_node.publish(this);
   },
@@ -273,10 +274,6 @@ Monarch.constructor("Monarch.Model.Record", {
 
   equals: function(other) {
     return this === other;
-  },
-
-  hash_code: function() {
-    return this.id();
   },
 
   // private
