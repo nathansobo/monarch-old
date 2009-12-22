@@ -1,7 +1,7 @@
 //= require "../../../monarch_spec_helper"
 
 Screw.Unit(function(c) { with(c) {
-  describe("Monarch.Model.Relations.Difference", function() {
+  describe("Monarch.Model.Relations.Union", function() {
     use_example_domain_model();
 
     var left_operand, right_operand, union;
