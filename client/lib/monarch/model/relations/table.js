@@ -123,15 +123,10 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
     });
     this.update(dataset);
   },
-
-  fixtures: function(fixture_definitions) {
-    this.fixture_definitions = fixture_definitions;
-  },
-
-  load_fixtures: function() {
-    if (!this.fixture_definitions) return;
+  
+  load_fixtures: function(fixture_definitions) {
     var self = this;
-    Monarch.Util.each(this.fixture_definitions, function(id, properties) {
+    Monarch.Util.each(fixture_definitions, function(id, properties) {
       var field_values = Monarch.Util.extend({id: id}, properties)
       var record = self.local_create(field_values);
       record.remote.update(field_values);
@@ -143,6 +138,11 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
   clear: function() {
     this._tuples = [];
     this.tuples_by_id = {}
+    this.on_insert_node = new Monarch.SubscriptionNode();
+    this.on_remove_node = new Monarch.SubscriptionNode();
+    this.on_update_node = new Monarch.SubscriptionNode();
+    this.on_pause_events_node = new Monarch.SubscriptionNode();
+    this.on_resume_events_node = new Monarch.SubscriptionNode();
   },
 
   clone_schema: function() {

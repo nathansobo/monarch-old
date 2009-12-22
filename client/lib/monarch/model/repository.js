@@ -68,16 +68,12 @@ Monarch.constructor("Monarch.Model.Repository", {
 
   fixtures: function(fixture_definitions) {
     var self = this;
-    Monarch.Util.each(fixture_definitions, function(table_name, fixtures) {
-      self.tables[table_name].fixtures(fixtures);
-    });
   },
 
   load_fixtures: function(fixture_definitions) {
-    if (fixture_definitions) this.fixtures(fixture_definitions);
-    Monarch.Util.each(this.tables, function(global_name, table) {
-      table.load_fixtures();
-    });
+    Monarch.Util.each(fixture_definitions, function(table_name, fixtures) {
+      this.tables[table_name].load_fixtures(fixtures);
+    }.bind(this));
   },
 
   clear: function() {
