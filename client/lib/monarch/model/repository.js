@@ -20,7 +20,7 @@ Monarch.constructor("Monarch.Model.Repository", {
   update: function(dataset) {
     var self = this;
     Monarch.Util.each(dataset, function(table_name, table_dataset) {
-      self.tables[table_name].update(table_dataset);
+      self.tables[table_name].update_contents(table_dataset);
     });
   },
 
@@ -28,7 +28,7 @@ Monarch.constructor("Monarch.Model.Repository", {
     var self = this;
     Monarch.Util.each(this.tables, function(table_name, table) {
       var table_dataset = dataset[table_name] || {};
-      table.delta(table_dataset);
+      table.delta_contents(table_dataset);
     });
   },
 

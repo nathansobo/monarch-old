@@ -103,7 +103,7 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
     return this.on_resume_events_node.subscribe(callback);
   },
 
-  update: function(dataset) {
+  update_contents: function(dataset) {
     var self = this;
     Monarch.Util.each(dataset, function(id, field_values) {
       var extant_record = self.find(id);
@@ -115,13 +115,13 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
     });
   },
   
-  delta: function(dataset) {
+  delta_contents: function(dataset) {
     this.each(function(record) {
       if (!dataset[record.id()]) {
         record.remotely_destroyed();
       }
     });
-    this.update(dataset);
+    this.update_contents(dataset);
   },
   
   load_fixtures: function(fixture_definitions) {
