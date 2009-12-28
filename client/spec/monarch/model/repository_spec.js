@@ -144,9 +144,9 @@ Screw.Unit(function(c) { with(c) {
         var update_callback = mock_function('update_callback');
         var remove_callback = mock_function('remove_callback');
 
-        Blog.on_insert(insert_callback);
-        User.on_update(update_callback);
-        User.on_remove(remove_callback);
+        Blog.on_remote_insert(insert_callback);
+        User.on_remote_update(update_callback);
+        User.on_remote_remove(remove_callback);
 
         repository.mutate([
           ['create', 'blogs', { id: "malathion", name: "Recipes From The Makers of Malathion"}],

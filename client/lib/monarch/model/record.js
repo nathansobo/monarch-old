@@ -82,16 +82,16 @@ Monarch.constructor("Monarch.Model.Record", {
       return this.table.any(fn);
     },
 
-    on_insert: function(callback) {
-      return this.table.on_insert(callback);
+    on_remote_insert: function(callback) {
+      return this.table.on_remote_insert(callback);
     },
 
-    on_update: function(callback) {
-      return this.table.on_update(callback);
+    on_remote_update: function(callback) {
+      return this.table.on_remote_update(callback);
     },
 
-    on_remove: function(callback) {
-      return this.table.on_remove(callback);
+    on_remote_remove: function(callback) {
+      return this.table.on_remote_remove(callback);
     },
 
     where: function(predicate) {
@@ -176,8 +176,8 @@ Monarch.constructor("Monarch.Model.Record", {
     return this.local.all_validation_errors();
   },
 
-  on_update: function(callback) {
-    return this.on_update_node.subscribe(callback);
+  on_remote_update: function(callback) {
+    return this.on_remote_update_node.subscribe(callback);
   },
 
   on_destroy: function(callback) {
@@ -213,7 +213,7 @@ Monarch.constructor("Monarch.Model.Record", {
   confirm_remote_create: function(field_values) {
     this.remote.update(field_values);
     this.initialize_relations();
-    this.table.tuple_inserted(this);
+    this.table.tuple_inserted_remotely(this);
     this.on_create_node.publish(this);
   },
 
@@ -264,13 +264,13 @@ Monarch.constructor("Monarch.Model.Record", {
 
   pause_events: function() {
     this.on_create_node.pause_events();
-    this.on_update_node.pause_events();
+    this.on_remote_update_node.pause_events();
     this.on_destroy_node.pause_events();
   },
 
   resume_events: function() {
     this.on_create_node.resume_events();
-    this.on_update_node.resume_events();
+    this.on_remote_update_node.resume_events();
     this.on_destroy_node.resume_events();
   },
 
@@ -289,7 +289,7 @@ Monarch.constructor("Monarch.Model.Record", {
   // private
   initialize_subscription_nodes: function() {
     var self = this;
-    this.on_update_node = new Monarch.SubscriptionNode();
+    this.on_remote_update_node = new Monarch.SubscriptionNode();
     this.on_destroy_node = new Monarch.SubscriptionNode();
     this.on_create_node = new Monarch.SubscriptionNode();
 
@@ -309,7 +309,7 @@ Monarch.constructor("Monarch.Model.Record", {
       if (self.after_create) self.after_create();
     });
 
-    this.on_update_node.subscribe(function(changeset) {
+    this.on_remote_update_node.subscribe(function(changeset) {
       if (self.after_update) self.after_update(changeset);
     });
 

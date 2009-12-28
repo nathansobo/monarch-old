@@ -117,13 +117,13 @@ Screw.Unit(function(c) { with(c) {
             record = User.local_create({full_name: "Jesus Chang"});
 
             table_insert_callback = mock_function("table insert callback");
-            User.on_insert(table_insert_callback);
+            User.on_remote_insert(table_insert_callback);
             table_update_callback = mock_function("table update callback");
-            User.on_update(table_update_callback);
+            User.on_remote_update(table_update_callback);
             record_create_callback = mock_function("record insert callback");
             record.on_create(record_create_callback);
             record_update_callback = mock_function("record update callback");
-            record.on_update(record_update_callback);
+            record.on_remote_update(record_update_callback);
             record.after_update = mock_function("optional after update hook");
             record.after_create = mock_function("optional after create hook");
           });
@@ -215,8 +215,8 @@ Screw.Unit(function(c) { with(c) {
 
             table_update_callback = mock_function("table update callback");
             record_update_callback = mock_function("record update callback");
-            Blog.on_update(table_update_callback);
-            record.on_update(record_update_callback);
+            Blog.on_remote_update(table_update_callback);
+            record.on_remote_update(record_update_callback);
             record.after_update = mock_function("optional record on update method");
           });
 
@@ -331,7 +331,7 @@ Screw.Unit(function(c) { with(c) {
 
               expect(table_update_callback).to_not(have_been_called);
               expect(record_update_callback).to_not(have_been_called);
-              expect(record.on_update).to_not(have_been_called);
+              expect(record.on_remote_update).to_not(have_been_called);
             });
           });
         });
@@ -342,7 +342,7 @@ Screw.Unit(function(c) { with(c) {
           before(function() {
             record = Blog.find('recipes');
             table_remove_callback = mock_function("table remove callback");
-            Blog.on_remove(table_remove_callback);
+            Blog.on_remote_remove(table_remove_callback);
             record_destroy_callback = mock_function("record remove callback");
             record.on_destroy(record_destroy_callback)
             record.after_destroy = mock_function("optional after_destroy method");
@@ -360,7 +360,7 @@ Screw.Unit(function(c) { with(c) {
           });
 
           context("when the request is successful", function() {
-            it("finalizes the destruction of the record, firing on_remove callbacks in between the before_events and after_events callbacks", function() {
+            it("finalizes the destruction of the record, firing on_remote_remove callbacks in between the before_events and after_events callbacks", function() {
               record.local_destroy();
               var save_future = server.save(record);
 
@@ -429,9 +429,9 @@ Screw.Unit(function(c) { with(c) {
             update_callback = mock_function('update_callback');
             remove_callback = mock_function('remove_callback');
 
-            User.on_insert(insert_callback);
-            User.on_update(update_callback);
-            Blog.on_remove(remove_callback);
+            User.on_remote_insert(insert_callback);
+            User.on_remote_update(update_callback);
+            Blog.on_remote_remove(remove_callback);
           });
 
           it("performs a batch mutation representing the state of all the dirty records", function() {

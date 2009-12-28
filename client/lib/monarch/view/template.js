@@ -77,7 +77,7 @@ Monarch.constructor("Monarch.View.Template", Monarch.Xml.Template, {
 
     subscribe_to_model_updates: function() {
       var self = this;
-      this.update_subscription = this._model.on_update(function(changeset) {
+      this.update_subscription = this._model.on_remote_update(function(changeset) {
         Monarch.Util.each(changeset, function(field_name, changes) {
           self.handle_model_field_update(field_name, changes);
         });

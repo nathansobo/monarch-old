@@ -49,7 +49,7 @@ Screw.Unit(function(c) { with(c) {
           expect(insert_callback).to(have_been_called, twice);
         });
 
-        User.on_insert(insert_callback);
+        User.on_remote_insert(insert_callback);
 
         expect(fake_server.fetches).to(be_empty);
         expect(User.find('sharon')).to(be_null);

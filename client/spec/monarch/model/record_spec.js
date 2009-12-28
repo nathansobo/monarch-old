@@ -88,6 +88,13 @@ Screw.Unit(function(c) { with(c) {
         expect(relation.predicate).to(equal, Blog.user_id.eq("jan"));
       });
 
+      it("is updated correctly if the id of the record changes after the relation is instantiated", function() {
+        var user = User.local_create({name: "Burt Smith"});
+        expect(user.blogs().predicate.right_operand).to(be_null);
+        user.save();
+        expect(user.blogs().predicate.right_operand).to(equal, user.id());
+      });
+
       context("if a single 'order_by' column is supplied in the options", function() {
         it("constructs an ordered has_many relation ordered by that one column", function() {
           User.has_many('blogs', { order_by: "name desc" });
@@ -157,7 +164,7 @@ Screw.Unit(function(c) { with(c) {
 
       it("does not trigger update events on its Table", function() {
         var update_callback = mock_function("update callback");
-        Blog.table.on_update(update_callback);
+        Blog.table.on_remote_update(update_callback);
 
         var record = Blog.local_create({
           id: 'index',
@@ -261,7 +268,7 @@ Screw.Unit(function(c) { with(c) {
       it("triggers update callbacks on the table of its record", function() {
         var record = Blog.find('recipes');
         var update_callback = mock_function('update_callback');
-        record.table.on_update(update_callback);
+        record.table.on_remote_update(update_callback);
 
         record.name("Farming");
         record.save();
@@ -278,7 +285,7 @@ Screw.Unit(function(c) { with(c) {
 
       they("trigger update callbacks on the Record's table when a new value is assigned", function() {
         var update_callback = mock_function('update callback')
-        Blog.on_update(update_callback);
+        Blog.on_remote_update(update_callback);
 
         record.name('Pesticides');
         record.save();

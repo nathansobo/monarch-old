@@ -19,8 +19,8 @@ Monarch.constructor("Monarch.Model.RemoteFieldset", Monarch.Model.Fieldset, {
     var changeset = this.batched_updates;
     this.batched_updates = null;
     if (this.update_events_enabled && Monarch.Util.keys(changeset).length > 0) {
-      if (this.record.on_update_node) this.record.on_update_node.publish(changeset);
-      this.record.table.tuple_updated(this.record, changeset);
+      if (this.record.on_remote_update_node) this.record.on_remote_update_node.publish(changeset);
+      this.record.table.tuple_updated_remotely(this.record, changeset);
     }
 
     this.record.remotely_created = true;

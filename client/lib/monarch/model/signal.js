@@ -9,7 +9,7 @@ Monarch.constructor("Monarch.Model.Signal", {
     this.on_local_update_node = new Monarch.SubscriptionNode();
     this.on_remote_update_node = new Monarch.SubscriptionNode();
 
-    this.local_field.on_update(function(new_value, old_value) {
+    this.local_field.on_remote_update(function(new_value, old_value) {
       if (this.transformer) {
         new_value = this.transformer(new_value);
         old_value = this.transformer(old_value);
@@ -17,7 +17,7 @@ Monarch.constructor("Monarch.Model.Signal", {
       this.on_local_update_node.publish(new_value, old_value);
     }.bind(this));
 
-    this.remote_field.on_update(function(new_value, old_value) {
+    this.remote_field.on_remote_update(function(new_value, old_value) {
       if (this.transformer) {
         new_value = this.transformer(new_value);
         old_value = this.transformer(old_value);

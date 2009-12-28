@@ -33,24 +33,24 @@ Monarch.constructor("Monarch.Model.Relations.Union", Monarch.Model.Relations.Rel
 
   subscribe_to_operands: function() {
     var self = this;
-    this.operands_subscription_bundle.add(this.left_operand.on_insert(function(record) {
-      if (!self.right_operand.find(record.id())) self.tuple_inserted(record);
+    this.operands_subscription_bundle.add(this.left_operand.on_remote_insert(function(record) {
+      if (!self.right_operand.find(record.id())) self.tuple_inserted_remotely(record);
     }));
 
-    this.operands_subscription_bundle.add(this.left_operand.on_update(function(record, changes) {
-      if (self.contains(record)) self.tuple_updated(record, changes);
+    this.operands_subscription_bundle.add(this.left_operand.on_remote_update(function(record, changes) {
+      if (self.contains(record)) self.tuple_updated_remotely(record, changes);
     }));
 
-    this.operands_subscription_bundle.add(this.left_operand.on_remove(function(record) {
-      if (self.contains(record)) self.tuple_removed(record);
+    this.operands_subscription_bundle.add(this.left_operand.on_remote_remove(function(record) {
+      if (self.contains(record)) self.tuple_removed_remotely(record);
     }));
 
-    this.operands_subscription_bundle.add(this.right_operand.on_insert(function(record) {
-      if (self.contains(record)) self.tuple_removed(record);
+    this.operands_subscription_bundle.add(this.right_operand.on_remote_insert(function(record) {
+      if (self.contains(record)) self.tuple_removed_remotely(record);
     }));
 
-    this.operands_subscription_bundle.add(this.right_operand.on_remove(function(record) {
-      if (self.left_operand.find(record.id())) self.tuple_inserted(record);
+    this.operands_subscription_bundle.add(this.right_operand.on_remote_remove(function(record) {
+      if (self.left_operand.find(record.id())) self.tuple_inserted_remotely(record);
     }));
   }
 });

@@ -40,7 +40,7 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
 
   remove: function(record) {
     delete this.tuples_by_id[record.id()];
-    this.tuple_removed(record);
+    this.tuple_removed_remotely(record);
   },
 
   create: function(field_values) {
@@ -72,9 +72,9 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
   },
 
   // remotely
-  tuple_inserted: function(record) {
+  tuple_inserted_remotely: function(record) {
     this.tuples_by_id[record.id()] = record;
-    this.on_insert_node.publish(record);
+    this.on_remote_insert_node.publish(record);
   },
 
   find: function(predicate_or_id) {
@@ -94,16 +94,16 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
   },
 
   pause_events: function() {
-    this.on_insert_node.pause_events();
-    this.on_remove_node.pause_events();
-    this.on_update_node.pause_events();
+    this.on_remote_insert_node.pause_events();
+    this.on_remote_remove_node.pause_events();
+    this.on_remote_update_node.pause_events();
     this.on_pause_events_node.publish();
   },
 
   resume_events: function() {
-    this.on_insert_node.resume_events();
-    this.on_remove_node.resume_events();
-    this.on_update_node.resume_events();
+    this.on_remote_insert_node.resume_events();
+    this.on_remote_remove_node.resume_events();
+    this.on_remote_update_node.resume_events();
     this.on_resume_events_node.publish();
   },
 
@@ -152,9 +152,9 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
   clear: function() {
     this._tuples = [];
     this.tuples_by_id = {}
-    this.on_insert_node = new Monarch.SubscriptionNode();
-    this.on_remove_node = new Monarch.SubscriptionNode();
-    this.on_update_node = new Monarch.SubscriptionNode();
+    this.on_remote_insert_node = new Monarch.SubscriptionNode();
+    this.on_remote_remove_node = new Monarch.SubscriptionNode();
+    this.on_remote_update_node = new Monarch.SubscriptionNode();
     this.on_pause_events_node = new Monarch.SubscriptionNode();
     this.on_resume_events_node = new Monarch.SubscriptionNode();
   },

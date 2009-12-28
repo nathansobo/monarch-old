@@ -57,7 +57,7 @@ Monarch.constructor("Monarch.Model.LocalField", Monarch.Model.ConcreteField, {
     } else {
       this.mark_dirty();
     }
-    if (this.on_update_node) this.on_update_node.publish(new_value, old_value);
+    if (this.on_remote_update_node) this.on_remote_update_node.publish(new_value, old_value);
   }
 });
 
