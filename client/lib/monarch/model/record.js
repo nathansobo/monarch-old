@@ -154,48 +154,8 @@ Monarch.constructor("Monarch.Model.Record", {
     return this.table.where(this.table.column('id').eq(this.id())).fetch();
   },
 
-  update: function(values_by_method_name) {
-    this.local_update(values_by_method_name);
-    return this.save();
-  },
-
   save: function() {
     return Server.save(this);
-  },
-
-  destroy: function() {
-    this.local_destroy();
-    return Server.save(this);
-  },
-
-  populate_fields_with_errors: function(errors_by_field_name) {
-    this.local.populate_fields_with_errors(errors_by_field_name);
-  },
-
-  all_validation_errors: function() {
-    return this.local.all_validation_errors();
-  },
-
-  on_remote_update: function(callback) {
-    return this.on_remote_update_node.subscribe(callback);
-  },
-
-  on_destroy: function(callback) {
-    return this.on_destroy_node.subscribe(callback);
-  },
-
-  on_create: function(callback) {
-    return this.on_create_node.subscribe(callback)
-  },
-
-  on_dirty: function(callback) {
-    if (!this.on_dirty_node) this.on_dirty_node = new Monarch.SubscriptionNode();
-    return this.on_dirty_node.subscribe(callback);
-  },
-
-  on_clean: function(callback) {
-    if (!this.on_clean_node) this.on_clean_node = new Monarch.SubscriptionNode();
-    return this.on_clean_node.subscribe(callback);
   },
 
   local_update: function(values_by_method_name) {
@@ -210,11 +170,43 @@ Monarch.constructor("Monarch.Model.Record", {
     this.locally_destroyed = true;
   },
 
+  update: function(values_by_method_name) {
+    this.local_update(values_by_method_name);
+    return this.save();
+  },
+
+  destroy: function() {
+    this.local_destroy();
+    return Server.save(this);
+  },
+
+  on_remote_update: function(callback) {
+    return this.on_remote_update_node.subscribe(callback);
+  },
+
+  on_remote_destroy: function(callback) {
+    return this.on_remote_destroy_node.subscribe(callback);
+  },
+
+  on_remote_create: function(callback) {
+    return this.on_remote_create_node.subscribe(callback)
+  },
+
+  on_dirty: function(callback) {
+    if (!this.on_dirty_node) this.on_dirty_node = new Monarch.SubscriptionNode();
+    return this.on_dirty_node.subscribe(callback);
+  },
+
+  on_clean: function(callback) {
+    if (!this.on_clean_node) this.on_clean_node = new Monarch.SubscriptionNode();
+    return this.on_clean_node.subscribe(callback);
+  },
+
   confirm_remote_create: function(field_values) {
     this.remote.update(field_values);
     this.initialize_relations();
     this.table.tuple_inserted_remotely(this);
-    this.on_create_node.publish(this);
+    this.on_remote_create_node.publish(this);
   },
 
   confirm_remote_update: function(field_values) {
@@ -223,17 +215,25 @@ Monarch.constructor("Monarch.Model.Record", {
 
   confirm_remote_destroy: function() {
     this.table.remove(this);
-    this.on_destroy_node.publish(this);
+    this.on_remote_destroy_node.publish(this);
   },
 
   valid: function() {
     return this.local.valid();
   },
 
+  populate_fields_with_errors: function(errors_by_field_name) {
+    this.local.populate_fields_with_errors(errors_by_field_name);
+  },
+
+  all_validation_errors: function() {
+    return this.local.all_validation_errors();
+  },
+
   dirty: function() {
     return this.locally_destroyed || !this.remotely_created || this.local.dirty();
   },
-  
+
   dirty_wire_representation: function() {
     return this.local.dirty_wire_representation();
   },
@@ -263,15 +263,15 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   pause_events: function() {
-    this.on_create_node.pause_events();
+    this.on_remote_create_node.pause_events();
     this.on_remote_update_node.pause_events();
-    this.on_destroy_node.pause_events();
+    this.on_remote_destroy_node.pause_events();
   },
 
   resume_events: function() {
-    this.on_create_node.resume_events();
+    this.on_remote_create_node.resume_events();
     this.on_remote_update_node.resume_events();
-    this.on_destroy_node.resume_events();
+    this.on_remote_destroy_node.resume_events();
   },
 
   cleanup: function() {
@@ -290,8 +290,8 @@ Monarch.constructor("Monarch.Model.Record", {
   initialize_subscription_nodes: function() {
     var self = this;
     this.on_remote_update_node = new Monarch.SubscriptionNode();
-    this.on_destroy_node = new Monarch.SubscriptionNode();
-    this.on_create_node = new Monarch.SubscriptionNode();
+    this.on_remote_destroy_node = new Monarch.SubscriptionNode();
+    this.on_remote_create_node = new Monarch.SubscriptionNode();
 
     this.subscriptions.add(this.table.on_pause_events(function() {
       self.pause_events();
@@ -305,7 +305,7 @@ Monarch.constructor("Monarch.Model.Record", {
   subscribe_to_self_mutations: function() {
     var self = this;
 
-    this.on_create_node.subscribe(function(changeset) {
+    this.on_remote_create_node.subscribe(function(changeset) {
       if (self.after_create) self.after_create();
     });
 
@@ -313,7 +313,7 @@ Monarch.constructor("Monarch.Model.Record", {
       if (self.after_update) self.after_update(changeset);
     });
 
-    this.on_destroy_node.subscribe(function() {
+    this.on_remote_destroy_node.subscribe(function() {
       if (self.after_destroy) self.after_destroy();
       self.cleanup();
     });

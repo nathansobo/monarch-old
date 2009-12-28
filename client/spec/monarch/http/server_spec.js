@@ -121,7 +121,7 @@ Screw.Unit(function(c) { with(c) {
             table_update_callback = mock_function("table update callback");
             User.on_remote_update(table_update_callback);
             record_create_callback = mock_function("record insert callback");
-            record.on_create(record_create_callback);
+            record.on_remote_create(record_create_callback);
             record_update_callback = mock_function("record update callback");
             record.on_remote_update(record_update_callback);
             record.after_update = mock_function("optional after update hook");
@@ -344,7 +344,7 @@ Screw.Unit(function(c) { with(c) {
             table_remove_callback = mock_function("table remove callback");
             Blog.on_remote_remove(table_remove_callback);
             record_destroy_callback = mock_function("record remove callback");
-            record.on_destroy(record_destroy_callback)
+            record.on_remote_destroy(record_destroy_callback)
             record.after_destroy = mock_function("optional after_destroy method");
           });
 

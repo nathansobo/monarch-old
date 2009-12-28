@@ -55,23 +55,16 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
     return record;
   },
 
-  remotely_created: function(field_values, record) {
-    if (record) {
-      record.remote.update(field_values);
-    } else {
-
-    }
-
-
-    var record = new this.record_constructor(field_values, this);
-    
+  remotely_created: function(field_values) {
+    var record = new this.record_constructor(null, this);
+    record.confirm_remote_create(field_values);
+    return record;
   },
 
   surface_tables: function() {
     return [this];
   },
 
-  // remotely
   tuple_inserted_remotely: function(record) {
     this.tuples_by_id[record.id()] = record;
     this.on_remote_insert_node.publish(record);
