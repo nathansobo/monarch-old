@@ -41,14 +41,28 @@ Monarch.constructor("Monarch.Model.LocalFieldset", Monarch.Model.Fieldset, {
     }.bind(this));
   },
 
-  field_updated: function(field, new_value, old_value) {
-    // TODO  
-  },
-
   dirty: function() {
     return Monarch.Util.any(this.fields_by_column_name, function(name, field) {
       return field.dirty();
     });
+  },
+
+  field_marked_dirty: function() {
+    if (!this._dirty) {
+      this._dirty = true;
+      if (this.record.on_dirty_node) this.record.on_dirty_node.publish();
+    }
+  },
+
+  field_marked_clean: function() {
+    if (!this.dirty()) {
+      this._dirty = false;
+      if (this.record.on_clean_node) this.record.on_clean_node.publish();
+    }
+  },
+
+  field_updated: function(field) {
+    // noop in local. called in synthetic field
   },
 
   // private

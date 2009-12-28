@@ -3,7 +3,7 @@
 Monarch.constructor("Monarch.Http.UpdateCommand", Monarch.Http.Command, {
   initialize: function(record) {
     this.record = record;
-    this.table_name = this.record.table().global_name;
+    this.table_name = this.record.table.global_name;
     this.id = this.record.id();
     this.field_values = this.record.local.dirty_wire_representation();
   },
@@ -12,8 +12,8 @@ Monarch.constructor("Monarch.Http.UpdateCommand", Monarch.Http.Command, {
     return ['update', this.table_name, this.id, this.field_values];
   },
 
-  complete: function(field_values_from_server, requested_at) {
-    this.record.remote.update(field_values_from_server, requested_at);
+  complete: function(field_values_from_server) {
+    this.record.confirm_remote_update(field_values_from_server);
   },
 
   handle_failure: function(errors_by_field_name) {

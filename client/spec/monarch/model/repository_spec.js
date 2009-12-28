@@ -198,7 +198,7 @@ Screw.Unit(function(c) { with(c) {
 
         // but different data stores
         var num_users_in_original_repository = repository.tables.users.tuples().length;
-        clone.tables.users.insert(new User({full_name: "Wil Bierbaum"}));
+        clone.tables.users.local_create({full_name: "Wil Bierbaum"});
         expect(repository.tables.users.tuples().length).to(equal, num_users_in_original_repository);
       });
     });

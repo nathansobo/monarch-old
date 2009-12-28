@@ -41,7 +41,7 @@ Screw.Unit(function(c) { with(c) {
       });
 
       it("generates a method on .prototype that accesses the field corresponding to the prototype", function() {
-        var record = new Blog();
+        var record = Blog.local_create();
 
         var field = record.field('user_id');
         expect(field.value()).to(be_undefined);
@@ -185,19 +185,6 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
-    describe("#initialize(field_values_by_column_name={})", function() {
-      it("assigns the given field values to their respective Fields", function() {
-        var record = new Blog({
-          id: "recipes",
-          name: "Recipes"
-        });
-
-        expect(record.id()).to(equal, "recipes");
-        expect(record.name()).to(equal, "Recipes");
-      });
-    });
-
-
     describe("#local_destroy", function() {
       it("causes the record to be dirty and no longer appear in queries or finds", function() {
         var record = User.find('jan');
@@ -208,15 +195,48 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
-    describe("#finalize_local_destroy", function() {
+    describe("#confirm_remote_destroy", function() {
       it("removes the Record from its Table and calls #after_destroy if it is defined", function() {
         var record = User.find('jan');
         record.after_destroy = mock_function('after destroy hook');
 
-        record.finalize_local_destroy();
+        record.confirm_remote_destroy();
         expect(User.find('jan')).to(be_null);
 
         expect(record.after_destroy).to(have_been_called);
+      });
+    });
+
+    describe("#on_dirty and #on_clean", function() {
+      they("cause the given callback to be triggered when the record becomes dirty or clean relative to the remote fieldset", function() {
+        window.debug = true;
+
+        var record = User.find('jan');
+        
+        expect(record.dirty()).to(be_false);
+        expect(record.local._dirty).to(be_false);
+
+        var on_dirty_callback = mock_function("on_dirty_callback");
+        var on_clean_callback = mock_function("on_clean_callback");
+        record.on_dirty(on_dirty_callback);
+        record.on_clean(on_clean_callback);
+
+        var full_name_before = record.full_name();
+
+
+        window.debug = true;
+        record.full_name("Johan Sebastian Bach");
+        expect(on_dirty_callback).to(have_been_called, once);
+        on_dirty_callback.clear();
+
+        record.full_name(full_name_before);
+        expect(on_clean_callback).to(have_been_called, once);
+        on_clean_callback.clear();
+
+        record.full_name("Karl Jung");
+        record.save();
+        expect(on_clean_callback).to(have_been_called, once);
+        on_clean_callback.clear();
       });
     });
 
@@ -241,7 +261,7 @@ Screw.Unit(function(c) { with(c) {
       it("triggers update callbacks on the table of its record", function() {
         var record = Blog.find('recipes');
         var update_callback = mock_function('update_callback');
-        record.table().on_update(update_callback);
+        record.table.on_update(update_callback);
 
         record.name("Farming");
         record.save();

@@ -11,30 +11,11 @@ Monarch.constructor("Monarch.Model.Record", {
     },
 
     column: function(name, type) {
-      var column = this.table.define_column(name, type);
-
-      // name property of functions is read-only in safari and chrome
-      if (name == "name") {
-        this["name_"] = column;
-      } else {
-        this[name] = column;
-      }
-
-      this.prototype[name] = function() {
-        var field = this.field(name);
-        return field.value.apply(field, arguments);
-      };
+      this.generate_column_accessors(this.table.define_column(name, type));
     },
 
     synthetic_column: function(name, definition) {
-      this[name] = this.table.define_synthetic_column(name, definition);
-      this.prototype[name] = function(value) {
-        if (arguments.length == 0) {
-          return this.field(name).value();
-        } else {
-          return this.field(name).value(value);
-        }
-      };
+      this.generate_column_accessors(this.table.define_synthetic_column(name, definition));
     },
 
     columns: function(column_name_type_pairs) {
@@ -66,18 +47,6 @@ Monarch.constructor("Monarch.Model.Record", {
         if (options.order_by) relation = self.process_has_many_order_by_option(relation, options.order_by);
         return relation;
       });
-    },
-
-    process_has_many_order_by_option: function(relation, order_by) {
-      if (order_by instanceof Array) {
-        return relation.order_by.apply(relation, order_by);
-      } else {
-        return relation.order_by(order_by);
-      }
-    },
-
-    determine_global_name: function(record_constructor) {
-      return Monarch.Inflection.pluralize(Monarch.Inflection.underscore(record_constructor.basename));
     },
 
     create: function(field_values) {
@@ -139,23 +108,50 @@ Monarch.constructor("Monarch.Model.Record", {
 
     empty: function() {
       return this.table.empty();
+    },
+
+    // private
+
+    generate_column_accessors: function(column) {
+      if (column.name == "name") {
+        this["name_"] = column; // name property of functions is read-only in webkit
+      } else {
+        this[column.name] = column;
+      }
+
+      this.prototype[column.name] = function() {
+        var field = this.field(column.name);
+        return field.value.apply(field, arguments);
+      };
+    },
+
+    process_has_many_order_by_option: function(relation, order_by) {
+      if (order_by instanceof Array) {
+        return relation.order_by.apply(relation, order_by);
+      } else {
+        return relation.order_by(order_by);
+      }
+    },
+
+    determine_global_name: function(record_constructor) {
+      return Monarch.Inflection.pluralize(Monarch.Inflection.underscore(record_constructor.basename));
     }
   },
 
-  initialize: function(field_values_by_column_name) {
+  initialize: function(field_values_by_column_name, table) {
+    this.table = table;
     this.remote = new Monarch.Model.RemoteFieldset(this);
     this.local = new Monarch.Model.LocalFieldset(this, this.remote);
     this.subscriptions = new Monarch.SubscriptionBundle();
     this.initialize_subscription_nodes();
     this.subscribe_to_self_mutations();
-
     if (field_values_by_column_name) this.local_update(field_values_by_column_name);
     this.remote.initialize_synthetic_fields();
     this.local.initialize_synthetic_fields();
   },
 
   fetch: function() {
-    return this.table().where(this.table().column('id').eq(this.id())).fetch();
+    return this.table.where(this.table.column('id').eq(this.id())).fetch();
   },
 
   update: function(values_by_method_name) {
@@ -192,6 +188,16 @@ Monarch.constructor("Monarch.Model.Record", {
     return this.on_create_node.subscribe(callback)
   },
 
+  on_dirty: function(callback) {
+    if (!this.on_dirty_node) this.on_dirty_node = new Monarch.SubscriptionNode();
+    return this.on_dirty_node.subscribe(callback);
+  },
+
+  on_clean: function(callback) {
+    if (!this.on_clean_node) this.on_clean_node = new Monarch.SubscriptionNode();
+    return this.on_clean_node.subscribe(callback);
+  },
+
   local_update: function(values_by_method_name) {
     for (var method_name in values_by_method_name) {
       if (this[method_name]) {
@@ -204,16 +210,20 @@ Monarch.constructor("Monarch.Model.Record", {
     this.locally_destroyed = true;
   },
 
-  finalize_local_destroy: function() {
-    this.table().remove(this);
-    this.on_destroy_node.publish(this);
-  },
-
-  finalize_local_create: function(field_values) {
+  confirm_remote_create: function(field_values) {
     this.remote.update(field_values);
     this.initialize_relations();
-    this.table().tuple_inserted(this);
+    this.table.tuple_inserted(this);
     this.on_create_node.publish(this);
+  },
+
+  confirm_remote_update: function(field_values) {
+    this.remote.update(field_values);
+  },
+
+  confirm_remote_destroy: function() {
+    this.table.remove(this);
+    this.on_destroy_node.publish(this);
   },
 
   valid: function() {
@@ -223,11 +233,7 @@ Monarch.constructor("Monarch.Model.Record", {
   dirty: function() {
     return this.locally_destroyed || !this.remotely_created || this.local.dirty();
   },
-
-  table: function() {
-    return this.constructor.table;
-  },
-
+  
   dirty_wire_representation: function() {
     return this.local.dirty_wire_representation();
   },
@@ -253,7 +259,7 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   record: function(table) {
-    return this.table() === table ? this : null;
+    return this.table === table ? this : null;
   },
 
   pause_events: function() {
@@ -287,11 +293,11 @@ Monarch.constructor("Monarch.Model.Record", {
     this.on_destroy_node = new Monarch.SubscriptionNode();
     this.on_create_node = new Monarch.SubscriptionNode();
 
-    this.subscriptions.add(this.table().on_pause_events(function() {
+    this.subscriptions.add(this.table.on_pause_events(function() {
       self.pause_events();
     }));
 
-    this.subscriptions.add(this.table().on_resume_events(function() {
+    this.subscriptions.add(this.table.on_resume_events(function() {
       self.resume_events();
     }));
   },

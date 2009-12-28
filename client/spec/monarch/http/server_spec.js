@@ -110,7 +110,6 @@ Screw.Unit(function(c) { with(c) {
 
 
         context("when given a locally-created record", function() {
-
           var record, table_insert_callback, table_update_callback, table_remove_callback,
               record_create_callback, record_update_callback;
 

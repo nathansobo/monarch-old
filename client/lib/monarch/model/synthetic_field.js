@@ -20,7 +20,6 @@ Monarch.constructor("Monarch.Model.SyntheticField", Monarch.Model.Field, {
     }
   },
 
-
   // private
 
   subscribe_to_field_updates: function() {
