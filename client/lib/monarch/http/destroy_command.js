@@ -12,7 +12,7 @@ Monarch.constructor("Monarch.Http.DestroyCommand", Monarch.Http.Command, {
   },
 
   complete: function() {
-    this.record.confirm_remote_destroy();
+    this.record.remotely_destroyed();
   },
 
   handle_failure: function() {

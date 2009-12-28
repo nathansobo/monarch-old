@@ -13,7 +13,7 @@ Monarch.constructor("Monarch.Http.UpdateCommand", Monarch.Http.Command, {
   },
 
   complete: function(field_values_from_server) {
-    this.record.confirm_remote_update(field_values_from_server);
+    this.record.remotely_updated(field_values_from_server);
   },
 
   handle_failure: function(errors_by_field_name) {

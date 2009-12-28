@@ -13,7 +13,7 @@ Monarch.constructor("Monarch.Http.CreateCommand", Monarch.Http.Command, {
   },
 
   complete: function(field_values_from_server) {
-    this.record.confirm_remote_create(field_values_from_server);
+    this.record.remotely_created(field_values_from_server);
   },
 
   handle_failure: function(errors_by_field_name) {

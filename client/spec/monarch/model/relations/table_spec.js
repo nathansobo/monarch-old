@@ -204,10 +204,10 @@ Screw.Unit(function(c) { with(c) {
         User.table.pause_events();
 
         var record = User.local_create({id: "jake", full_name: "Jake Frautschi"});
-        record.confirm_remote_create({id: "jake", full_name: "Jake Frautschi"});
+        record.remotely_created({id: "jake", full_name: "Jake Frautschi"});
         record.remote.update({ full_name: "Jacob Frautschi" });
         record.local_destroy();
-        record.confirm_remote_destroy();
+        record.remotely_destroyed();
 
         expect(insert_callback).to_not(have_been_called);
         expect(update_callback).to_not(have_been_called);
@@ -231,7 +231,7 @@ Screw.Unit(function(c) { with(c) {
         remove_callback.clear();
 
         var record_2 = User.local_create({id: "nathan", full_name: "Nathan Sobo"});
-        record_2.confirm_remote_create({id: "nathan", full_name: "Nathan Sobo"});
+        record_2.remotely_created({id: "nathan", full_name: "Nathan Sobo"});
 
         expect(insert_callback).to(have_been_called, once);
         expect(insert_callback).to(have_been_called, with_args(record_2));
@@ -239,7 +239,7 @@ Screw.Unit(function(c) { with(c) {
         record_2.remote.update({full_name: "Nate Sobo"});
         expect(update_callback).to(have_been_called, once);
 
-        record_2.confirm_remote_destroy();
+        record_2.remotely_destroyed();
         expect(remove_callback).to(have_been_called, once);
       });
     });

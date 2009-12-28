@@ -23,7 +23,7 @@ Monarch.constructor("Monarch.Model.RemoteFieldset", Monarch.Model.Fieldset, {
       this.record.table.tuple_updated_remotely(this.record, changeset);
     }
 
-    this.record.remotely_created = true;
+    this.record.is_remotely_created = true;
     this.update_events_enabled = true;
   },
 

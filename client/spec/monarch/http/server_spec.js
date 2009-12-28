@@ -503,7 +503,7 @@ Screw.Unit(function(c) { with(c) {
 
               expect(on_failure_callback).to(have_been_called, with_args(locally_updated));
 
-              expect(locally_created.remotely_created).to(be_false);
+              expect(locally_created.is_remotely_created).to(be_false);
               expect(locally_updated.field('full_name').validation_errors).to(equal, ["That name is taken"]);
               expect(locally_updated.remote.full_name()).to(equal, "Jan Nelson");
               expect(Monarch.Util.contains(Blog.table.all_tuples(), locally_destroyed)).to(be_true);

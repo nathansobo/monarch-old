@@ -202,12 +202,12 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
-    describe("#confirm_remote_destroy", function() {
+    describe("#remotely_destroyed", function() {
       it("removes the Record from its Table and calls #after_destroy if it is defined", function() {
         var record = User.find('jan');
         record.after_destroy = mock_function('after destroy hook');
 
-        record.confirm_remote_destroy();
+        record.remotely_destroyed();
         expect(User.find('jan')).to(be_null);
 
         expect(record.after_destroy).to(have_been_called);

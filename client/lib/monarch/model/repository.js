@@ -44,7 +44,7 @@ Monarch.constructor("Monarch.Model.Repository", {
     var table = this.tables[table_name];
     if (table && !table.find(field_values.id)) {
       var record = table.local_create(field_values);
-      record.confirm_remote_create(field_values);
+      record.remotely_created(field_values);
     }
   },
 
@@ -59,7 +59,7 @@ Monarch.constructor("Monarch.Model.Repository", {
     var table = this.tables[table_name];
     if (!table) return;
     var record = table.find(id);
-    if (record) record.confirm_remote_destroy();
+    if (record) record.remotely_destroyed();
   },
 
   register_table: function(table) {

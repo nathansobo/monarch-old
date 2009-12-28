@@ -68,7 +68,7 @@ Monarch.constructor("Monarch.Http.Server", {
   build_appropriate_command: function(record) {
     if (record.locally_destroyed) {
       return new Monarch.Http.DestroyCommand(record);
-    } else if (!record.remotely_created) {
+    } else if (!record.is_remotely_created) {
       return new Monarch.Http.CreateCommand(record);
     } else {
       return new Monarch.Http.UpdateCommand(record);
