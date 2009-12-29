@@ -24,6 +24,14 @@ Monarch.constructor("Monarch.Model.Relations.TableProjection", Monarch.Model.Rel
     return [this.projected_table];
   },
 
+  on_dirty: function() {
+    throw new Error("Not implemented");
+  },
+
+  on_clean: function() {
+    throw new Error("Not implemented");
+  },
+
   // private
 
   subscribe_to_operands: function() {

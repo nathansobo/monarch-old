@@ -29,6 +29,14 @@ Monarch.constructor("Monarch.Model.Relations.Union", Monarch.Model.Relations.Rel
     return this.left_operand.surface_tables();
   },
 
+  on_dirty: function() {
+    throw new Error("Not implemented");
+  },
+
+  on_clean: function() {
+    throw new Error("Not implemented");
+  },
+  
   // private
 
   subscribe_to_operands: function() {
