@@ -71,6 +71,7 @@ Monarch.constructor("Monarch.View.Template", Monarch.Xml.Template, {
         this.update_subscription.destroy();
         this.update_subscription = null;
       }
+
       if (model) this.subscribe_to_model_updates();
       if (this.model_assigned) this.model_assigned(model);
     },
@@ -99,6 +100,29 @@ Monarch.constructor("Monarch.View.Template", Monarch.Xml.Template, {
       this.populate_text_fields();
       this.populate_checkbox_fields();
       this.populate_select_fields();
+    },
+
+    observe_form_fields: function() {
+      var assign_field_value = function(name, value) {
+        if (!(this.model() && name && this.model()[name])) return;
+        console.debug("assigning " + value);
+        this.model()[name](value);
+      }.bind(this)
+
+      this.find("input:text").keyup(function() {
+        var elt = $(this);
+        assign_field_value(elt.attr('name'), elt.val());
+      });
+      
+      this.find("select").change(function() {
+        var elt = $(this);
+        assign_field_value(elt.attr('name'), elt.val());
+      });
+
+      this.find("input:checkbox").change(function() {
+        var elt = $(this);
+        assign_field_value(elt.attr('name'), elt.attr('checked'));
+      });
     },
 
     save: function() {
