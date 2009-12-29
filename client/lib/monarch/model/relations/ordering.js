@@ -70,6 +70,14 @@ Monarch.constructor("Monarch.Model.Relations.Ordering", Monarch.Model.Relations.
     this.operands_subscription_bundle.add(this.operand.on_remote_update(function(record, changed_fields) {
       self.tuple_updated_remotely(record, changed_fields);
     }));
+
+    this.operands_subscription_bundle.add(this.operand.on_dirty(function(record) {
+      self.record_made_dirty(record);
+    }));
+
+    this.operands_subscription_bundle.add(this.operand.on_clean(function(record) {
+      self.record_made_clean(record);
+    }));
   }
 })
 
