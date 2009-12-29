@@ -278,6 +278,16 @@ Monarch.constructor("Monarch.Model.Record", {
     this.on_remote_destroy_node.resume_events();
   },
 
+  made_dirty: function() {
+    if (this.on_dirty_node) this.record.on_dirty_node.publish();
+    this.table.record_made_dirty(this);
+  },
+
+  made_clean: function() {
+    if (this.on_clean_node) this.record.on_clean_node.publish();
+    this.table.record_made_clean(this);
+  },
+
   cleanup: function() {
     this.subscriptions.destroy_all();
   },

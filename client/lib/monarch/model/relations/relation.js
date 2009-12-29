@@ -8,9 +8,11 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
     this.on_remote_insert_node = new Monarch.SubscriptionNode();
     this.on_remote_remove_node = new Monarch.SubscriptionNode();
     this.on_remote_update_node = new Monarch.SubscriptionNode();
+    this.on_dirty_node = new Monarch.SubscriptionNode();
+    this.on_clean_node = new Monarch.SubscriptionNode();
     if (this.has_operands) {
       this.operands_subscription_bundle = new Monarch.SubscriptionBundle();
-      this.unsubscribe_from_operands_when_this_relation_no_longer_has_subscribers();
+      this.unsubscribe_from_operands_when_this_no_longer_has_subscribers();
     }
   },
 
@@ -158,19 +160,37 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
     return this.tuples()[i];
   },
 
-  on_remote_insert: function(on_remote_insert_callback) {
+  on_remote_insert: function(callback) {
     this.subscribe_to_operands_if_needed();
-    return this.on_remote_insert_node.subscribe(on_remote_insert_callback);
+    return this.on_remote_insert_node.subscribe(callback);
   },
 
-  on_remote_remove: function(on_remote_remove_callback) {
+  on_remote_update: function(callback) {
     this.subscribe_to_operands_if_needed();
-    return this.on_remote_remove_node.subscribe(on_remote_remove_callback);
+    return this.on_remote_update_node.subscribe(callback);
   },
 
-  on_remote_update: function(on_remote_update_callback) {
+  on_remote_remove: function(callback) {
     this.subscribe_to_operands_if_needed();
-    return this.on_remote_update_node.subscribe(on_remote_update_callback);
+    return this.on_remote_remove_node.subscribe(callback);
+  },
+
+  on_dirty: function(callback) {
+    this.subscribe_to_operands_if_needed();
+    return this.on_dirty_node.subscribe(callback);
+  },
+
+  on_clean: function(callback) {
+    this.subscribe_to_operands_if_needed();
+    return this.on_clean_node.subscribe(callback);
+  },
+
+  record_made_dirty: function(record) {
+    this.on_dirty_node.publish(record);
+  },
+
+  record_made_clean: function(record) {
+    this.on_clean_node.publish(record);
   },
 
   has_subscribers: function() {
@@ -216,7 +236,7 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
     }
   },
 
-  unsubscribe_from_operands_when_this_relation_no_longer_has_subscribers: function() {
+  unsubscribe_from_operands_when_this_no_longer_has_subscribers: function() {
     var self = this;
     var unsubscribe_callback = function() {
        if (!self.has_subscribers()) self.unsubscribe_from_operands();

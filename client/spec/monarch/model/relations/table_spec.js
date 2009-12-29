@@ -191,6 +191,27 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
+    describe("dirty / clean callback triggering", function() {
+      use_local_fixtures();
+
+      it("fires dirty / clean callbacks when a record in the table becomes dirty or clean", function() {
+        var dirty_callback = mock_function('dirty_callback');
+        var clean_callback = mock_function('clean_callback');
+
+        User.table.on_dirty(dirty_callback);
+        User.table.on_clean(clean_callback);
+
+        var user = User.find('jan');
+        var full_name_before = user.full_name();
+
+        user.full_name("Mahatma Ghandi");
+        expect(dirty_callback).to(have_been_called, with_args(user));
+
+        user.full_name(full_name_before);
+        expect(clean_callback).to(have_been_called, with_args(user));
+      });
+    });
+
     describe("#pause_events and #resume_events", function() {
       specify("#pause_events delays #on_remote_insert, #on_remote_remove, and #on_remote_update triggers until #resume_events is called. Then delayed events are flushed and future events are no longer delayed", function() {
         var insert_callback = mock_function("insert callback");

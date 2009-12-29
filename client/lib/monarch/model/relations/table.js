@@ -102,7 +102,7 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
   on_resume_events: function(callback) {
     return this.on_resume_events_node.subscribe(callback);
   },
-
+  
   update_contents: function(dataset) {
     var self = this;
     Monarch.Util.each(dataset, function(id, field_values) {

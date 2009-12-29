@@ -50,14 +50,14 @@ Monarch.constructor("Monarch.Model.LocalFieldset", Monarch.Model.Fieldset, {
   field_marked_dirty: function() {
     if (!this._dirty) {
       this._dirty = true;
-      if (this.record.on_dirty_node) this.record.on_dirty_node.publish();
+      this.record.made_dirty();
     }
   },
 
   field_marked_clean: function() {
     if (!this.dirty()) {
       this._dirty = false;
-      if (this.record.on_clean_node) this.record.on_clean_node.publish();
+      this.record.made_clean();
     }
   },
 
