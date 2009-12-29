@@ -105,7 +105,6 @@ Monarch.constructor("Monarch.View.Template", Monarch.Xml.Template, {
     observe_form_fields: function() {
       var assign_field_value = function(name, value) {
         if (!(this.model() && name && this.model()[name])) return;
-        console.debug("assigning " + value);
         this.model()[name](value);
       }.bind(this)
 
