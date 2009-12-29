@@ -32,14 +32,6 @@ Monarch.constructor("Monarch.Model.Relations.Projection", Monarch.Model.Relation
   surface_tables: function() {
     throw new Error("Projections do not have surface tables");
   },
-
-  on_dirty: function() {
-    throw new Error("Not implemented");
-  },
-
-  on_clean: function() {
-    throw new Error("Not implemented");
-  },
   
   // private
 

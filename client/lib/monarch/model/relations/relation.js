@@ -194,7 +194,8 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
   },
 
   has_subscribers: function() {
-    return !(this.on_remote_insert_node.empty() && this.on_remote_remove_node.empty() && this.on_remote_update_node.empty());
+    return !(this.on_remote_insert_node.empty() && this.on_remote_remove_node.empty()
+        && this.on_remote_update_node.empty() && this.on_dirty_node.empty() && this.on_clean_node.empty());
   },
 
   fetch: function() {

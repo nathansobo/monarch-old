@@ -42,14 +42,6 @@ Monarch.constructor("Monarch.Model.Relations.InnerJoin", Monarch.Model.Relations
     return this.left_operand.surface_tables().concat(this.right_operand.surface_tables());
   },
 
-  on_dirty: function() {
-    throw new Error("Not implemented");
-  },
-
-  on_clean: function() {
-    throw new Error("Not implemented");
-  },
-
   // private
 
   cartesian_product: function() {

@@ -111,19 +111,31 @@ Screw.Unit(function(c) { with(c) {
           before(function() {
             User.table.on_remote_insert(mock_function());
           });
-        })
+        });
 
         scenario("with #on_remote_update", function() {
           before(function() {
             User.table.on_remote_update(mock_function());
           });
-        })
+        });
 
         scenario("with #on_remote_remove", function() {
           before(function() {
             User.table.on_remote_remove(mock_function());
           });
-        })
+        });
+
+        scenario("with #on_dirty", function() {
+          before(function() {
+            User.table.on_dirty(mock_function());
+          });
+        });
+
+        scenario("with #on_clean", function() {
+          before(function() {
+            User.table.on_clean(mock_function());
+          });
+        });
 
         it("returns true", function() {
           expect(User.table.has_subscribers()).to(be_true);

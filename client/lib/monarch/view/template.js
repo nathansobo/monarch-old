@@ -171,7 +171,10 @@ Monarch.constructor("Monarch.View.Template", Monarch.Xml.Template, {
           elt.val(model[field_name].call(model));
         }
       });
+    },
 
+    hitch: function(method_name) {
+      return this[method_name].bind(this);
     }
   }
 });

@@ -48,14 +48,6 @@ Monarch.constructor("Monarch.Model.Relations.Difference", Monarch.Model.Relation
     return this.left_operand.surface_tables();
   },
 
-  on_dirty: function() {
-    throw new Error("Not implemented");
-  },
-
-  on_clean: function() {
-    throw new Error("Not implemented");
-  },
-
   // private
 
   subscribe_to_operands: function() {
