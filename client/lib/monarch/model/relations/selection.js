@@ -70,6 +70,14 @@ Monarch.constructor("Monarch.Model.Relations.Selection", Monarch.Model.Relations
         if (self.predicate.evaluate(record)) self.tuple_inserted_remotely(record);
       }
     }));
+
+    this.operands_subscription_bundle.add(this.operand.on_dirty(function(record) {
+      if (self.contains(record)) self.record_made_dirty(record);
+    }));
+
+    this.operands_subscription_bundle.add(this.operand.on_clean(function(record) {
+      if (self.contains(record)) self.record_made_clean(record);
+    }));
   }
 });
 

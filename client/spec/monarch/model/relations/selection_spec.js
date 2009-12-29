@@ -146,7 +146,7 @@ Screw.Unit(function(c) { with(c) {
         selection.on_remote_update(update_callback);
       });
 
-      context("when a record is inserted in the Selection's #operand", function() {
+      context("when a record is inserted in the Selection's #operand remotely", function() {
         context("when that record matches #predicate", function() {
           it("triggers #on_remote_insert callbacks with the inserted record", function() {
             User.create({id: "joe", age: 31})
@@ -168,7 +168,7 @@ Screw.Unit(function(c) { with(c) {
         });
       });
 
-      context("when a record is removed from the Selection's #operand", function() {
+      context("when a record is removed from the Selection's #operand remotely", function() {
         context("when that record matches #predicate", function() {
           it("triggers #on_remote_remove callbacks with the removed record", function() {
             var record = operand.find("jan");
@@ -196,7 +196,7 @@ Screw.Unit(function(c) { with(c) {
         });
       });
 
-      context("when a record in the Selection's #operand is updated", function() {
+      context("when a record in the selection's #operand is updated remotely", function() {
         context("when that record matched #predicate before the update", function() {
           var record;
           before(function() {
@@ -335,10 +335,43 @@ Screw.Unit(function(c) { with(c) {
           });
         });
       });
+      
+      context("when a record is made dirty or clean in the selection's operand", function() {
+        var dirty_callback, clean_callback;
+        before(function() {
+          dirty_callback = mock_function('dirty_callback');
+          clean_callback = mock_function('clean_callback');
+          selection.on_dirty(dirty_callback);
+          selection.on_dirty(clean_callback);
+        });
+
+        context("when the record matches the selection's predicate", function() {
+          it("triggers on_dirty / on_clean callbacks on the selection", function() {
+            var record = selection.first();
+            var age_before = record.age();
+            record.age(555);
+            expect(dirty_callback).to(have_been_called, with_args(record));
+            record.age(age_before);
+            expect(clean_callback).to(have_been_called, with_args(record));
+          });
+        });
+
+        context("when the record does not match the selection's predicate", function() {
+          it("does not trigger on_dirty / on_clean callbacks on the selection", function() {
+            var record = User.find('mike');
+            expect(selection.contains(record)).to(be_false);
+            var full_name_before = record.full_name();
+            record.full_name("Igor Smith");
+            expect(dirty_callback).to_not(have_been_called);
+            record.full_name(full_name_before);
+            expect(clean_callback).to_not(have_been_called);
+          });
+        });
+      });
     });
 
     describe("subscription propagation", function() {
-      describe("when a Monarch.Subscription is registered for the Selection, destroyed, and another Monarch.Subscription is registered", function() {
+      describe("when a subscription is registered for the selection, destroyed, and another subscription is registered", function() {
         var event_type;
 
         scenario("for on_remote_insert callbacks", function() {
@@ -382,7 +415,7 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("#evaluate_in_repository(repository)", function() {
-      it("returns the same Selection with its #operand evaluated in the repository", function() {
+      it("returns the same selection with its operand evaluated in the repository", function() {
         var other_repo = Repository.clone_schema();
         var selection_in_other_repo = selection.evaluate_in_repository(other_repo);
 
