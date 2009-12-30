@@ -22,6 +22,10 @@ Monarch.constructor("Monarch.ModuleSystem.Object", {
         };
       });
     }
+  },
+
+  hitch: function(method_name) {
+    return this[method_name].bind(this);
   }
 });
 
