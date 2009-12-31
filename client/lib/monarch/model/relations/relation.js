@@ -5,9 +5,10 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
   __relation__: true,
 
   initialize_events_system: function() {
+    this.on_local_update_node = new Monarch.SubscriptionNode();
     this.on_remote_insert_node = new Monarch.SubscriptionNode();
-    this.on_remote_remove_node = new Monarch.SubscriptionNode();
     this.on_remote_update_node = new Monarch.SubscriptionNode();
+    this.on_remote_remove_node = new Monarch.SubscriptionNode();
     this.on_dirty_node = new Monarch.SubscriptionNode();
     this.on_clean_node = new Monarch.SubscriptionNode();
     if (this.has_operands) {
@@ -160,6 +161,11 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
     return this.tuples()[i];
   },
 
+  on_local_update: function(callback) {
+    this.subscribe_to_operands_if_needed();
+    return this.on_local_update_node.subscribe(callback);
+  },
+
   on_remote_insert: function(callback) {
     this.subscribe_to_operands_if_needed();
     return this.on_remote_insert_node.subscribe(callback);
@@ -215,6 +221,10 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
 
   tuple_updated_remotely: function(record, update_data) {
     this.on_remote_update_node.publish(record, update_data);
+  },
+
+  tuple_updated_locally: function(record, update_data) {
+    this.on_local_update_node.publish(record, update_data);
   },
 
   tuple_removed_remotely: function(record) {

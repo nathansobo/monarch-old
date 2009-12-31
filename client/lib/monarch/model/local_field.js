@@ -57,7 +57,11 @@ Monarch.constructor("Monarch.Model.LocalField", Monarch.Model.ConcreteField, {
     } else {
       this.mark_dirty();
     }
-    if (this.on_remote_update_node) this.on_remote_update_node.publish(new_value, old_value);
+    var batch_already_in_progress = this.fieldset.batch_in_progress;
+    if (!batch_already_in_progress) this.fieldset.start_batch_update();
+    this.fieldset.field_updated(this, new_value, old_value);
+    if (this.on_update_node) this.on_update_node.publish(new_value, old_value);
+    if (!batch_already_in_progress) this.fieldset.finish_batch_update();
   }
 });
 

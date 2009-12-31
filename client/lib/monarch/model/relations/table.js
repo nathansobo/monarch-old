@@ -33,6 +33,7 @@ Monarch.constructor("Monarch.Model.Relations.Table", Monarch.Model.Relations.Rel
     var record = new this.record_constructor(field_values, this);
     record.is_remotely_created = false;
     this.insert(record);
+    if (record.after_local_create) record.after_local_create();
     return record;
   },
 

@@ -86,6 +86,10 @@ Monarch.constructor("Monarch.Model.Record", {
       return this.table.any(fn);
     },
 
+    on_local_update: function(callback) {
+      return this.table.on_local_update(callback);
+    },
+
     on_remote_insert: function(callback) {
       return this.table.on_remote_insert(callback);
     },
@@ -202,6 +206,11 @@ Monarch.constructor("Monarch.Model.Record", {
 
   on_remote_update: function(callback) {
     return this.on_remote_update_node.subscribe(callback);
+  },
+
+  on_local_update: function(callback) {
+    if (!this.on_local_update_node) this.on_local_update_node = new Monarch.SubscriptionNode();
+    return this.on_local_update_node.subscribe(callback);
   },
 
   on_remote_destroy: function(callback) {

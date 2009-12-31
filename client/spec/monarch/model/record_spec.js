@@ -162,6 +162,13 @@ Screw.Unit(function(c) { with(c) {
         expect(record.name()).to(equal, 'Index Cards');
       });
 
+      it("calls #after_local_create if it is defined on the record's prototype", function() {
+        Blog.prototype.after_local_create = mock_function('optional after_local_create hook');
+        var record = Blog.local_create();
+        expect(record.after_local_create).to(have_been_called);
+        delete Blog.prototype.after_local_create;
+      });
+
       it("does not trigger update events on its Table", function() {
         var update_callback = mock_function("update callback");
         Blog.table.on_remote_update(update_callback);
@@ -189,6 +196,82 @@ Screw.Unit(function(c) { with(c) {
 
         record_2.save();
         expect(Blog.find(record_2.id())).to(equal, record_2)
+      });
+    });
+
+    describe("#local_update(values_by_method)", function() {
+      it("calls setter methods for each key in the given hash", function() {
+        var record = Blog.find('recipes');
+        record.other_method = mock_function('other method');
+
+        record.local_update({
+          name: 'Pesticides',
+          user_id: 'jan',
+          other_method: 'foo'
+        });
+
+        expect(record.name()).to(equal, 'Pesticides');
+        expect(record.user_id()).to(equal, 'jan');
+        expect(record.other_method).to(have_been_called, with_args('foo'));
+      });
+    });
+
+    describe("field value accessor functions", function() {
+      var record;
+      before(function() {
+        record = Blog.find('recipes');
+      });
+
+      they("trigger optional on_local_update hooks on the record and on_local_update callbacks the record and its table when a new value is assigned", function() {
+        var table_update_callback = mock_function('table update callback')
+        var record_update_callback = mock_function('record update callback')
+        Blog.on_local_update(table_update_callback);
+        record.on_local_update(record_update_callback);
+        record.after_local_update = mock_function("optional after_local_update hook");
+
+        record.name('Pesticides');
+
+        var expected_changeset = {
+          fun_profit_name: {
+            column: Blog.fun_profit_name,
+            old_value: 'Recipes from the Front for Fun and Profit',
+            new_value: 'Pesticides for Fun and Profit'
+          },
+          name: {
+            column: Blog.name_,
+            old_value: 'Recipes from the Front',
+            new_value: 'Pesticides'
+          }
+        };
+
+        console.debug(table_update_callback.call_args);
+        expect(table_update_callback).to(have_been_called, once);
+        expect(table_update_callback).to(have_been_called, with_args(record, expected_changeset));
+        expect(record_update_callback).to(have_been_called, with_args(expected_changeset));
+        expect(record.after_local_update).to(have_been_called, with_args(expected_changeset));
+
+        table_update_callback.clear();
+        record_update_callback.clear();
+        record.after_local_update.clear();
+        record.name('Pesticides');
+
+        expect(table_update_callback).to_not(have_been_called);
+        expect(record_update_callback).to_not(have_been_called);
+        expect(record.after_local_update).to_not(have_been_called);
+      });
+
+      they("can assign null", function() {
+        record.name(null);
+        expect(record.name()).to(be_null);
+      });
+
+      they("can read synthetic fields", function() {
+        expect(record.fun_profit_name()).to(equal, record.field('fun_profit_name').value());
+      });
+
+      they("can write synthetic fields if a setter method is defined for the column", function() {
+        record.fun_profit_name("Eating Fortune Cookies");
+        expect(record.fun_profit_name()).to(equal, "Eating Fortune Cookies in Bed for Fun and Profit");
       });
     });
 
@@ -247,23 +330,6 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
-    describe("#local_update(values_by_method)", function() {
-      it("calls setter methods for each key in the given hash", function() {
-        var record = Blog.find('recipes');
-        record.other_method = mock_function('other method');
-
-        record.local_update({
-          name: 'Pesticides',
-          user_id: 'jan',
-          other_method: 'foo'
-        });
-
-        expect(record.name()).to(equal, 'Pesticides');
-        expect(record.user_id()).to(equal, 'jan');
-        expect(record.other_method).to(have_been_called, with_args('foo'));
-      });
-    });
-
     describe("when a synthetic field changes", function() {
       it("triggers update callbacks on the table of its record", function() {
         var record = Blog.find('recipes');
@@ -274,56 +340,6 @@ Screw.Unit(function(c) { with(c) {
         record.save();
 
         expect(update_callback).to(have_been_called, once);
-      });
-    });
-
-    describe("column accessor functions", function() {
-      var record;
-      before(function() {
-        record = Blog.find('recipes');
-      });
-
-      they("trigger update callbacks on the Record's table when a new value is assigned", function() {
-        var update_callback = mock_function('update callback')
-        Blog.on_remote_update(update_callback);
-
-        record.name('Pesticides');
-        record.save();
-
-        expect(update_callback).to(have_been_called, once);
-        expect(update_callback).to(have_been_called, with_args(record, {
-          fun_profit_name: {
-            column: Blog.fun_profit_name,
-            old_value: 'Recipes from the Front for Fun and Profit',
-            new_value: 'Pesticides for Fun and Profit'
-          },
-          name: {
-            column: Blog.name_,
-            old_value: 'Recipes from the Front',
-            new_value: 'Pesticides'
-          }
-        }));
-
-        update_callback.clear();
-
-        record.name('Pesticides');
-        record.save();
-        
-        expect(update_callback).to_not(have_been_called);
-      });
-      
-      they("can assign null", function() {
-        record.name(null);
-        expect(record.name()).to(be_null);
-      });
-
-      they("can read synthetic fields", function() {
-        expect(record.fun_profit_name()).to(equal, record.field('fun_profit_name').value());
-      });
-
-      they("can write synthetic fields if a setter method is defined for the column", function() {
-        record.fun_profit_name("Eating Fortune Cookies");
-        expect(record.fun_profit_name()).to(equal, "Eating Fortune Cookies in Bed for Fun and Profit");
       });
     });
 

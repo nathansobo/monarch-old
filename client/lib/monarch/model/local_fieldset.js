@@ -61,8 +61,39 @@ Monarch.constructor("Monarch.Model.LocalFieldset", Monarch.Model.Fieldset, {
     }
   },
 
-  field_updated: function(field) {
-    // noop in local. called in synthetic field
+  start_batch_update: function() {
+    this.batch_in_progress = true;
+    this.batched_updates = {};
+  },
+
+  finish_batch_update: function() {
+    this.batch_in_progress = false;
+    var changeset = this.batched_updates;
+    this.batched_updates = null;
+
+    if (this.update_events_enabled && Monarch.Util.keys(changeset).length > 0) {
+      if (this.record.on_local_update_node) this.record.on_local_update_node.publish(changeset);
+      if (this.record.after_local_update) this.record.after_local_update(changeset);
+      this.record.table.tuple_updated_locally(this.record, changeset);
+    }
+
+    this.update_events_enabled = true;
+  },
+
+  field_updated: function(field, new_value, old_value) {
+    var batch_was_in_progress = this.batch_in_progress;
+    if (!batch_was_in_progress) this.start_batch_update();
+
+    var change_data = {};
+    change_data[field.column.name] = {
+      column: field.column,
+      old_value: old_value,
+      new_value: new_value
+    };
+
+    Monarch.Util.extend(this.batched_updates, change_data);
+
+    if (!batch_was_in_progress) this.finish_batch_update();
   },
 
   // private
