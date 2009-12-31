@@ -124,8 +124,8 @@ Screw.Unit(function(c) { with(c) {
             record.on_remote_create(record_create_callback);
             record_update_callback = mock_function("record update callback");
             record.on_remote_update(record_update_callback);
-            record.after_update = mock_function("optional after update hook");
-            record.after_create = mock_function("optional after create hook");
+            record.after_remote_update = mock_function("optional after update hook");
+            record.after_remote_create = mock_function("optional after create hook");
           });
 
           it("sends a create command", function() {
@@ -146,7 +146,7 @@ Screw.Unit(function(c) { with(c) {
               var before_events_callback = mock_function("before events", function() {
                 expect(table_insert_callback).to_not(have_been_called);
                 expect(record_create_callback).to_not(have_been_called);
-                expect(record.after_create).to_not(have_been_called);
+                expect(record.after_remote_create).to_not(have_been_called);
                 expect(record.id()).to(equal, "jesus");
                 expect(record.full_name()).to(equal, "Jesus H. Chang");
               });
@@ -154,11 +154,11 @@ Screw.Unit(function(c) { with(c) {
               var after_events_callback = mock_function("after events", function() {
                 expect(table_insert_callback).to(have_been_called, with_args(record));
                 expect(record_create_callback).to(have_been_called, with_args(record));
-                expect(record.after_create).to(have_been_called, once);
+                expect(record.after_remote_create).to(have_been_called, once);
 
                 expect(table_update_callback).to_not(have_been_called);
                 expect(record_update_callback).to_not(have_been_called);
-                expect(record.after_update).to_not(have_been_called);
+                expect(record.after_remote_update).to_not(have_been_called);
               });
               save_future.before_events(before_events_callback);
               save_future.after_events(after_events_callback);
@@ -198,7 +198,7 @@ Screw.Unit(function(c) { with(c) {
 
               expect(table_insert_callback).to_not(have_been_called);
               expect(record_create_callback).to_not(have_been_called);
-              expect(record.after_create).to_not(have_been_called);
+              expect(record.after_remote_create).to_not(have_been_called);
             });
           });
         });
@@ -217,7 +217,7 @@ Screw.Unit(function(c) { with(c) {
             record_update_callback = mock_function("record update callback");
             Blog.on_remote_update(table_update_callback);
             record.on_remote_update(record_update_callback);
-            record.after_update = mock_function("optional record on update method");
+            record.after_remote_update = mock_function("optional record on update method");
           });
 
           it("sends an update command", function() {
@@ -247,7 +247,7 @@ Screw.Unit(function(c) { with(c) {
               var before_events_callback = mock_function('before events callback', function() {
                 expect(table_update_callback).to_not(have_been_called);
                 expect(record_update_callback).to_not(have_been_called);
-                expect(record.after_update).to_not(have_been_called);
+                expect(record.after_remote_update).to_not(have_been_called);
               });
               var after_events_callback = mock_function('after events callback', function() {
                 var expected_changset = {
@@ -270,7 +270,7 @@ Screw.Unit(function(c) { with(c) {
 
                 expect(table_update_callback).to(have_been_called, with_args(record, expected_changset));
                 expect(record_update_callback).to(have_been_called, with_args(expected_changset));
-                expect(record.after_update).to(have_been_called, with_args(expected_changset));
+                expect(record.after_remote_update).to(have_been_called, with_args(expected_changset));
               });
 
               save_future.before_events(before_events_callback);
@@ -345,7 +345,7 @@ Screw.Unit(function(c) { with(c) {
             Blog.on_remote_remove(table_remove_callback);
             record_destroy_callback = mock_function("record remove callback");
             record.on_remote_destroy(record_destroy_callback)
-            record.after_destroy = mock_function("optional after_destroy method");
+            record.after_remote_destroy = mock_function("optional after_remote_destroy method");
           });
 
           it("sends a destroy command", function() {
@@ -367,12 +367,12 @@ Screw.Unit(function(c) { with(c) {
               var before_events_callback = mock_function("before events", function() {
                 expect(table_remove_callback).to_not(have_been_called);
                 expect(record_destroy_callback).to_not(have_been_called);
-                expect(record.after_destroy).to_not(have_been_called);
+                expect(record.after_remote_destroy).to_not(have_been_called);
               });
               var after_events_callback = mock_function("after events", function() {
                 expect(table_remove_callback).to(have_been_called, once);
                 expect(record_destroy_callback).to(have_been_called, once);
-                expect(record.after_destroy).to(have_been_called, once);
+                expect(record.after_remote_destroy).to(have_been_called, once);
               });
               var on_failure_callback = mock_function("on_failure_callback");
               save_future.before_events(before_events_callback);
@@ -410,7 +410,7 @@ Screw.Unit(function(c) { with(c) {
 
               expect(table_remove_callback).to_not(have_been_called);
               expect(record_destroy_callback).to_not(have_been_called);
-              expect(record.after_destroy).to_not(have_been_called);
+              expect(record.after_remote_destroy).to_not(have_been_called);
             });
           });
         });

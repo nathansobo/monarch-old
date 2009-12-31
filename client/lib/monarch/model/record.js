@@ -320,15 +320,15 @@ Monarch.constructor("Monarch.Model.Record", {
     var self = this;
 
     this.on_remote_create_node.subscribe(function(changeset) {
-      if (self.after_create) self.after_create();
+      if (self.after_remote_create) self.after_remote_create();
     });
 
     this.on_remote_update_node.subscribe(function(changeset) {
-      if (self.after_update) self.after_update(changeset);
+      if (self.after_remote_update) self.after_remote_update(changeset);
     });
 
     this.on_remote_destroy_node.subscribe(function() {
-      if (self.after_destroy) self.after_destroy();
+      if (self.after_remote_destroy) self.after_remote_destroy();
       self.cleanup();
     });
   },
