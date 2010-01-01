@@ -169,9 +169,12 @@ Screw.Unit(function(c) { with(c) {
         delete Blog.prototype.after_local_create;
       });
 
-      it("does not trigger update events on its Table", function() {
+      it("does not trigger update events on the record or its table", function() {
         var update_callback = mock_function("update callback");
         Blog.table.on_remote_update(update_callback);
+        Blog.table.on_local_update(update_callback);
+        Blog.prototype.after_remote_update = update_callback;
+        Blog.prototype.after_local_update = update_callback;
 
         var record = Blog.local_create({
           id: 'index',
@@ -200,19 +203,56 @@ Screw.Unit(function(c) { with(c) {
     });
 
     describe("#local_update(values_by_method)", function() {
-      it("calls setter methods for each key in the given hash", function() {
+      it("calls setter methods for each key in the given hash and fires update callbacks with all changes", function() {
         var record = Blog.find('recipes');
+
+        var table_update_callback = mock_function('table_update_callback');
+        var record_update_callback = mock_function('record_update_callback');
+
+        Blog.on_local_update(table_update_callback);
+        record.on_local_update(record_update_callback);
+        record.after_local_update = mock_function('optional after_local_update hook');
         record.other_method = mock_function('other method');
+
+        var started_at = Date();
+
+        var name_before = record.name();
+        var fun_profit_name_before = record.fun_profit_name();
+        var user_id_before = record.user_id();
+        var started_at_before = record.started_at();
 
         record.local_update({
           name: 'Pesticides',
           user_id: 'jan',
-          other_method: 'foo'
+          other_method: "foo"
         });
 
         expect(record.name()).to(equal, 'Pesticides');
         expect(record.user_id()).to(equal, 'jan');
-        expect(record.other_method).to(have_been_called, with_args('foo'));
+        expect(record.other_method).to(have_been_called, with_args("foo"));
+
+        var expected_changeset = {
+          name: {
+            column: Blog.name_,
+            old_value: name_before,
+            new_value: record.name(),
+          },
+          fun_profit_name: {
+            column: Blog.fun_profit_name,
+            old_value: fun_profit_name_before,
+            new_value: record.fun_profit_name()
+          },
+          user_id: {
+            column: Blog.user_id,
+            old_value: user_id_before,
+            new_value: record.user_id()
+          }
+        };
+
+        expect(table_update_callback).to(have_been_called, once);
+        expect(table_update_callback).to(have_been_called, with_args(record, expected_changeset));
+        expect(record_update_callback).to(have_been_called, with_args(expected_changeset));
+        expect(record.after_local_update).to(have_been_called, with_args(expected_changeset));
       });
     });
 
@@ -244,7 +284,6 @@ Screw.Unit(function(c) { with(c) {
           }
         };
 
-        console.debug(table_update_callback.call_args);
         expect(table_update_callback).to(have_been_called, once);
         expect(table_update_callback).to(have_been_called, with_args(record, expected_changeset));
         expect(record_update_callback).to(have_been_called, with_args(expected_changeset));
@@ -299,8 +338,6 @@ Screw.Unit(function(c) { with(c) {
 
     describe("#on_dirty and #on_clean", function() {
       they("cause the given callback to be triggered when the record becomes dirty or clean relative to the remote fieldset", function() {
-        window.debug = true;
-
         var record = User.find('jan');
         
         expect(record.dirty()).to(be_false);
@@ -312,9 +349,6 @@ Screw.Unit(function(c) { with(c) {
         record.on_clean(on_clean_callback);
 
         var full_name_before = record.full_name();
-
-
-        window.debug = true;
         record.full_name("Johan Sebastian Bach");
         expect(on_dirty_callback).to(have_been_called, once);
         on_dirty_callback.clear();

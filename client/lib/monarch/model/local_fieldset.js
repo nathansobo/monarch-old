@@ -61,7 +61,7 @@ Monarch.constructor("Monarch.Model.LocalFieldset", Monarch.Model.Fieldset, {
     }
   },
 
-  start_batch_update: function() {
+  begin_batch_update: function() {
     this.batch_in_progress = true;
     this.batched_updates = {};
   },
@@ -76,13 +76,11 @@ Monarch.constructor("Monarch.Model.LocalFieldset", Monarch.Model.Fieldset, {
       if (this.record.after_local_update) this.record.after_local_update(changeset);
       this.record.table.tuple_updated_locally(this.record, changeset);
     }
-
-    this.update_events_enabled = true;
   },
 
   field_updated: function(field, new_value, old_value) {
     var batch_was_in_progress = this.batch_in_progress;
-    if (!batch_was_in_progress) this.start_batch_update();
+    if (!batch_was_in_progress) this.begin_batch_update();
 
     var change_data = {};
     change_data[field.column.name] = {

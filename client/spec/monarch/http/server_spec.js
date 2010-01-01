@@ -205,7 +205,7 @@ Screw.Unit(function(c) { with(c) {
 
         context("when given a locally-updated record", function() {
           var record, name_before_update, fun_profit_name_before_update, user_id_before_update,
-              table_update_callback, record_update_callback;
+              table_remote_update_callback, record_remote_update_callback;
 
           before(function() {
             record = Blog.find('recipes');
@@ -213,10 +213,10 @@ Screw.Unit(function(c) { with(c) {
             fun_profit_name_before_update = record.fun_profit_name();
             user_id_before_update = record.user_id();
 
-            table_update_callback = mock_function("table update callback");
-            record_update_callback = mock_function("record update callback");
-            Blog.on_remote_update(table_update_callback);
-            record.on_remote_update(record_update_callback);
+            table_remote_update_callback = mock_function("table update callback");
+            record_remote_update_callback = mock_function("record update callback");
+            Blog.on_remote_update(table_remote_update_callback);
+            record.on_remote_update(record_remote_update_callback);
             record.after_remote_update = mock_function("optional record on update method");
           });
 
@@ -232,11 +232,17 @@ Screw.Unit(function(c) { with(c) {
           });
 
           context("when the request is successful", function() {
-            it("updates the remote field values and fires the before_events and after_events callbacks", function() {
+            it("updates the remote and local field values and fires the remote event callbacks sandwiched between before_events and after_events callbacks", function() {
               record.local_update({
                 name: "Programming",
                 user_id: 'wil'
               });
+
+              var table_local_update_callback = mock_function('table_local_update_callback');
+              var record_local_update_callback = mock_function('record_local_update_callback');
+              Blog.on_local_update(table_local_update_callback);
+              record.on_local_update(record_local_update_callback);
+              record.after_local_update = mock_function('optional after_local_update hook');
 
               var save_future = server.save(record);
 
@@ -245,8 +251,8 @@ Screw.Unit(function(c) { with(c) {
               expect(record.remote.user_id()).to(equal, user_id_before_update);
 
               var before_events_callback = mock_function('before events callback', function() {
-                expect(table_update_callback).to_not(have_been_called);
-                expect(record_update_callback).to_not(have_been_called);
+                expect(table_remote_update_callback).to_not(have_been_called);
+                expect(record_remote_update_callback).to_not(have_been_called);
                 expect(record.after_remote_update).to_not(have_been_called);
               });
               var after_events_callback = mock_function('after events callback', function() {
@@ -268,14 +274,19 @@ Screw.Unit(function(c) { with(c) {
                   }
                 };
 
-                expect(table_update_callback).to(have_been_called, with_args(record, expected_changset));
-                expect(record_update_callback).to(have_been_called, with_args(expected_changset));
+                expect(table_remote_update_callback).to(have_been_called, with_args(record, expected_changset));
+                expect(record_remote_update_callback).to(have_been_called, with_args(expected_changset));
                 expect(record.after_remote_update).to(have_been_called, with_args(expected_changset));
+
+                // remote update may change local field values but they should not fire local update callbacks because
+                // the change was initiated remotely
+                expect(table_local_update_callback).to_not(have_been_called);
+                expect(record_local_update_callback).to_not(have_been_called);
+                expect(record.after_local_update).to_not(have_been_called);
               });
 
               save_future.before_events(before_events_callback);
               save_future.after_events(after_events_callback);
-
               server.last_post.simulate_success({
                 primary: [{
                   name: "Programming Prime", // server can change field values too
@@ -329,8 +340,8 @@ Screw.Unit(function(c) { with(c) {
               expect(record.local.field('name').validation_errors).to(equal, name_errors);
               expect(record.local.field('user_id').validation_errors).to(equal, user_id_errors);
 
-              expect(table_update_callback).to_not(have_been_called);
-              expect(record_update_callback).to_not(have_been_called);
+              expect(table_remote_update_callback).to_not(have_been_called);
+              expect(record_remote_update_callback).to_not(have_been_called);
               expect(record.on_remote_update).to_not(have_been_called);
             });
           });

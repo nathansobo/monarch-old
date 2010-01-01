@@ -154,6 +154,7 @@ Monarch.constructor("Monarch.Model.Record", {
     this.initialize_subscription_nodes();
     this.subscribe_to_self_mutations();
     if (field_values_by_column_name) this.local_update(field_values_by_column_name);
+    this.local.update_events_enabled = true;
     this.remote.initialize_synthetic_fields();
     this.local.initialize_synthetic_fields();
   },
@@ -167,11 +168,13 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   local_update: function(values_by_method_name) {
+    this.local.begin_batch_update();
     for (var method_name in values_by_method_name) {
       if (this[method_name]) {
         this[method_name](values_by_method_name[method_name]);
       }
     }
+    this.local.finish_batch_update();
   },
 
   local_destroy: function() {
@@ -190,6 +193,8 @@ Monarch.constructor("Monarch.Model.Record", {
 
   remotely_created: function(field_values) {
     this.remote.update(field_values);
+    this.is_remotely_created = true;
+    this.remote.update_events_enabled = true;
     this.initialize_relations();
     this.table.tuple_inserted_remotely(this);
     this.on_remote_create_node.publish(this);

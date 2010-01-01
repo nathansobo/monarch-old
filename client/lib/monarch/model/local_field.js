@@ -5,6 +5,7 @@ Monarch.constructor("Monarch.Model.LocalField", Monarch.Model.ConcreteField, {
     this.fieldset = fieldset;
     this.column = column;
     this.validation_errors = [];
+    this.update_events_enabled = true;
   },
 
   remote_field: function(remote_field) {
@@ -57,11 +58,14 @@ Monarch.constructor("Monarch.Model.LocalField", Monarch.Model.ConcreteField, {
     } else {
       this.mark_dirty();
     }
-    var batch_already_in_progress = this.fieldset.batch_in_progress;
-    if (!batch_already_in_progress) this.fieldset.start_batch_update();
-    this.fieldset.field_updated(this, new_value, old_value);
-    if (this.on_update_node) this.on_update_node.publish(new_value, old_value);
-    if (!batch_already_in_progress) this.fieldset.finish_batch_update();
+
+    if (this.update_events_enabled) {
+      var batch_already_in_progress = this.fieldset.batch_in_progress;
+      if (!batch_already_in_progress) this.fieldset.begin_batch_update();
+      this.fieldset.field_updated(this, new_value, old_value);
+      if (this.on_update_node) this.on_update_node.publish(new_value, old_value);
+      if (!batch_already_in_progress) this.fieldset.finish_batch_update();
+    }
   }
 });
 
