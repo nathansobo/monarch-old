@@ -260,6 +260,15 @@ module Model
       end
 
       describe "#valid?" do
+        it "calls #before_validate before calling validate" do
+          mock(record).before_validate.ordered
+          mock(record).validate.ordered
+
+          record.title = "Hola!"
+          record.should_not be_validated
+          record.valid?
+        end
+
         describe "when #validate stores validation errors on at least one field" do
           it "returns false" do
             record.title = "Has Many Through"

@@ -192,6 +192,7 @@ module Model
 
     def validate_if_needed
       return if validated?
+      before_validate
       validate
       mark_validated
     end
@@ -216,6 +217,10 @@ module Model
     attr_reader :synthetic_fields_by_column
 
     def after_destroy
+      # override when needed
+    end
+
+    def before_validate
       # override when needed
     end
 
