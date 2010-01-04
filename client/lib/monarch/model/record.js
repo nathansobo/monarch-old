@@ -3,6 +3,12 @@
 
 Monarch.constructor("Monarch.Model.Record", {
   constructor_properties: {
+    initialize: function() {
+      this.delegate_constructor_methods('find', 'fetch', 'tuples', 'each', 'any', 'on_local_update', 'on_remote_insert',
+                                        'on_remote_update', 'on_remote_remove', 'where', 'order_by', 'project', 'empty',
+                                        'table');
+    },
+
     extended: function(subconstructor) {
       subconstructor.table = new Monarch.Model.Relations.Table(this.determine_global_name(subconstructor), subconstructor);
       subconstructor.column("id", "string");
@@ -63,59 +69,6 @@ Monarch.constructor("Monarch.Model.Record", {
 
     human_name: function() {
       return Monarch.Inflection.humanize(this.basename);
-    },
-
-    // delegate to table
-    find: function(id) {
-      return this.table.find(id);
-    },
-
-    fetch: function() {
-      return this.table.fetch();
-    },
-
-    tuples: function() {
-      return this.table.tuples();
-    },
-
-    each: function(fn) {
-      this.table.each(fn);
-    },
-
-    any: function(fn) {
-      return this.table.any(fn);
-    },
-
-    on_local_update: function(callback) {
-      return this.table.on_local_update(callback);
-    },
-
-    on_remote_insert: function(callback) {
-      return this.table.on_remote_insert(callback);
-    },
-
-    on_remote_update: function(callback) {
-      return this.table.on_remote_update(callback);
-    },
-
-    on_remote_remove: function(callback) {
-      return this.table.on_remote_remove(callback);
-    },
-
-    where: function(predicate) {
-      return this.table.where(predicate);
-    },
-
-    order_by: function() {
-      return this.table.order_by.apply(this.table, arguments);
-    },
-
-    project: function() {
-      return this.table.project.apply(this.table, arguments);
-    },
-
-    empty: function() {
-      return this.table.empty();
     },
 
     // private
