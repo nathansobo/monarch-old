@@ -120,6 +120,10 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
     });
   },
 
+  dirty: function() {
+    return this.dirty_tuples().length > 0;
+  },
+
   each: function(fn) {
     Monarch.Util.each(this.tuples(), fn);
   },
