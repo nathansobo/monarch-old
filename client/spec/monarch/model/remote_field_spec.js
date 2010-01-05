@@ -15,7 +15,7 @@ Screw.Unit(function(c) { with(c) {
 
       before(function() {
         update_callback = mock_function("update callback");
-        remote_field.on_remote_update(update_callback);
+        remote_field.on_update(update_callback);
         old_value = remote_field.value();
         remote_field.value("Barbie");
       });
