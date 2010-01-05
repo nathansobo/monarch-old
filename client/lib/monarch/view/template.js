@@ -135,7 +135,7 @@ Monarch.constructor("Monarch.View.Template", Monarch.Xml.Template, {
         var elt = $(this);
         var field_name = elt.attr('name');
         if (model[field_name]) {
-          elt.val(model[field_name].call(model));
+          elt.val(model[field_name].call(model) || "");
         } else {
           elt.val("");
         }

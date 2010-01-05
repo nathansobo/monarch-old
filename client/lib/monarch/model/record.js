@@ -205,9 +205,7 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   clear_validation_errors: function() {
-    var was_invalid = !this.valid();
     this.local.clear_validation_errors();
-    if (was_invalid && this.on_valid_node) this.on_valid_node.publish();
   },
 
   assign_validation_errors: function(errors_by_field_name) {

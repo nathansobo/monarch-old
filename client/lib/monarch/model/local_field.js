@@ -41,7 +41,7 @@ Monarch.constructor("Monarch.Model.LocalField", Monarch.Model.ConcreteField, {
   clear_validation_errors: function() {
     var was_invalid = !this.fieldset.valid();
     this.validation_errors = [];
-    if (was_invalid && this.fieldset.record.on_valid_node) this.fieldset.record.on_valid_node.publish();
+    if (this.fieldset.record.on_valid_node && was_invalid && this.fieldset.valid()) this.fieldset.record.on_valid_node.publish();
   },
 
   not_modified_after: function(date) {
