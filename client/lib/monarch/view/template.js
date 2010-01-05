@@ -172,9 +172,7 @@ Monarch.constructor("Monarch.View.Template", Monarch.Xml.Template, {
       });
     },
 
-    hitch: function(method_name) {
-      return this[method_name].bind(this);
-    }
+    hitch: Monarch.ModuleSystem.Object.prototype.hitch
   }
 });
 

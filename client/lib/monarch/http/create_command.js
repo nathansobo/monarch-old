@@ -17,7 +17,7 @@ Monarch.constructor("Monarch.Http.CreateCommand", Monarch.Http.Command, {
   },
 
   handle_failure: function(errors_by_field_name) {
-    if (errors_by_field_name) this.record.populate_fields_with_errors(errors_by_field_name);
+    if (errors_by_field_name) this.record.assign_validation_errors(errors_by_field_name);
   }
 });
 

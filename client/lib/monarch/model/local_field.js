@@ -34,6 +34,16 @@ Monarch.constructor("Monarch.Model.LocalField", Monarch.Model.ConcreteField, {
     }
   },
 
+  assign_validation_errors: function(errors) {
+    this.validation_errors = errors;
+  },
+
+  clear_validation_errors: function() {
+    var was_invalid = !this.fieldset.valid();
+    this.validation_errors = [];
+    if (was_invalid && this.fieldset.record.on_valid_node) this.fieldset.record.on_valid_node.publish();
+  },
+
   not_modified_after: function(date) {
     return !this.last_modified_at || this.last_modified_at.getTime() <= date.getTime();
   },
@@ -54,6 +64,7 @@ Monarch.constructor("Monarch.Model.LocalField", Monarch.Model.ConcreteField, {
   
   value_assigned: function(new_value, old_value) {
     if (this.value_equals(this._remote_field.value())) {
+      this.clear_validation_errors();
       this.mark_clean();
     } else {
       this.mark_dirty();

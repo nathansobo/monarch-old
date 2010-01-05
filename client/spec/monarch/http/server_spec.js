@@ -232,7 +232,12 @@ Screw.Unit(function(c) { with(c) {
           });
 
           context("when the request is successful", function() {
-            it("updates the remote and local field values and fires the remote event callbacks sandwiched between before_events and after_events callbacks", function() {
+            it("marks the record valid, updates the remote and local field values, and fires the remote event callbacks sandwiched between before_events and after_events callbacks", function() {
+              record.assign_validation_errors({
+                name: "Bad name!"
+              });
+              expect(record.valid()).to(be_false);
+
               record.local_update({
                 name: "Programming",
                 user_id: 'wil'
@@ -273,6 +278,8 @@ Screw.Unit(function(c) { with(c) {
                     new_value: 'Programming Prime for Fun and Profit'
                   }
                 };
+                
+                expect(record.valid()).to(be_true);
 
                 expect(table_remote_update_callback).to(have_been_called, with_args(record, expected_changset));
                 expect(record_remote_update_callback).to(have_been_called, with_args(expected_changset));

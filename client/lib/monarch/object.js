@@ -29,8 +29,12 @@ Monarch.constructor("Monarch.ModuleSystem.Object", {
     }
   },
 
-  hitch: function(method_name) {
-    return this[method_name].bind(this);
+  hitch: function() {
+    var args = _.toArray(arguments);
+    var method_name = args.shift();
+    var bind_args = [this].concat(args);
+    var method = this[method_name]; 
+    return method.bind.apply(method, bind_args);
   }
 });
 

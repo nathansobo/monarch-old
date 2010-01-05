@@ -35,9 +35,20 @@ Monarch.constructor("Monarch.Model.LocalFieldset", Monarch.Model.Fieldset, {
     return wire_representation;
   },
 
-  populate_fields_with_errors: function(errors_by_field_name) {
-    Monarch.Util.each(errors_by_field_name, function(field_name, errors) {
-      this.field(field_name).validation_errors = errors;
+  clear_validation_errors: function() {
+    Monarch.Util.each(this.fields_by_column_name, function(name, field) {
+      field.clear_validation_errors();
+    });
+  },
+
+  assign_validation_errors: function(errors_by_field_name) {
+    Monarch.Util.each(this.fields_by_column_name, function(name, field) {
+      if (errors_by_field_name[name]) {
+        field.assign_validation_errors(errors_by_field_name[name]);
+      } else {
+        field.clear_validation_errors();
+      }
+
     }.bind(this));
   },
 

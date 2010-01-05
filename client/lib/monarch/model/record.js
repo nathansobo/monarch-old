@@ -154,6 +154,7 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   remotely_updated: function(field_values) {
+    this.clear_validation_errors();
     this.remote.update(field_values);
   },
 
@@ -189,12 +190,29 @@ Monarch.constructor("Monarch.Model.Record", {
     return this.on_clean_node.subscribe(callback);
   },
 
+  on_invalid: function(callback) {
+    if (!this.on_invalid_node) this.on_invalid_node = new Monarch.SubscriptionNode();
+    return this.on_invalid_node.subscribe(callback);
+  },
+
+  on_valid: function(callback) {
+    if (!this.on_valid_node) this.on_valid_node = new Monarch.SubscriptionNode();
+    return this.on_valid_node.subscribe(callback);
+  },
+
   valid: function() {
     return this.local.valid();
   },
 
-  populate_fields_with_errors: function(errors_by_field_name) {
-    this.local.populate_fields_with_errors(errors_by_field_name);
+  clear_validation_errors: function() {
+    var was_invalid = !this.valid();
+    this.local.clear_validation_errors();
+    if (was_invalid && this.on_valid_node) this.on_valid_node.publish();
+  },
+
+  assign_validation_errors: function(errors_by_field_name) {
+    this.local.assign_validation_errors(errors_by_field_name);
+    if (this.on_invalid_node) this.on_invalid_node.publish();
   },
 
   all_validation_errors: function() {

@@ -235,7 +235,7 @@ Screw.Unit(function(c) { with(c) {
           name: {
             column: Blog.name_,
             old_value: name_before,
-            new_value: record.name(),
+            new_value: record.name()
           },
           fun_profit_name: {
             column: Blog.fun_profit_name,
@@ -398,6 +398,53 @@ Screw.Unit(function(c) { with(c) {
         expect(record.valid()).to(be_true);
         record.local.field('name').validation_errors = ["Bad name"];
         expect(record.valid()).to(be_false);
+      });
+    });
+
+    describe("#assign_validation_errors(errors_by_field_name)", function() {
+      it("triggers #on_invalid callbacks and assigns the validation errors to the specified fields", function() {
+        var record = Blog.find('recipes');
+        var on_invalid_callback = mock_function('on_invalid_callback', function() {
+          expect(record.field("name").validation_errors).to(equal, ["name error 1", "name error 2"]);
+          expect(record.field("user_id").validation_errors).to(equal, ["user error"]);
+        });
+        var subscription = record.on_invalid(on_invalid_callback);
+
+        record.assign_validation_errors({
+          name: ["name error 1", "name error 2"],
+          user_id: ["user error"]
+        });
+
+        expect(on_invalid_callback).to(have_been_called);
+        subscription.destroy();
+
+        record.assign_validation_errors({
+          name: ["name error 3"]
+        });
+
+        expect(record.field("name").validation_errors).to(equal, ["name error 3"]);
+        expect(record.field("user_id").validation_errors).to(be_empty);
+      });
+    });
+
+    describe("#clear_validation_errors()", function() {
+      it("triggers #on_valid callbacks and clears the validation errors", function() {
+        var record = Blog.find('recipes');
+        record.assign_validation_errors({
+          name: ["name error 1", "name error 2"],
+          user_id: ["user error"]
+        });
+
+        var on_valid_callback = mock_function('on_valid_callback', function() {
+          expect(record.valid()).to(be_true);
+        });
+        record.on_valid(on_valid_callback);
+
+        record.clear_validation_errors();
+        expect(on_valid_callback).to(have_been_called);
+
+        record.clear_validation_errors();
+        expect(on_valid_callback).to(have_been_called, once);
       });
     });
 
