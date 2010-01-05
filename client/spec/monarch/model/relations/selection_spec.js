@@ -392,6 +392,18 @@ Screw.Unit(function(c) { with(c) {
           });
         });
 
+        scenario("for on_clean callbacks", function() {
+          init(function() {
+            event_type = "on_clean";
+          });
+        });
+
+        scenario("for on_dirty callbacks", function() {
+          init(function() {
+            event_type = "on_dirty";
+          });
+        });
+
         it("subscribes to its #operand and memoizes tuples, then unsubscribes and clears the memoization, then resubscribes and rememoizes", function() {
           expect(operand.has_subscribers()).to(be_false);
           expect(selection._tuples).to(be_null);

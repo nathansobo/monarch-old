@@ -51,6 +51,7 @@ Monarch.constructor("Monarch.Model.Relations.Selection", Monarch.Model.Relations
 
   subscribe_to_operands: function() {
     var self = this;
+
     this.operands_subscription_bundle.add(this.operand.on_remote_insert(function(record) {
       if (self.predicate.evaluate(record)) self.tuple_inserted_remotely(record);
     }));

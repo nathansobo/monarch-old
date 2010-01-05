@@ -260,6 +260,8 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
     this.on_remote_insert_node.on_unsubscribe(unsubscribe_callback);
     this.on_remote_remove_node.on_unsubscribe(unsubscribe_callback);
     this.on_remote_update_node.on_unsubscribe(unsubscribe_callback);
+    this.on_dirty_node.on_unsubscribe(unsubscribe_callback);
+    this.on_clean_node.on_unsubscribe(unsubscribe_callback);
   },
 
   unsubscribe_from_operands: function() {
