@@ -28,6 +28,7 @@ Monarch.constructor("Monarch.Model.LocalField", Monarch.Model.ConcreteField, {
   },
 
   mark_clean: function() {
+    this.clear_validation_errors();
     if (this._dirty) {
       this._dirty = false;
       this.fieldset.field_marked_clean();
@@ -64,7 +65,6 @@ Monarch.constructor("Monarch.Model.LocalField", Monarch.Model.ConcreteField, {
   
   value_assigned: function(new_value, old_value) {
     if (this.value_equals(this._remote_field.value())) {
-      this.clear_validation_errors();
       this.mark_clean();
     } else {
       this.mark_dirty();

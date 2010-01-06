@@ -22,7 +22,7 @@ Screw.Unit(function(c) { with(c) {
 
     describe("#value(new_value)", function() {
       context("when the local field value becomes the same as the remote field value", function() {
-        it("marks the field as clean, clears its validation errors, and triggers on_valid callbacks on its record if this was the last invalid field", function() {
+        it("marks the field as clean, clears its validation errors, and triggers on_valid callbacks on its record if this was the last invalid field to become valid", function() {
           field = record.field('age');
           field.value(50);
           field.assign_validation_errors(["some error"]);

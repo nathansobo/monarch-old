@@ -427,27 +427,6 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
-    describe("#clear_validation_errors()", function() {
-      it("triggers #on_valid callbacks and clears the validation errors", function() {
-        var record = Blog.find('recipes');
-        record.assign_validation_errors({
-          name: ["name error 1", "name error 2"],
-          user_id: ["user error"]
-        });
-
-        var on_valid_callback = mock_function('on_valid_callback', function() {
-          expect(record.valid()).to(be_true);
-        });
-        record.on_valid(on_valid_callback);
-
-        record.clear_validation_errors();
-        expect(on_valid_callback).to(have_been_called);
-
-        record.clear_validation_errors();
-        expect(on_valid_callback).to(have_been_called, once);
-      });
-    });
-
     describe("#field(field_name_or_column)", function() {
       it("returns the field for the given column name or Column", function() {
         var record = Blog.find('recipes');
@@ -459,6 +438,22 @@ Screw.Unit(function(c) { with(c) {
         field = record.field('id');
         expect(field.fieldset.record).to(equal, record);
         expect(field.column).to(equal, Blog.id);
+      });
+    });
+
+    describe("#remotely_updated", function() {
+      it("does not cause a record to become valid unless the updated field values cause invalid local fields to become clean", function() {
+        var record = Blog.find('recipes');
+        record.name("Sharon's Sad Laptop");
+        record.assign_validation_errors({name: ['It no good name']});
+
+        expect(record.valid()).to(be_false);
+
+        record.remotely_updated({ user_id: 'sharon' });
+        expect(record.valid()).to(be_false);
+
+        record.remotely_updated({ name: "Sharon's Brand New Laptop" });
+        expect(record.valid()).to(be_true);
       });
     });
   });

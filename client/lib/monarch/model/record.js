@@ -154,7 +154,6 @@ Monarch.constructor("Monarch.Model.Record", {
   },
 
   remotely_updated: function(field_values) {
-    this.clear_validation_errors();
     this.remote.update(field_values);
   },
 
@@ -202,10 +201,6 @@ Monarch.constructor("Monarch.Model.Record", {
 
   valid: function() {
     return this.local.valid();
-  },
-
-  clear_validation_errors: function() {
-    this.local.clear_validation_errors();
   },
 
   assign_validation_errors: function(errors_by_field_name) {
