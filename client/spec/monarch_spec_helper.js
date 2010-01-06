@@ -6,5 +6,6 @@
 Screw.Unit(function(c) {
   c.init(function() {
     c.use_fake_server();
+    window.COMET_CLIENT_ID = "fake-comet-client-id-from-monarch-spec-helper";
   });
 });

@@ -212,6 +212,10 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
     return Server.fetch([this]);
   },
 
+  subscribe: function() {
+    return Server.subscribe([this]);
+  },
+
   memoize_tuples: function() {
     this._tuples = this.tuples();
   },

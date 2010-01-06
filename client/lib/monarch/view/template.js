@@ -34,7 +34,7 @@ Monarch.constructor("Monarch.View.Template", Monarch.Xml.Template, {
     field_values: function() {
       var values = {};
       this.find("input,select").each(function() {
-        var elt = $(this);
+        var elt = jQuery(this);
         var name = elt.attr('name');
         if (!name) return;
         if (elt.is(':checkbox')) {
@@ -132,7 +132,7 @@ Monarch.constructor("Monarch.View.Template", Monarch.Xml.Template, {
       var self = this;
       var model = this.model();
       this.find("input:text").each(function() {
-        var elt = $(this);
+        var elt = jQuery(this);
         var field_name = elt.attr('name');
         if (model[field_name]) {
           elt.val(model[field_name].call(model) || "");
@@ -146,7 +146,7 @@ Monarch.constructor("Monarch.View.Template", Monarch.Xml.Template, {
       var self = this;
       var model = this.model();
       this.find("input:checkbox").each(function() {
-        var elt = $(this);
+        var elt = jQuery(this);
         var field_name = elt.attr('name');
         if (model[field_name]) {
           self.populate_checkbox_field(elt, model[field_name].call(model));
@@ -164,7 +164,7 @@ Monarch.constructor("Monarch.View.Template", Monarch.Xml.Template, {
       var self = this;
       var model = this.model();
       this.find("select").each(function() {
-        var elt = $(this);
+        var elt = jQuery(this);
         var field_name = elt.attr('name');
         if (model[field_name]) {
           elt.val(model[field_name].call(model) || "");

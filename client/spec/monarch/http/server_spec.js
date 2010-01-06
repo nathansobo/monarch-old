@@ -1,3 +1,4 @@
+
 //= require "../../monarch_spec_helper"
 
 Screw.Unit(function(c) { with(c) {
@@ -8,7 +9,7 @@ Screw.Unit(function(c) { with(c) {
       server = new Monarch.Http.Server();
     });
 
-    describe("#fetch and #save", function() {
+    describe("#fetch, #save, and #subscribe", function() {
       before(function() {
         // use the fake server implementation of basic request functions (only testing higher levels of abstraction)
         server.posts = [];
@@ -18,6 +19,7 @@ Screw.Unit(function(c) { with(c) {
         server.request = FakeServer.prototype.request;
         server.add_request = FakeServer.prototype.add_request;
         server.remove_request = FakeServer.prototype.remove_request;
+        Repository.origin_url = "/repository"
       });
 
       describe("#fetch(relations)", function() {
@@ -30,12 +32,11 @@ Screw.Unit(function(c) { with(c) {
         });
 
 
-        it("performs a GET to Repository.origin_url with the json to fetch the given Relations, then merges the results into the Repository with the delta events sandwiched by before_events and after_events callback triggers on the returned future", function() {
-          Repository.origin_url = "/users/steph/repository"
+        it("performs a GET to {Repository.origin_url}/fetch with the json to fetch the given relations, then merges the results into the Repository with the delta events sandwiched by before_events and after_events callback triggers on the returned future", function() {
           var future = server.fetch([Blog.table, User.table]);
 
           expect(server.gets).to(have_length, 1);
-          expect(server.last_get.url).to(equal, "/users/steph/repository");
+          expect(server.last_get.url).to(equal, "/repository/fetch");
           expect(server.last_get.data).to(equal, {
             relations: [Blog.table.wire_representation(), User.table.wire_representation()]
           });
@@ -101,13 +102,32 @@ Screw.Unit(function(c) { with(c) {
         });
       });
 
-      describe("#save(records_or_relations...)", function() {
-        use_local_fixtures();
+      describe("#subscribe(relations)", function() {
+        use_example_domain_model();
 
-        before(function() {
-          Repository.origin_url = "/repo";
+        it("if there is no comet client, initializes one and connects it", function() {
+          mock(Monarch.Http.CometClient.prototype, 'connect');
+          expect(server.comet_client).to(be_null);
+          server.subscribe([Blog.table, BlogPost.table]);
+          expect(server.comet_client).to_not(be_null);
+          expect(server.comet_client.connect).to(have_been_called);
         });
 
+        it("performs a POST to {Repository.origin_url}/subscribe with the json representation of the given relations", function() {
+          server.subscribe([Blog.table, BlogPost.table]);
+
+          expect(server.posts.length).to(equal, 1);
+
+          expect(server.last_post.type).to(equal, "post");
+          expect(server.last_post.url).to(equal, Repository.origin_url + "/subscribe");
+          expect(server.last_post.data).to(equal, {
+            relations: [Blog.table.wire_representation(), BlogPost.table.wire_representation()]            
+          });
+        });
+      });
+
+      describe("#save(records_or_relations...)", function() {
+        use_local_fixtures();
 
         context("when given a locally-created record", function() {
           var record, table_insert_callback, table_update_callback, table_remove_callback,
@@ -128,12 +148,12 @@ Screw.Unit(function(c) { with(c) {
             record.after_remote_create = mock_function("optional after create hook");
           });
 
-          it("sends a create command", function() {
+          it("sends a create command to {Repository.origin_url}/mutate", function() {
             var record = User.local_create({full_name: "Jesus Chang"});
             server.save(record);
 
             expect(server.posts.length).to(equal, 1);
-            expect(server.last_post.url).to(equal, Repository.origin_url);
+            expect(server.last_post.url).to(equal, "/repository/mutate");
             expect(server.last_post.data).to(equal, {
               operations: [['create', 'users', record.dirty_wire_representation()]]
             });
@@ -220,12 +240,12 @@ Screw.Unit(function(c) { with(c) {
             record.after_remote_update = mock_function("optional record on update method");
           });
 
-          it("sends an update command", function() {
+          it("sends an update command to {Repository.origin_url}/mutate", function() {
             record.name("Bad Bad Children");
             server.save(record);
 
             expect(server.posts.length).to(equal, 1);
-            expect(server.last_post.url).to(equal, Repository.origin_url);
+            expect(server.last_post.url).to(equal, "/repository/mutate");
             expect(server.last_post.data).to(equal, {
               operations: [['update', 'blogs', 'recipes', record.dirty_wire_representation()]]
             });
@@ -366,12 +386,12 @@ Screw.Unit(function(c) { with(c) {
             record.after_remote_destroy = mock_function("optional after_remote_destroy method");
           });
 
-          it("sends a destroy command", function() {
+          it("sends a destroy command to {Repository.origin_url}/mutate", function() {
             record.local_destroy();
             server.save(record);
 
             expect(server.posts.length).to(equal, 1);
-            expect(server.last_post.url).to(equal, Repository.origin_url);
+            expect(server.last_post.url).to(equal, "/repository/mutate");
             expect(server.last_post.data).to(equal, {
               operations: [['destroy', 'blogs', 'recipes']]
             });
@@ -457,7 +477,7 @@ Screw.Unit(function(c) { with(c) {
 
             expect(server.posts.length).to(equal, 1);
 
-            expect(server.last_post.url).to(equal, Repository.origin_url);
+            expect(server.last_post.url).to(equal, "/repository/mutate");
             expect(server.last_post.data).to(equal, {
               operations: [
                 ['create', 'users', locally_created.dirty_wire_representation()],
@@ -599,7 +619,8 @@ Screw.Unit(function(c) { with(c) {
 
         // data is url-encoded and appended as params for delete requests
         if (request_method == "delete_") {
-          expect(ajax_options.url).to(equal, '/users?' + jQuery.param(server.stringify_json_data(data)));
+          var expected_data = Monarch.Util.extend({comet_client_id: window.COMET_CLIENT_ID}, data)
+          expect(ajax_options.url).to(equal, '/users?' + jQuery.param(server.stringify_json_data(expected_data)));
           expect(ajax_options.data).to(be_null);
         } else {
           expect(ajax_options.url).to(equal, '/users');

@@ -8,9 +8,7 @@ Monarch.constructor("Monarch.Http.Server", {
   fetch: function(relations) {
     var fetch_future = new Monarch.Http.RepositoryUpdateFuture();
 
-    start = new Date().getTime();
-
-    this.get(Repository.origin_url, {
+    this.get(Repository.origin_url + "/fetch", {
       relations: Monarch.Util.map(relations, function(relation) {
         return relation.wire_representation();
       })
@@ -26,6 +24,18 @@ Monarch.constructor("Monarch.Http.Server", {
     return fetch_future;
   },
 
+  subscribe: function(relations) {
+    if (!this.comet_client) {
+      this.comet_client = new Monarch.Http.CometClient();
+      this.comet_client.connect();
+    }
+    return this.post(Repository.origin_url + "/subscribe", {
+      relations: Monarch.Util.map(relations, function(relation) {
+        return relation.wire_representation();
+      })
+    });
+  },
+
   save: function() {
     var commands = Monarch.Util.map(this.extract_dirty_records(arguments), function(dirty_record) {
       return this.build_appropriate_command(dirty_record);
@@ -35,23 +45,27 @@ Monarch.constructor("Monarch.Http.Server", {
   },
 
   post: function(url, data) {
-    return this.request('POST', url, data);
+    return this.request('POST', url, this.add_comet_id(data));
   },
 
   get: function(url, data) {
-    return this.request('GET', url, data);
+    return this.request('GET', url, this.add_comet_id(data));
   },
 
   put: function(url, data) {
-    return this.request('PUT', url, data);
+    return this.request('PUT', url, this.add_comet_id(data));
   },
 
   delete_: function(url, data) {
-    var url_encoded_data = jQuery.param(this.stringify_json_data(data));
+    var url_encoded_data = jQuery.param(this.stringify_json_data(this.add_comet_id(data)));
     return this.request('DELETE', url + "?" + url_encoded_data);
   },
 
   // private
+
+  add_comet_id: function(data) {
+    return Monarch.Util.extend({ comet_client_id: window.COMET_CLIENT_ID }, data);
+  },
 
   extract_dirty_records: function(records_or_relations) {
     var dirty_records = []
@@ -81,7 +95,7 @@ Monarch.constructor("Monarch.Http.Server", {
       url: url,
       type: type,
       dataType: 'json',
-      data: data ? this.stringify_json_data(data) : null,
+      data: this.stringify_json_data(data),
       success: function(response) {
         future.handle_response(response);
       }
@@ -90,6 +104,7 @@ Monarch.constructor("Monarch.Http.Server", {
   },
 
   stringify_json_data: function(data) {
+    if (!data) return null;
     var stringified_data = {};
     Monarch.Util.each(data, function(key, value) {
       if (typeof value != "string") value = JSON.stringify(value);

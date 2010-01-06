@@ -3,7 +3,6 @@ dir = File.dirname(__FILE__)
 require "rubygems"
 require "spec"
 require "set"
-
 require "#{dir}/../lib/monarch"
 require "#{dir}/../lib/monarch/model/client"
 
@@ -20,6 +19,7 @@ Spec::Runner.configure do |config|
     Model::Repository.clear_tables
     Model::Repository.load_fixtures(FIXTURES)
     Model::Repository.initialize_local_identity_map unless manually_manage_identity_map?
+    stub(EventMachine).add_timer
   end
 
   config.after do
@@ -54,3 +54,4 @@ module Spec::Example::ExampleMethods
     self.class.manually_manage_identity_map?
   end
 end
+
