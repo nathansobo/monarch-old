@@ -109,6 +109,10 @@ Monarch.module("Monarch.Util", {
     return current_val;
   },
 
+  trim: function(string) {
+    return jQuery.trim(string);
+  },
+
   // private
 
   array_each: function(array, fn) {

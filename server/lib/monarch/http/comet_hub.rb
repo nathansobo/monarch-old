@@ -13,12 +13,12 @@ module Http
       client_id = request[:comet_client_id]
       transport = Pusher::Transport.select(request[:transport]).new(request)
 
-      find_or_build(client_id).transport = transport
+      find_or_build_comet_client(client_id).transport = transport
       EM.next_tick { request.async_callback.call(transport.render) }
       ASYNC_RESPONSE
     end
 
-    def find_or_build(client_id)
+    def find_or_build_comet_client(client_id)
       if clients.has_key?(client_id)
         clients[client_id]
       else
@@ -33,7 +33,13 @@ module Http
 
     private
     def on_start
-      EM.add_periodic_timer(PING_INTERVAL) { Pusher::Transport.ping_all }
+      EM.add_periodic_timer(PING_INTERVAL) do
+        Pusher::Transport.ping_all
+        clients.values.each do |client|
+          client.send({ :message => "hello"})
+          client.send({ :message => "goodbye"})
+        end
+      end
       @started = true
     end
   end

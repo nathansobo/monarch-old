@@ -21,7 +21,7 @@ module Http
           request.path_info = "/example/resource"
           request.session_id = "sample-session-id"
           request.env['QUERY_STRING'] = "comet_client_id=sample-comet-client-id&foo=bar"
-          expected_comet_client = dispatcher.comet_hub.find_or_build("sample-comet-client-id")
+          expected_comet_client = dispatcher.comet_hub.find_or_build_comet_client("sample-comet-client-id")
 
           mock_resource = Object.new
 

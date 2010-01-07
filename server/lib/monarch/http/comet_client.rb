@@ -53,7 +53,7 @@ module Http
     end
 
     def went_offline
-      puts "#{id} went offline!!!!!!"
+      puts "client #{id} went offline"
       hub.remove_client(id)
     end
   end

@@ -1,6 +1,8 @@
 (function(Monarch, jQuery) {
 
 Monarch.constructor("Monarch.Http.Server", {
+  comet_hub_url: "/comet",
+
   initialize: function() {
     this.pending_commands = [];
   },
