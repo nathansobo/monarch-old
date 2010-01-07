@@ -126,6 +126,7 @@ module Model
       changeset = dirty_concrete_field_values_by_column_name
       wire_representation = dirty_field_values_wire_representation
       Origin.update(table, id, changeset)
+      table.record_updated(self, changeset)
       mark_clean
       after_update(changeset)
 

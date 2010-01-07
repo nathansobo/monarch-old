@@ -149,6 +149,58 @@ module Model
           BlogPost.table.clear_identity_map
         end
       end
+
+      describe "event handling" do
+        attr_reader :on_insert_calls, :on_update_calls, :on_remove_calls
+
+        before do
+          @on_insert_calls = []
+          @on_update_calls = []
+          @on_remove_calls = []
+
+          table.on_insert do |record|
+            on_insert_calls.push(record)
+          end
+          table.on_update do |record, changeset|
+            on_update_calls.push([record, changeset])
+          end
+          table.on_remove do |record|
+            on_remove_calls.push(record)
+          end
+        end
+
+        describe "when a record is inserted into the table" do
+          it "triggers #on_insert callbacks with the record" do
+            record = BlogPost.create({:name => "Moo"})
+
+            on_insert_calls.should == [record]
+            on_update_calls.should be_empty
+            on_remove_calls.should be_empty
+          end
+        end
+
+        describe "when a record in the table is updated" do
+          it "triggers #on_update callbacks with the record and the changeset" do
+            record = BlogPost.find('grain_quinoa')
+            record.update(:body => "Actually quinoa is not REALLY a grain, it's a seed", :blog_id => "vegetable")
+            record.save
+
+            on_insert_calls.should be_empty
+            on_update_calls.should == [[record, {:body => "Actually quinoa is not REALLY a grain, it's a seed", :blog_id => "vegetable"}]]
+            on_remove_calls.should be_empty
+          end
+        end
+
+        describe "when a record is removed from the table" do
+          it "triggers #on_remove callbacks with the record" do
+            record = BlogPost.find('grain_quinoa')
+            record.destroy
+            on_insert_calls.should be_empty
+            on_update_calls.should be_empty
+            on_remove_calls.should == [record]
+          end
+        end
+      end
     end
   end
 end

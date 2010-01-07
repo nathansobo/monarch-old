@@ -1,13 +1,17 @@
 module Model
   module Relations
     class Table < Relation
-      attr_reader :global_name, :tuple_class, :concrete_columns_by_name, :synthetic_columns_by_name, :global_identity_map
+      attr_reader :global_name, :tuple_class, :concrete_columns_by_name, :synthetic_columns_by_name, :global_identity_map, :on_insert_node, :on_update_node, :on_remove_node
 
       def initialize(global_name, tuple_class)
         @global_name, @tuple_class = global_name, tuple_class
         @concrete_columns_by_name = ActiveSupport::OrderedHash.new
         @synthetic_columns_by_name = ActiveSupport::OrderedHash.new
         @global_identity_map = {}
+
+        @on_insert_node = Util::SubscriptionNode.new
+        @on_update_node = Util::SubscriptionNode.new
+        @on_remove_node = Util::SubscriptionNode.new
         enable_validation_on_insert
       end
 
@@ -47,18 +51,40 @@ module Model
       def insert(record)
         return record if validation_on_insert_enabled? && !record.valid?
         Origin.insert(self, record.field_values_by_column_name)
+        on_insert_node.publish(record)
         local_identity_map[record.id] = record if local_identity_map
         record.mark_clean
       end
 
       def remove(record)
         Origin.destroy(self, record.id)
+        on_remove_node.publish(record)
         local_identity_map.delete(record.id) if local_identity_map
         global_identity_map.delete(record.id)
       end
 
+      def record_updated(record, changeset)
+        on_update_node.publish(record, changeset)
+      end
+
+      def on_insert(&callback)
+        on_insert_node.subscribe(&callback)
+      end
+
+      def on_update(&callback)
+        on_update_node.subscribe(&callback)
+      end
+
+      def on_remove(&callback)
+        on_remove_node.subscribe(&callback)
+      end
+
       def surface_tables
         [self]
+      end
+
+      def exposed_name
+        @exposed_name || global_name
       end
 
       def build_sql_query(query=Sql::Select.new)

@@ -14,10 +14,22 @@ module Model
       end
     end
 
+    describe "#locate with subresource urls" do
+      it "returns resources that delegate back to the ExposedRepository as appropriate" do
+        mock(exposed_repository).fetch({:foo => "bar"})
+        exposed_repository.locate('fetch').get({:foo => "bar"})
+
+        mock(exposed_repository).mutate({:baz => "boo"})
+        exposed_repository.locate('mutate').post({:baz => "boo"})
+
+        mock(exposed_repository).subscribe({:bon => "quux"})
+        exposed_repository.locate('subscribe').post({:bon => "quux"})
+      end
+    end
+
     describe "#fetch" do
       it "parses the 'relations' parameter from a JSON string into an array of wire representations and performs a #fetch with it, returning the resulting dataset as a JSON string" do
         relations = [{ "type" => "table", "name" => "blog_posts"}]
-
         dataset = nil
         mock.proxy(exposed_repository).perform_fetch(relations) {|result| dataset = result}
         response = Http::Response.new(*exposed_repository.fetch({:relations => relations.to_json}))
@@ -264,6 +276,27 @@ module Model
         end
       end
     end
+
+    describe "#subscribe" do
+      it "converts the 'relations' JSON into actual relations defined in terms of the exposed tables and calls #current_comet_client.subscribe with them" do
+        relations = [{ "type" => "table", "name" => "blogs"}, { "type" => "table", "name" => "blog_posts"}]
+
+        mock_relation_1 = Object.new
+        mock_relation_2 = Object.new
+        mock(exposed_repository).build_relation_from_wire_representation({ "type" => "table", "name" => "blogs"}) { mock_relation_1 }
+        mock(exposed_repository).build_relation_from_wire_representation({ "type" => "table", "name" => "blog_posts"}) { mock_relation_2 }
+
+        exposed_repository.current_comet_client = Http::FakeCometClient.new
+        mock(exposed_repository.current_comet_client).subscribe(mock_relation_1)
+        mock(exposed_repository.current_comet_client).subscribe(mock_relation_2)
+        response = Http::Response.new(*exposed_repository.subscribe({:relations => relations.to_json}))
+
+        response.should be_ok
+        response.headers.should == { 'Content-Type' => 'application/json'}
+        JSON.parse(response.body).should == { 'successful' => true, 'data' => ""}
+      end
+    end
+
 
     describe "#build_relation_from_wire_representation" do
       before do

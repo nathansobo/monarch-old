@@ -19,6 +19,8 @@ module Model
         Http::Subresource.new(self, :get, :fetch)
       when 'mutate'
         Http::Subresource.new(self, :post, :mutate)
+      when 'subscribe'
+        Http::Subresource.new(self, :post, :subscribe)
       else
         raise "Unknown path"
       end
@@ -32,6 +34,13 @@ module Model
     def mutate(params)
       successful, response_data = perform_operations_in_transaction(JSON.parse(params[:operations]))
       [200, headers, { 'successful' => successful, 'data' => response_data}.to_json]
+    end
+
+    def subscribe(params)
+      build_relations_from_wire_representations(JSON.parse(params[:relations])).each do |relation|
+        current_comet_client.subscribe(relation)
+      end
+      [200, headers, { 'successful' => true, 'data' => ""}.to_json]
     end
 
     def perform_operations_in_transaction(operations)
@@ -123,11 +132,16 @@ module Model
 
     def perform_fetch(relation_wire_representations)
       dataset = {}
-      relation_wire_representations.each do |representation|
-        rel = build_relation_from_wire_representation(representation)
-        rel.add_to_relational_dataset(dataset)
+      build_relations_from_wire_representations(relation_wire_representations).each do |relation|
+        relation.add_to_relational_dataset(dataset)
       end
       dataset
+    end
+
+    def build_relations_from_wire_representations(representations)
+      representations.map do |representation|
+        build_relation_from_wire_representation(representation)
+      end
     end
 
     def build_relation_from_wire_representation(representation)

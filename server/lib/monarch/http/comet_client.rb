@@ -35,7 +35,15 @@ module Http
 
     def subscribe(relation)
       subscriptions.add(relation.on_insert do |record|
-        send(["create", relation.exposed_name, relation.wire_representation])
+        send(["create", relation.exposed_name.to_s, record.wire_representation])
+      end)
+
+      subscriptions.add(relation.on_update do |record, changeset|
+        send(["update", relation.exposed_name.to_s, record.id, changeset.stringify_keys])
+      end)
+
+      subscriptions.add(relation.on_remove do |record|
+        send(["destroy", relation.exposed_name.to_s, record.id])
       end)
     end
 
