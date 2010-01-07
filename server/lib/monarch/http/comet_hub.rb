@@ -1,20 +1,25 @@
 module Http
-  class CometHub
+  class CometHub < Resource
     PING_INTERVAL = 5
     ASYNC_RESPONSE = [-1, {}, []].freeze
+
+    class << self
+      def instance
+        @instance ||= new
+      end
+    end
 
     attr_reader :clients
     def initialize
       @clients = {}
     end
 
-    def call(request)
+    def post(params)
       on_start unless @started
-      client_id = request[:comet_client_id]
-      transport = Pusher::Transport.select(request[:transport]).new(request)
-
-      find_or_build_comet_client(client_id).transport = transport
-      EM.next_tick { request.async_callback.call(transport.render) }
+      client_id = params[:comet_client_id]
+      transport = Pusher::Transport.select(params[:transport]).new(current_request)
+      current_comet_client.transport = transport
+      EM.next_tick { current_request.async_callback.call(transport.render) }
       ASYNC_RESPONSE
     end
 
