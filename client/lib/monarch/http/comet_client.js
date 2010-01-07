@@ -1,6 +1,10 @@
 (function(Monarch) {
 
 Monarch.constructor("Monarch.Http.CometClient", {
+  initialize: function() {
+    this.on_receive_node = new Monarch.SubscriptionNode();
+  },
+
   connect: function() {
     var self = this;
     var len = 0
@@ -17,9 +21,17 @@ Monarch.constructor("Monarch.Http.CometClient", {
       if (xhr.readyState == 3) {
         var data = Monarch.Util.trim(xhr.responseText.slice(len));
         len = xhr.responseText.length;
-        if (data.length > 0) console.debug(data);
+        if (data.length > 0) {
+          Monarch.Util.each(data.split("\n"), function(data_chunk) {
+            self.on_receive_node.publish(JSON.parse(data_chunk));
+          });
+        }
       }
     }
+  },
+
+  on_receive: function(callback) {
+    return this.on_receive_node.subscribe(callback);
   }
 });
 

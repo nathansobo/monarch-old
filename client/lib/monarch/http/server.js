@@ -30,6 +30,9 @@ Monarch.constructor("Monarch.Http.Server", {
     if (!this.comet_client) {
       this.comet_client = new Monarch.Http.CometClient();
       this.comet_client.connect();
+      this.comet_client.on_receive(function(message) {
+        console.debug(message);
+      });
     }
     return this.post(Repository.origin_url + "/subscribe", {
       relations: Monarch.Util.map(relations, function(relation) {
