@@ -25,8 +25,11 @@ module Http
 
           mock_resource = Object.new
 
+          expected_request = Http::Request.new(request.env)
+          mock(Request).new(request.env) { expected_request }
+
           mock(Model::Repository.instance).initialize_local_identity_map.ordered
-          mock(dispatcher.resource_locator).locate(request.path_info, :session_id => request.session_id, :comet_client => expected_comet_client).ordered { mock_resource }
+          mock(dispatcher.resource_locator).locate(expected_request, expected_comet_client).ordered { mock_resource }
           mock(mock_resource).get(:foo => 'bar').ordered
           mock(Model::Repository.instance).clear_local_identity_map.ordered
 
