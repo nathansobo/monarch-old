@@ -7,6 +7,9 @@ Screw.Unit(function(c) { with(c) {
 
     before(function() {
       server = new Monarch.Http.Server();
+      mock(server, 'new_comet_client', function() {
+        return new FakeServer.FakeCometClient();
+      });
     });
 
     describe("#fetch, #save, and #subscribe", function() {
@@ -106,11 +109,10 @@ Screw.Unit(function(c) { with(c) {
         use_example_domain_model();
 
         it("if there is no comet client, initializes one and connects it", function() {
-          mock(Monarch.Http.CometClient.prototype, 'connect');
           expect(server.comet_client).to(be_null);
           server.subscribe([Blog.table, BlogPost.table]);
           expect(server.comet_client).to_not(be_null);
-          expect(server.comet_client.connect).to(have_been_called);
+          expect(server.comet_client.connected).to(be_true);
         });
 
         it("performs a POST to {Repository.origin_url}/subscribe with the json representation of the given relations", function() {
@@ -123,6 +125,15 @@ Screw.Unit(function(c) { with(c) {
           expect(server.last_post.data).to(equal, {
             relations: [Blog.table.wire_representation(), BlogPost.table.wire_representation()]            
           });
+        });
+
+        it("causes all mutation commands received to be sent to Repository.mutate", function() {
+          mock(Repository, "mutate");
+
+          server.subscribe([Blog.table, BlogPost.table]);
+          server.comet_client.simulate_receive(['create', 'blogs', { id: 'animals' }]);
+
+          expect(Repository.mutate).to(have_been_called, with_args([['create', 'blogs', { id: 'animals' }]]));
         });
       });
 
@@ -564,6 +575,29 @@ Screw.Unit(function(c) { with(c) {
             expect(before_events_callback).to(have_been_called, once);
             expect(after_events_callback).to(have_been_called, once);
           });
+        });
+
+        it("pauses mutations before sending the save to the server and resumes them once the server responds", function() {
+          var record = User.local_create({id: 'jesus', full_name: "Jesus Chang"});
+          server.save(record);
+
+          expect(Repository.mutations_paused).to(be_true);
+          server.last_post.simulate_failure({
+            index: 0,
+            errors: { full_name: ["Jesus Chang? Come on."]}
+          });
+          expect(Repository.mutations_paused).to(be_false);
+
+          server.save(record);
+          expect(Repository.mutations_paused).to(be_true);
+          server.last_post.simulate_success({
+            primary: [{
+              full_name: "Jesus Chang",
+              user_id: 'jesus'
+            }],
+            secondary: []
+          });
+          expect(Repository.mutations_paused).to(be_false);
         });
       });
     });

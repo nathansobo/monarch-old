@@ -40,10 +40,6 @@ module Http
     def on_start
       EM.add_periodic_timer(PING_INTERVAL) do
         Pusher::Transport.ping_all
-        clients.values.each do |client|
-          client.send({ :message => "hello"})
-          client.send({ :message => "goodbye"})
-        end
       end
       @started = true
     end

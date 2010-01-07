@@ -35,6 +35,34 @@ Screw.Unit(function(c) { with(c) {
       });
     });
 
+    describe("#pause_mutations and #resume_mutations", function() {
+      they("enqueue mutations while they are paused and execute enqueued mutations plus any further mutations after resuming", function() {
+        repository.pause_mutations();
+
+        repository.mutate([
+          ['create', 'blog_posts', { id: 'running', name: "It Keeps You Running" }],
+          ['update', 'blogs', 'recipes', { name: "Absolutely Disgusting Food"}]
+        ]);
+
+        expect(BlogPost.find('running')).to(be_null);
+        expect(Blog.find('recipes').name()).to_not(equal, "Absolutely Disgusting Food");
+
+        repository.mutate([['destroy', 'users', 'jan']]);
+
+        expect(User.find('jan')).to_not(be_null);
+
+        repository.resume_mutations();
+
+        expect(BlogPost.find('running')).to_not(be_null);
+        expect(Blog.find('recipes').name()).to(equal, "Absolutely Disgusting Food");
+        expect(User.find('jan')).to(be_null);
+
+        repository.mutate([['update', 'blogs', 'recipes', { name: "Chicken Aint So Bad" }]]);
+        
+        expect(Blog.find('recipes').name()).to(equal, "Chicken Aint So Bad");
+      });
+    });
+
     describe("#update", function() {
       it("inserts tuples that don't exist and updates those that do", function() {
         expect(User.find('nathan')).to(be_null);

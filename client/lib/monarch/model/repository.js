@@ -3,6 +3,7 @@
 Monarch.constructor("Monarch.Model.Repository", {
   initialize: function() {
     this.tables = {};
+    this.mutations_paused = false;
   },
 
   pause_events: function() {
@@ -15,6 +16,17 @@ Monarch.constructor("Monarch.Model.Repository", {
     Monarch.Util.each(this.tables, function(name, table) {
       table.resume_events();
     });
+  },
+
+  pause_mutations: function() {
+    this.mutations_paused = true;
+    this.enqueued_mutations = [];
+  },
+
+  resume_mutations: function() {
+    this.mutations_paused = false;
+    this.mutate(this.enqueued_mutations);
+    this.enqueued_mutations = null;
   },
 
   update: function(dataset) {
@@ -34,10 +46,14 @@ Monarch.constructor("Monarch.Model.Repository", {
 
   mutate: function(commands) {
     var self = this;
-    Monarch.Util.each(commands, function(command) {
-      var type = command.shift();-
-      self["perform_" + type + "_command"].apply(self, command);
-    });
+    if (this.mutations_paused) {
+      this.enqueued_mutations.push.apply(this.enqueued_mutations, commands);
+    } else {
+      Monarch.Util.each(commands, function(command) {
+        var type = command.shift();-
+        self["perform_" + type + "_command"].apply(self, command);
+      });
+    }
   },
 
   perform_create_command: function(table_name, field_values) {

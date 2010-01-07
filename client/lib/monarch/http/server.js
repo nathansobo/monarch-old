@@ -28,10 +28,10 @@ Monarch.constructor("Monarch.Http.Server", {
 
   subscribe: function(relations) {
     if (!this.comet_client) {
-      this.comet_client = new Monarch.Http.CometClient();
+      this.comet_client = this.new_comet_client();
       this.comet_client.connect();
-      this.comet_client.on_receive(function(message) {
-        console.debug(message);
+      this.comet_client.on_receive(function(mutation) {
+        Repository.mutate([mutation]);
       });
     }
     return this.post(Repository.origin_url + "/subscribe", {
@@ -46,7 +46,13 @@ Monarch.constructor("Monarch.Http.Server", {
       return this.build_appropriate_command(dirty_record);
     }.bind(this));
     var batch = new Monarch.Http.CommandBatch(this, commands);
-    return batch.perform();
+
+    Repository.pause_mutations();
+    var save_future = batch.perform();
+    save_future.on_complete(function() {
+      Repository.resume_mutations();
+    });
+    return save_future;
   },
 
   post: function(url, data) {
@@ -67,6 +73,9 @@ Monarch.constructor("Monarch.Http.Server", {
   },
 
   // private
+  new_comet_client: function() {
+    return new Monarch.Http.CometClient();
+  },
 
   add_comet_id: function(data) {
     return Monarch.Util.extend({ comet_client_id: window.COMET_CLIENT_ID }, data);
