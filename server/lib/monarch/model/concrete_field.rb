@@ -11,11 +11,10 @@ module Model
 
     def value=(value)
       new_value = column.convert_value_for_storage(value)
-      old_value = @value
-      if old_value != new_value
+      if @value != new_value
         @value = new_value
         mark_dirty
-        update_node.publish(new_value, old_value)
+        update_node.publish(new_value)
       end
     end
 

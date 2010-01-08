@@ -7,7 +7,7 @@ module Model
       @record, @column, @signal = record, column, signal
       @value = signal.value
 
-      signal.on_update do |new_value, old_value|
+      signal.on_update do |new_value|
         @value = new_value
         mark_dirty
       end

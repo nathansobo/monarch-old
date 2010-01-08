@@ -18,15 +18,14 @@ module Model
 
     describe "when the value of the underlying field changes" do
       it "fires #on_update callbacks" do
-        name_before = record.full_name
         on_update_args = []
-        signal.on_update do |new_value, old_value|
-          on_update_args.push([new_value, old_value])
+        signal.on_update do |new_value|
+          on_update_args.push([new_value])
         end
 
         record.update(:full_name => "Loony Bun")
 
-        on_update_args.should == [[transformer.call("Loony Bun"), transformer.call(name_before)]]
+        on_update_args.should == [[transformer.call("Loony Bun")]]
       end
     end
   end
