@@ -40,6 +40,10 @@ module Model
         field_values.merge(column_operand.name => scalar_operand)
       end
 
+      def matches?(record)
+        record.evaluate(left_operand) == record.evaluate(right_operand)
+      end
+
       protected
 
       def sql_operator

@@ -214,6 +214,14 @@ module Model
       field(field_name).validation_errors.push(error_string)
     end
 
+    def evaluate(term)
+      if term.is_a?(Column)
+        field(term).value
+      else
+        term
+      end
+    end
+
     protected
     attr_reader :synthetic_fields_by_column
 

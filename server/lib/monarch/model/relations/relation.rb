@@ -116,7 +116,38 @@ module Model
         all.empty?
       end
 
+      def num_subscriptions
+        event_nodes.map {|node| node.count}.sum
+      end
+
       protected
+      attr_reader :on_insert_node, :on_update_node, :on_remove_node, :event_nodes, :operand_subscriptions
+
+      def initialize_event_system
+        if event_nodes.nil?
+          @on_insert_node = Util::SubscriptionNode.new
+          @on_update_node = Util::SubscriptionNode.new
+          @on_remove_node = Util::SubscriptionNode.new
+          @event_nodes = [on_insert_node, on_update_node, on_remove_node]
+        end
+        initialize_operand_subscriptions if has_operands? && num_subscriptions == 0 
+      end
+
+      def initialize_operand_subscriptions
+        @operand_subscriptions = Util::SubscriptionBundle.new
+        subscribe_to_operands
+
+        event_nodes.each do |node|
+          node.on_unsubscribe do
+            operand_subscriptions.destroy_all if num_subscriptions == 0
+          end
+        end
+      end
+
+      def has_operands?
+        true
+      end
+
       def table_or_record_class?(arg)
         arg.instance_of?(Table) || arg.instance_of?(Class)
       end

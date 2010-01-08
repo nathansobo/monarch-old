@@ -2,7 +2,7 @@ module Model
   module Relations
     class Table < Relation
       attr_reader :global_name, :tuple_class, :concrete_columns_by_name, :synthetic_columns_by_name,
-                  :global_identity_map, :on_insert_node, :on_update_node, :on_remove_node, :event_nodes
+                  :global_identity_map
 
       def initialize(global_name, tuple_class)
         @global_name, @tuple_class = global_name, tuple_class
@@ -10,10 +10,7 @@ module Model
         @synthetic_columns_by_name = ActiveSupport::OrderedHash.new
         @global_identity_map = {}
 
-        @on_insert_node = Util::SubscriptionNode.new
-        @on_update_node = Util::SubscriptionNode.new
-        @on_remove_node = Util::SubscriptionNode.new
-        @event_nodes = [on_insert_node, on_update_node, on_remove_node]
+        initialize_event_system
         enable_validation_on_insert
       end
 
@@ -168,6 +165,12 @@ module Model
 
       def drop_table
         Origin.drop_table(global_name)
+      end
+
+      protected
+
+      def has_operands?
+        false
       end
     end
   end

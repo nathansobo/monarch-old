@@ -30,6 +30,47 @@ module Model
         return false unless other.instance_of?(self.class)
         operand == other.operand && predicate == other.predicate
       end
+
+      def on_insert(&block)
+        initialize_event_system
+        on_insert_node.subscribe(&block)
+      end
+
+      def on_update(&block)
+        initialize_event_system
+        on_update_node.subscribe(&block)
+      end
+
+      def on_remove(&block)
+        initialize_event_system
+        on_remove_node.subscribe(&block)
+      end
+
+      protected
+
+      def subscribe_to_operands
+        operand_subscriptions.add(operand.on_insert do |record|
+          on_insert_node.publish(record) if predicate.matches?(record)
+        end)
+
+        operand_subscriptions.add(operand.on_update do |record, changeset|
+          if predicate.matches?(changeset.old_state)
+            if predicate.matches?(changeset.new_state)
+              on_update_node.publish(record, changeset)
+            else
+              on_remove_node.publish(record)
+            end
+          else
+            if predicate.matches?(changeset.new_state)
+              on_insert_node.publish(record)
+            end
+          end
+        end)
+
+        operand_subscriptions.add(operand.on_remove do |record|
+          on_remove_node.publish(record) if predicate.matches?(record)
+        end)
+      end
     end
   end
 end

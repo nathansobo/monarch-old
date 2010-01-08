@@ -6,15 +6,27 @@ module Util
     end
 
     def subscribe(&proc)
-      subscriptions.push(proc)
+      subscription = Subscription.new(self, proc)
+      subscriptions.push(subscription)
+      subscription
+    end
+
+    def unsubscribe(subscription)
+      subscriptions.delete(subscription)
+      on_unsubscribe_node.publish if on_unsubscribe_node
     end
 
     def publish(*args)
       if events_paused
         enqueued_events.push(args)
       else
-        subscriptions.each { |proc| proc.call(*args) }
+        subscriptions.each { |subscription| subscription.call(*args) }
       end
+    end
+
+    def on_unsubscribe(&proc)
+      @on_unsubscribe_node = SubscriptionNode.new unless on_unsubscribe_node
+      on_unsubscribe_node.subscribe(&proc)
     end
 
     def pause
@@ -35,7 +47,11 @@ module Util
       @enqueued_events = nil
     end
 
+    def count
+      subscriptions.size
+    end
+
     protected
-    attr_reader :subscriptions, :events_paused, :enqueued_events
+    attr_reader :subscriptions, :events_paused, :enqueued_events, :on_unsubscribe_node
   end
 end
