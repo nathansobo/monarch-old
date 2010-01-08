@@ -1,7 +1,8 @@
 module Model
   module Relations
     class Table < Relation
-      attr_reader :global_name, :tuple_class, :concrete_columns_by_name, :synthetic_columns_by_name, :global_identity_map, :on_insert_node, :on_update_node, :on_remove_node
+      attr_reader :global_name, :tuple_class, :concrete_columns_by_name, :synthetic_columns_by_name,
+                  :global_identity_map, :on_insert_node, :on_update_node, :on_remove_node, :event_nodes
 
       def initialize(global_name, tuple_class)
         @global_name, @tuple_class = global_name, tuple_class
@@ -12,6 +13,7 @@ module Model
         @on_insert_node = Util::SubscriptionNode.new
         @on_update_node = Util::SubscriptionNode.new
         @on_remove_node = Util::SubscriptionNode.new
+        @event_nodes = [on_insert_node, on_update_node, on_remove_node]
         enable_validation_on_insert
       end
 
@@ -85,6 +87,18 @@ module Model
 
       def exposed_name
         @exposed_name || global_name
+      end
+
+      def pause_events
+        event_nodes.each {|node| node.pause}
+      end
+
+      def resume_events
+        event_nodes.each {|node| node.resume}
+      end
+
+      def cancel_events
+        event_nodes.each {|node| node.cancel}
       end
 
       def build_sql_query(query=Sql::Select.new)

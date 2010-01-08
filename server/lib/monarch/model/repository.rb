@@ -10,11 +10,36 @@ module Model
                :to => :instance
     end
 
-    delegate :transaction, :to => :Origin
-
     attr_reader :tables_by_name
     def initialize
       @tables_by_name = {}
+    end
+
+    def transaction
+      cancelled = false
+      pause_events
+      Origin.transaction do
+        begin
+          yield
+        rescue Exception => e
+          cancel_events
+          cancelled = true
+          raise e
+        end
+      end
+      resume_events unless cancelled
+    end
+
+    def pause_events
+      tables.each {|table| table.pause_events}
+    end
+
+    def resume_events
+      tables.each {|table| table.resume_events}
+    end
+
+    def cancel_events
+      tables.each {|table| table.cancel_events}
     end
 
     def new_table(name, tuple_class)
