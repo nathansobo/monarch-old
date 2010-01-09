@@ -227,7 +227,6 @@ module Model
         end
 
         it "writes directly to fields, bypassing any custom writer methods, and returns the fields that were made dirty" do
-
           def record.some_method=(value)
             raise "Should not be called"
           end
@@ -253,9 +252,36 @@ module Model
 
         it "calls #after_update if it is defined on the record with the dirty fields" do
           def record.after_update; end
-          mock(record).after_update({:title => "Queso"})
+          mock(record).after_update(is_a(Changeset)) do |changeset|
+            changeset.wire_representation.should == {"title" => "Queso"}
+          end
           record.title = "Queso"
           record.save
+        end
+
+        it "triggers #on_update callbacks on the record's table with the record and a changeset" do
+          on_update_calls = []
+          User.table.on_update do |record, changeset|
+            on_update_calls.push([record, changeset])
+          end
+
+          record = User.find('jan')
+          full_name_before = record.full_name
+          great_name_before = record.great_name
+
+          record.full_name = "Sharon Ly"
+          record.save
+
+          on_update_calls.length.should == 1
+          on_update_record = on_update_calls.first[0]
+          on_update_changeset = on_update_calls.first[1]
+
+          on_update_record.should == record
+          
+          on_update_changeset.old_state.evaluate(User[:full_name]).should == full_name_before
+          on_update_changeset.old_state.evaluate(User[:great_name]).should == great_name_before
+          on_update_changeset.new_state.evaluate(User[:full_name]).should == record.full_name
+          on_update_changeset.new_state.evaluate(User[:great_name]).should == record.great_name
         end
       end
 

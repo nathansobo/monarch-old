@@ -39,7 +39,7 @@ module Http
       end)
 
       subscriptions.add(relation.on_update do |record, changeset|
-        send(["update", relation.exposed_name.to_s, record.id, changeset.stringify_keys])
+        send(["update", relation.exposed_name.to_s, record.id, changeset.wire_representation])
       end)
 
       subscriptions.add(relation.on_remove do |record|
@@ -63,6 +63,7 @@ module Http
     def went_offline
       puts "client #{id} went offline"
       hub.remove_client(id)
+      subscriptions.destroy_all
     end
   end
 end

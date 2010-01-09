@@ -1,6 +1,6 @@
 module Model
   class Field
-    attr_reader :record, :column, :validation_errors
+    attr_reader :record, :column, :value, :remote_value, :validation_errors
     delegate :name, :to => :column
 
     def initialize(record, column)
@@ -15,6 +15,7 @@ module Model
     def mark_clean
       @dirty = false
       @validation_errors = []
+      @remote_value = value
     end
 
     def dirty?

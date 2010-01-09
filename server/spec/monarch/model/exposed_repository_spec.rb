@@ -111,6 +111,7 @@ module Model
         context "when the given field values are valid" do
           it "finds the record with the given 'id' in the given 'relation', then updates it with the given field values and returns all changed field values as its result" do
             record = User.find('jan')
+
             new_signed_up_at = record.signed_up_at - 1.hours
 
             field_values = {
@@ -122,7 +123,6 @@ module Model
             response = Http::Response.new(*exposed_repository.mutate({
               :operations => [['update', 'users', 'jan', field_values]].to_json
             }))
-
             record.reload
             record.full_name.should == "Jan Christian Nelson The Great"
             record.age.should == 31

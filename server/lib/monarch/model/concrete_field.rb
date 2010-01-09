@@ -1,7 +1,5 @@
 module Model
   class ConcreteField < Field
-    attr_reader :value
-
     delegate :name, :to => :column
 
     def initialize(record, column)

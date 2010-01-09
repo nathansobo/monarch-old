@@ -186,7 +186,12 @@ module Model
             record.save
 
             on_insert_calls.should be_empty
-            on_update_calls.should == [[record, {:body => "Actually quinoa is not REALLY a grain, it's a seed", :blog_id => "vegetable"}]]
+            on_update_calls.length.should == 1
+
+            on_update_record, on_update_changeset = on_update_calls.first
+            on_update_record.should == record
+            on_update_changeset.wire_representation.should == {"body" => "Actually quinoa is not REALLY a grain, it's a seed", "blog_id" => "vegetable"}
+
             on_remove_calls.should be_empty
           end
         end

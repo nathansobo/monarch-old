@@ -123,14 +123,15 @@ module Model
       return nil unless valid?
       return {} unless dirty?
       before_update(dirty_concrete_field_values_by_column_name)
-      changeset = dirty_concrete_field_values_by_column_name
-      wire_representation = dirty_field_values_wire_representation
-      Origin.update(table, id, changeset)
+      field_values_for_database = dirty_concrete_field_values_by_column_name
+      changeset = Changeset.new(self, dirty_fields)
+
+      Origin.update(table, id, field_values_for_database)
       table.record_updated(self, changeset)
       mark_clean
       after_update(changeset)
 
-      wire_representation
+      changeset
     end
 
     def dirty?

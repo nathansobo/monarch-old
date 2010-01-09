@@ -1,11 +1,12 @@
 module Model
   class SyntheticField < Field
-    attr_reader :value, :record, :column, :signal
+    attr_reader :signal
 
     def initialize(record, column, signal)
       super(record, column)
       @record, @column, @signal = record, column, signal
       @value = signal.value
+      @remote_value = signal.remote_value
 
       signal.on_update do |new_value|
         @value = new_value

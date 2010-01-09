@@ -145,26 +145,56 @@ module Model
           describe "when a record is updated in the operand" do
             describe "when the record was not previously a member of the selection but now it is" do
               it "fires #on_insert callbacks with the record" do
-#                record = BlogPost.find(BlogPost[:blog_id].neq("grain"))
-#                record.blog_id = "grain"
-#                record.save
-#
-#                on_insert_calls.should == [record]
-#                on_update_calls.should be_empty
-#                on_remove_calls.should be_empty
+                record = BlogPost.find(BlogPost[:blog_id].neq("grain"))
+                record.blog_id = "grain"
+                record.save
+
+                on_insert_calls.should == [record]
+                on_update_calls.should be_empty
+                on_remove_calls.should be_empty
               end
             end
 
             describe "when the record was not previously a member of the selection and it still isn't" do
+              it "fires no event callbacks" do
+                record = BlogPost.find(BlogPost[:blog_id].neq("grain"))
+                record.blog_id = "hamburgers"
+                record.save
+
+                on_insert_calls.should be_empty
+                on_update_calls.should be_empty
+                on_remove_calls.should be_empty
+              end
 
             end
 
             describe "when the record was previously a member of the selection and now it isn't" do
+              it "fires #on_remove callbacks with the record" do
+                record = BlogPost.find(BlogPost[:blog_id].eq("grain"))
+                record.blog_id = "hamburgers"
+                record.save
 
+                on_insert_calls.should be_empty
+                on_update_calls.should be_empty
+                on_remove_calls.should == [record]
+              end
             end
 
             describe "when the record was previously a member of the selection and it still is" do
+              it "fires #on_update callbacks with the record and the changeset" do
+                record = BlogPost.find(BlogPost[:blog_id].eq("grain"))
+                record.title = "New title"
+                record.save
 
+                on_insert_calls.should be_empty
+
+                on_update_calls.should_not be_empty
+                on_update_record, on_update_changeset = on_update_calls.first
+                on_update_record.should == record
+                on_update_changeset.wire_representation.should == {"title" => "New title"}
+
+                on_remove_calls.should be_empty
+              end
             end
           end
 

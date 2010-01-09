@@ -15,6 +15,10 @@ module Model
       transformer.call(source.value)
     end
 
+    def remote_value
+      transformer.call(source.remote_value)
+    end
+
     def on_update(&proc)
       update_node.subscribe(&proc)
     end
