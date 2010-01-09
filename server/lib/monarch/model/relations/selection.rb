@@ -31,21 +31,6 @@ module Model
         operand == other.operand && predicate == other.predicate
       end
 
-      def on_insert(&block)
-        initialize_event_system
-        on_insert_node.subscribe(&block)
-      end
-
-      def on_update(&block)
-        initialize_event_system
-        on_update_node.subscribe(&block)
-      end
-
-      def on_remove(&block)
-        initialize_event_system
-        on_remove_node.subscribe(&block)
-      end
-
       protected
 
       def subscribe_to_operands

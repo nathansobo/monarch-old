@@ -8,10 +8,17 @@ module Model
     delegate :surface_tables, :to => "relation"
     attr_reader :constituent_records_by_table
     
-    def initialize(field_values)
+    def initialize(field_values_or_tuples)
       @constituent_records_by_table = {}
-      surface_tables.each do |table|
-        constituent_records_by_table[table] = build_constituent_record(table, field_values)
+
+      if field_values_or_tuples.instance_of?(Array)
+        field_values_or_tuples.each do |tuple|
+          constituent_records_by_table[tuple.table] = tuple
+        end
+      else
+        surface_tables.each do |table|
+          constituent_records_by_table[table] = build_constituent_record(table, field_values_or_tuples)
+        end
       end
     end
 
@@ -25,6 +32,21 @@ module Model
         constituent_records_by_table_name[table.global_name] = record
       end
       constituent_records_by_table_name.inspect
+    end
+
+    def constituent_records
+      sorted_tables = constituent_records_by_table.keys.sort_by {|table| table.global_name.to_s}
+      sorted_tables.map do |table|
+        constituent_records_by_table[table]
+      end
+    end
+
+    def hash
+      constituent_records.hash
+    end
+
+    def eql?(other)
+      other.hash == hash
     end
 
     protected

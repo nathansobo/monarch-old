@@ -22,6 +22,8 @@ module Model
     protected
 
     class OldRecordState
+      delegate :column, :to => :record
+
       def initialize(record)
         @record = record
         @old_field_values_by_column_name = {}
@@ -29,6 +31,16 @@ module Model
 
       def []=(field, old_value)
         old_field_values_by_column_name[field.name] = old_value
+      end
+
+      def field(column_or_name)
+        column = column(column_or_name)
+        return nil unless column
+        if old_field_values_by_column_name.has_key?(column.name)
+          OldFieldState.new(old_field_values_by_column_name[column.name])
+        else
+          record.field(column)
+        end
       end
 
       def evaluate(term)
@@ -47,5 +59,12 @@ module Model
       attr_reader :record, :old_field_values_by_column_name
     end
 
+    class OldFieldState
+      attr_reader :value
+
+      def initialize(value)
+        @value = value
+      end
+    end
   end
 end

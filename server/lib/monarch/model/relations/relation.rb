@@ -17,7 +17,7 @@ module Model
       end
       include ForwardsArrayMethodsToRecords
       attr_writer :exposed_name
-      delegate :include?, :to => :all
+      delegate :include?, :map, :to => :all
 
 
       def initialize(&block)
@@ -59,7 +59,6 @@ module Model
       def join(right_operand, &block)
         PartiallyConstructedInnerJoin.new(self, convert_to_table_if_needed(right_operand), &block)
       end
-
 
       def join_to(right_operand)
         right_operand = convert_to_table_if_needed(right_operand)
@@ -114,6 +113,21 @@ module Model
 
       def empty?
         all.empty?
+      end
+
+      def on_insert(&block)
+        initialize_event_system
+        on_insert_node.subscribe(&block)
+      end
+
+      def on_update(&block)
+        initialize_event_system
+        on_update_node.subscribe(&block)
+      end
+
+      def on_remove(&block)
+        initialize_event_system
+        on_remove_node.subscribe(&block)
       end
 
       def num_subscriptions

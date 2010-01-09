@@ -35,24 +35,27 @@ module Model
         when String, Symbol
           concrete_columns_by_name[column_or_name.to_sym] || synthetic_columns_by_name[column_or_name.to_sym]
         when Column
-          column_or_name
+          column_or_name if column_or_name.table == self
         end
       end
 
       def create(field_values = {})
-        record = tuple_class.new(field_values)
-        record.before_create if record.respond_to?(:before_create)
-        insert(record)
-        record.after_create if record.respond_to?(:after_create)
-        record
+        insert(tuple_class.new(field_values))
+      end
+
+      def unsafe_create(field_values = {})
+        insert(tuple_class.unsafe_new(field_values))
       end
 
       def insert(record)
+        record.before_create if record.respond_to?(:before_create)
         return record if validation_on_insert_enabled? && !record.valid?
         Origin.insert(self, record.field_values_by_column_name)
         on_insert_node.publish(record)
         local_identity_map[record.id] = record if local_identity_map
         record.mark_clean
+        record.after_create if record.respond_to?(:after_create)
+        record
       end
 
       def remove(record)
@@ -64,18 +67,6 @@ module Model
 
       def record_updated(record, changeset)
         on_update_node.publish(record, changeset)
-      end
-
-      def on_insert(&callback)
-        on_insert_node.subscribe(&callback)
-      end
-
-      def on_update(&callback)
-        on_update_node.subscribe(&callback)
-      end
-
-      def on_remove(&callback)
-        on_remove_node.subscribe(&callback)
       end
 
       def surface_tables

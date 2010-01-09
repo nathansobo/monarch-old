@@ -29,6 +29,23 @@ module Model
         end
       end
 
+      describe "#column" do
+        describe "when passed a string or symbol" do
+          it "returns the column with that name or nil if none exists" do
+            BlogPost.table.column(:id).should == BlogPost[:id]
+            BlogPost.table.column("id").should == BlogPost[:id]
+            BlogPost.table.column("crapola").should be_nil
+          end
+        end
+
+        describe "when passed a column" do
+          it "returns the column if its table matches self and nil otherwise" do
+            BlogPost.table.column(BlogPost[:id]).should == BlogPost[:id]
+            BlogPost.table.column(Blog[:id]).should be_nil
+          end
+        end
+      end
+
       describe "#insert" do
         it "calls Origin.insert with the Table and #field_values_by_column_name and stores the record in the thread-local identity map" do
           record = BlogPost.new(:body => "Brown Rice", :blog_id => "grain")
