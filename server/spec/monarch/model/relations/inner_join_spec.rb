@@ -180,6 +180,23 @@ module Model
               end
             end
 
+            describe "when the update causes some composite tuples that are already present to still be present in the join" do
+              it "fires #on_update events with those composite tuples and the changeset" do
+                blog = Blog.find("grain")
+                grain_posts = blog.blog_posts
+                blog.title = "Did you mean Barbie?"
+                blog.save
+
+                on_insert_calls.should be_empty
+
+                on_update_calls.length.should == grain_posts.size
+                on_update_calls.all? {|call| call[0][Blog] == blog && call[1].wire_representation == {"title" => "Did you mean Barbie?"}}.should be_true
+                Set.new(on_update_calls.map {|call| call[0][BlogPost]}).should == Set.new(grain_posts.all)
+
+                on_remove_calls.should be_empty
+              end
+            end
+
             describe "when the update causes some composite tuples to stop being present in the join and others to become present" do
               it "fires both #on_remove and #on_insert events" do
                 post_1 = BlogPost.create(:blog_id => "fun")
@@ -201,80 +218,86 @@ module Model
                 Set.new(on_remove_calls.map {|composite_tuple| composite_tuple[BlogPost]}).should == Set.new(grain_posts.all)
               end
             end
-
-            describe "when the update causes some composite tuples that are already present to still be present in the join" do
-              it "fires #on_update events with those composite tuples and the changeset" do
-                blog = Blog.find("grain")
-                grain_posts = blog.blog_posts
-                blog.title = "Did you mean Barbie?"
-                blog.save
-
-                on_insert_calls.should be_empty
-
-                on_update_calls.length.should == grain_posts.size
-                on_update_calls.all? {|call| call[0][Blog] == blog && call[1].wire_representation == {"title" => "Did you mean Barbie?"}}.should be_true
-                Set.new(on_update_calls.map {|call| call[0][BlogPost]}).should == Set.new(grain_posts.all)
-
-                on_remove_calls.should be_empty
-              end
-            end
           end
 
           describe "when a record in right operand is updated" do
             describe "when the update causes some composite tuples to become present in the join" do
               it "fires #on_insert events with all composite tuples that are now present in the join" do
-                post_1 = BlogPost.create(:blog_id => "fun")
-                post_2 = BlogPost.create(:blog_id => "fun")
-
+                post = BlogPost.create(:blog_id => "fun")
                 blog = Blog.unsafe_create(:id => "misery")
-                blog.id = "fun"
-                blog.save
 
-                on_insert_calls.length.should == 2
-                on_insert_calls.all? {|composite_tuple| composite_tuple[Blog] == blog }.should be_true
-                Set.new(on_insert_calls.map {|composite_tuple| composite_tuple[BlogPost]}).should == Set.new([post_1, post_2])
+
+                on_update_calls.should be_empty
+
+                post.blog_id = "misery"
+                post.save
+
+                on_insert_calls.length.should == 1
+
+                on_insert_calls.first[Blog].should == blog
+                on_insert_calls.first[BlogPost].should == post
 
                 on_update_calls.should be_empty
                 on_remove_calls.should be_empty
               end
             end
 
-#            describe "when the update causes some composite tuples to stop being present in the join" do
-#              it "fires #on_remove events with all composite tuples that were removed from the join" do
-#                blog = Blog.find("grain")
-#                grain_posts = blog.blog_posts
-#                blog.id = "crapola"
-#                blog.save
+            describe "when the update causes some composite tuples to stop being present in the join" do
+              it "fires #on_remove events with all composite tuples that were removed from the join" do
+                blog = Blog.find("grain")
+                post = blog.blog_posts.first
+
+                post.blog_id = "crapola"
+                post.save
+
+                on_insert_calls.should be_empty
+                on_update_calls.should be_empty
+                on_remove_calls.length.should == 1
+
+                on_remove_calls.first[Blog].should == blog
+                on_remove_calls.first[BlogPost].should == post
+              end
+            end
 #
-#                on_insert_calls.should be_empty
-#                on_update_calls.should be_empty
-#                on_remove_calls.length.should == grain_posts.size
-#                on_remove_calls.all? {|composite_tuple| composite_tuple[Blog] == blog }.should be_true
-#                Set.new(on_remove_calls.map {|composite_tuple| composite_tuple[BlogPost]}).should == Set.new(grain_posts.all)
-#              end
-#            end
-#
-#            describe "when the update causes some composite tuples to stop being present in the join and others to become present" do
-#              it "fires both #on_remove and #on_insert events" do
-#                post_1 = BlogPost.create(:blog_id => "fun")
-#                post_2 = BlogPost.create(:blog_id => "fun")
-#
-#                blog = Blog.find("grain")
-#                grain_posts = blog.blog_posts
-#                blog.id = "fun"
-#                blog.save
-#
-#                on_insert_calls.length.should == 2
-#                on_insert_calls.all? {|composite_tuple| composite_tuple[Blog] == blog }.should be_true
-#                Set.new(on_insert_calls.map {|composite_tuple| composite_tuple[BlogPost]}).should == Set.new([post_1, post_2])
-#
-#                on_update_calls.should be_empty
-#
-#                on_remove_calls.length.should == grain_posts.size
-#                on_remove_calls.all? {|composite_tuple| composite_tuple[Blog] == blog }.should be_true
-#                Set.new(on_remove_calls.map {|composite_tuple| composite_tuple[BlogPost]}).should == Set.new(grain_posts.all)
-#              end
-#            end
+            describe "when the update causes some composite tuples that are already present to still be present in the join" do
+              it "fires #on_update events with those composite tuples and the changeset" do
+                blog = Blog.find("grain")
+                post = blog.blog_posts.first
+                post.body = "The sea lions have left the pier. Earthquake imminent?"
+                post.save
+
+                on_insert_calls.should be_empty
+
+                on_update_calls.length.should == 1
+                on_update_calls.first[0][Blog].should == blog
+                on_update_calls.first[0][BlogPost].should == post
+                on_update_calls.first[1].wire_representation.should == { 'body' => "The sea lions have left the pier. Earthquake imminent?" }
+
+
+                on_remove_calls.should be_empty
+              end
+            end
+
+            describe "when the update causes some composite tuples to stop being present in the join and others to become present" do
+              it "fires both #on_remove and #on_insert events" do
+                grain_blog = Blog.find("grain")
+                vegetable_blog = Blog.find("vegetable")
+                grain_post = grain_blog.blog_posts.first
+
+                grain_post.blog_id = "vegetable"
+                grain_post.save
+
+                on_insert_calls.length.should == 1
+                on_insert_calls.first[Blog].should == vegetable_blog
+                on_insert_calls.first[BlogPost].should == grain_post
+
+                on_update_calls.should be_empty
+
+                on_remove_calls.length.should == 1
+                on_remove_calls.first[Blog].should == grain_blog
+                on_remove_calls.first[BlogPost].should == grain_post
+              end
+            end
           end
 
           describe "when a record is removed from the left operand" do
@@ -291,7 +314,7 @@ module Model
             end
           end
 
-          describe "when a record is removed from the left operand" do
+          describe "when a record is removed from the right operand" do
             it "fires #on_remove events with all composite tuples that were previously in the join" do
               blog = Blog.find("grain")
               blog_post = blog.blog_posts.first

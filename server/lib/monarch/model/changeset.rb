@@ -7,7 +7,7 @@ module Model
       @record, @dirty_fields = record, dirty_fields
       @old_state = OldRecordState.new(record)
       dirty_fields.each do |field|
-        old_state[field] = field.remote_value
+        old_state.preserve_current_remote_value(field)
       end
     end
 
@@ -19,6 +19,18 @@ module Model
       wire_representation
     end
 
+    def inspect
+      inspect_hash = {}
+      dirty_fields.each do |field|
+        inspect_hash[field.name] = {
+          :old => old_state.field(field.name).value,
+          :new => field.value
+        }
+      end
+      inspect_hash.inspect
+    end
+
+
     protected
 
     class OldRecordState
@@ -29,8 +41,8 @@ module Model
         @old_field_values_by_column_name = {}
       end
 
-      def []=(field, old_value)
-        old_field_values_by_column_name[field.name] = old_value
+      def preserve_current_remote_value(field)
+        old_field_values_by_column_name[field.name] = field.remote_value
       end
 
       def field(column_or_name)

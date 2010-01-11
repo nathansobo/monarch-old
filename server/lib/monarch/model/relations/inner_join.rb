@@ -73,7 +73,7 @@ module Model
           end
 
           inserted_tuples = new_tuples - previous_tuples
-          updated_tuples  = previous_tuples | new_tuples
+          updated_tuples  = previous_tuples & new_tuples
           removed_tuples  = previous_tuples - new_tuples
 
           inserted_tuples.each {|tuple| on_insert_node.publish(tuple)}
@@ -81,17 +81,23 @@ module Model
           removed_tuples.each  {|tuple| on_remove_node.publish(tuple)}
         end)
 
-#        operand_subscriptions.add(right_operand.on_update do |right_tuple, changeset|
-#          predicate.find_matching_tuples(changeset.new_state, left_operand).each do |left_tuple|
-#            composite_tuple = tuple_class.new([left_tuple, right_tuple])
-#            on_insert_node.publish(composite_tuple)
-#          end
-#
-#          predicate.find_matching_tuples(changeset.old_state, left_operand).each do |left_tuple|
-#            composite_tuple = tuple_class.new([left_tuple, right_tuple])
-#            on_remove_node.publish(composite_tuple)
-#          end
-#        end)
+        operand_subscriptions.add(right_operand.on_update do |right_tuple, changeset|
+          new_tuples = predicate.find_matching_tuples(changeset.new_state, left_operand).map do |left_tuple|
+            tuple_class.new([left_tuple, right_tuple])
+          end
+
+          previous_tuples = predicate.find_matching_tuples(changeset.old_state, left_operand).map do |left_tuple|
+            tuple_class.new([left_tuple, right_tuple])
+          end
+
+          inserted_tuples = new_tuples - previous_tuples
+          updated_tuples  = previous_tuples & new_tuples
+          removed_tuples  = previous_tuples - new_tuples
+
+          inserted_tuples.each {|tuple| on_insert_node.publish(tuple)}
+          updated_tuples.each  {|tuple| on_update_node.publish(tuple, changeset)}
+          removed_tuples.each  {|tuple| on_remove_node.publish(tuple)}
+        end)
 
         operand_subscriptions.add(left_operand.on_remove do |left_tuple|
           predicate.find_matching_tuples(left_tuple, right_operand).each do |right_tuple|
