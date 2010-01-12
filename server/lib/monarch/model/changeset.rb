@@ -11,6 +11,10 @@ module Model
       end
     end
 
+    def changed?(field_or_name)
+      dirty_fields.include?(record.field(field_or_name))
+    end
+
     def wire_representation
       wire_representation = {}
       dirty_fields.each do |field|
@@ -29,7 +33,6 @@ module Model
       end
       inspect_hash.inspect
     end
-
 
     protected
 

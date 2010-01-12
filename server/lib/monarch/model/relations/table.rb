@@ -11,7 +11,6 @@ module Model
         @global_identity_map = {}
 
         initialize_event_system
-        enable_validation_on_insert
       end
 
       def define_concrete_column(name, type, options={})
@@ -53,7 +52,7 @@ module Model
 
       def insert(record)
         record.before_create if record.respond_to?(:before_create)
-        return record if validation_on_insert_enabled? && !record.valid?
+        return record if !record.valid?
         Origin.insert(self, record.field_values_by_column_name)
         on_insert_node.publish(record)
         local_identity_map[record.id] = record if local_identity_map
@@ -126,23 +125,10 @@ module Model
       end
 
       def load_fixtures(fixtures)
-        disable_validation_on_insert
         fixtures.each do |id, field_values|
-          insert(tuple_class.unsafe_new(field_values.merge(:id => id.to_s)))
+          record = tuple_class.unsafe_new(field_values.merge(:id => id.to_s))
+          Origin.insert(self, record.field_values_by_column_name)
         end
-        enable_validation_on_insert
-      end
-
-      def disable_validation_on_insert
-        @validation_on_insert_enabled = false
-      end
-
-      def enable_validation_on_insert
-        @validation_on_insert_enabled = true
-      end
-
-      def validation_on_insert_enabled?
-        @validation_on_insert_enabled
       end
 
       def clear_table
