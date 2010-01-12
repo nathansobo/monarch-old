@@ -51,6 +51,11 @@ module Util
       subscriptions.size
     end
 
+    def clear
+      @subscriptions = []
+      @enqueued_events = nil
+    end
+
     protected
     attr_reader :subscriptions, :events_paused, :enqueued_events, :on_unsubscribe_node
   end

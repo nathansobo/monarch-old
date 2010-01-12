@@ -131,7 +131,7 @@ module Model
       end
 
       def num_subscriptions
-        event_nodes.map {|node| node.count}.sum
+        (event_nodes || []).map {|node| node.count}.sum
       end
 
       protected

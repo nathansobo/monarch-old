@@ -39,6 +39,10 @@ module Model
         end
       end
 
+      def table
+        self
+      end
+
       def create(field_values = {})
         insert(tuple_class.new(field_values))
       end
@@ -142,6 +146,9 @@ module Model
       end
 
       def clear_table
+        event_nodes.each do |event_node|
+          event_node.clear
+        end
         Origin.clear_table(global_name)
       end
 

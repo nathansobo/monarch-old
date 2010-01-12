@@ -5,7 +5,7 @@ module Model
         @instance ||= new
       end
 
-      delegate :new_table, :tables_by_name, :load_fixtures, :clear_tables, :create_schema,
+      delegate :new_table, :tables_by_name, :load_fixtures, :clear_tables, :create_schema, :num_subscriptions,
                :tables, :initialize_local_identity_map, :clear_local_identity_map, :with_local_identity_map, :transaction,
                :to => :instance
     end
@@ -40,6 +40,10 @@ module Model
 
     def cancel_events
       tables.each {|table| table.cancel_events}
+    end
+
+    def num_subscriptions
+      tables.map {|table| table.num_subscriptions}.sum
     end
 
     def new_table(name, tuple_class)
