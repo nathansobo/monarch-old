@@ -8,11 +8,11 @@ module Model
       before do
         @operand = Blog.join(BlogPost).on(BlogPost[:blog_id].eq(Blog[:id]))
         @projected_columns = [
-          ProjectedColumn.new(BlogPost[:id]),
+          AliasedColumn.new(BlogPost[:id]),
           Blog[:title].as(:blog_title),
           BlogPost[:title].as(:blog_post_title),
-          ProjectedColumn.new(Blog[:user_id]),
-          ProjectedColumn.new(BlogPost[:body])
+          AliasedColumn.new(Blog[:user_id]),
+          AliasedColumn.new(BlogPost[:body])
         ]
         @projection = Projection.new(operand, projected_columns) do
           def foo; end
@@ -88,11 +88,11 @@ module Model
         it "structurally compares the receiver with the operand" do
           operand_2 = Blog.join(BlogPost).on(BlogPost[:blog_id].eq(Blog[:id]))
           projected_columns_2 = [
-            ProjectedColumn.new(BlogPost[:id]),
+            AliasedColumn.new(BlogPost[:id]),
             Blog[:title].as(:blog_title),
             BlogPost[:title].as(:blog_post_title),
-            ProjectedColumn.new(Blog[:user_id]),
-            ProjectedColumn.new(BlogPost[:body])
+            AliasedColumn.new(Blog[:user_id]),
+            AliasedColumn.new(BlogPost[:body])
           ]
           projection_2 = Projection.new(operand_2, projected_columns_2)
 

@@ -26,7 +26,7 @@ module Model
         case column_or_name
         when String, Symbol
           concrete_columns_by_name[column_or_name]
-        when ProjectedColumn
+        when AliasedColumn
           column_or_name
         end
       end
