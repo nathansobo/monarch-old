@@ -3,7 +3,7 @@ module Model
     attr_reader :column, :column_alias
     delegate :convert_value_for_storage, :convert_value_for_wire, :where_clause_sql, :to => :column
 
-    def initialize(column, column_alias=nil)
+    def initialize(column, column_alias)
       @column, @column_alias = column, column_alias
     end
 
