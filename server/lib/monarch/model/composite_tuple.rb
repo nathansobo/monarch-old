@@ -1,11 +1,10 @@
 module Model
-  class CompositeTuple
+  class CompositeTuple < Tuple
     class << self
       attr_accessor :relation
     end
 
-    delegate :relation, :to => "self.class"
-    delegate :surface_tables, :to => "relation"
+    delegate :surface_tables, :to => :relation
     attr_reader :constituent_records_by_table
     
     def initialize(field_values_or_tuples)

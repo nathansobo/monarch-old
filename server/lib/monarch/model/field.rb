@@ -34,6 +34,20 @@ module Model
       validation_errors.empty?
     end
 
+    def snapshot
+      snapshot = Field.new(record, column)
+      snapshot_value = value
+      snapshot.instance_eval do
+        @value = snapshot_value
+        @snapshot = true
+      end
+      snapshot
+    end
+
+    def snapshot?
+      @snapshot
+    end
+
     protected
     def mark_dirty
       @dirty = true

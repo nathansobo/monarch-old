@@ -8,6 +8,8 @@ module Model
     end
 
     def value=(value)
+      raise "This is a snapshot field. It is read only." if snapshot?
+
       new_value = column.convert_value_for_storage(value)
       if @value != new_value
         @value = new_value

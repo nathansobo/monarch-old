@@ -15,6 +15,7 @@ module Model
     end
 
     def value=(value)
+      raise "This is a snapshot field. It is read only." if snapshot?
       record.send("#{name}=", value)
     end
   end

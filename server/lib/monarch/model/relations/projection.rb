@@ -55,31 +55,32 @@ module Model
       protected
       def subscribe_to_operands
         operand_subscriptions.add(operand.on_insert do |tuple|
-          on_insert_node.publish(projected_tuple(tuple))
+          on_insert_node.publish(project_tuple(tuple))
         end)
         
         operand_subscriptions.add(operand.on_update do |tuple, changeset|
-          projected_tuple = projected_tuple(tuple)
-          projected_changeset = projected_changeset(projected_tuple, changeset)
+          projected_tuple = project_tuple(tuple)
+          projected_changeset = project_changeset(changeset)
 
           on_update_node.publish(projected_tuple(tuple), projected_changeset) unless projected_changeset.empty?
         end)
 
       end
 
-      def projected_tuple(tuple)
+      def project_tuple(tuple)
         field_values = {}
         concrete_columns_by_name.each do |name, column|
-
           if column.instance_of?(AliasedColumn)
             field_values[name] = tuple.field(column.column).value
           else
             field_values[name] = tuple.field(column).value
           end
-
-
         end
         tuple_class.new(field_values)
+      end
+
+      def project_changeset(changeset)
+        Changeset.new(project_tuple(changeset.new_state), project_tuple(changeset.old_state))
       end
     end
   end

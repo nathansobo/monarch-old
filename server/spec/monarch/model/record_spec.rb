@@ -145,6 +145,30 @@ module Model
         end
       end
 
+      describe "#snapshot" do
+        it "returns a read-only copy of the record" do
+          record = User.find('jan')
+          snapshot = record.snapshot
+
+          full_name_before = record.full_name
+          great_name_before = record.great_name
+          snapshot.full_name.should == full_name_before
+          snapshot.great_name.should == great_name_before
+          
+          record.full_name = "Sharon Ly"
+          snapshot.full_name.should == full_name_before
+          snapshot.great_name.should == great_name_before
+
+          lambda do
+            snapshot.full_name = "Monkeyshine"
+          end.should raise_error
+
+          lambda do
+            snapshot.great_name = "Monkeyshine"
+          end.should raise_error
+        end
+      end
+
       describe "#reload" do
         it "reloads field values from the database, bypassing any custom setter methods" do
           def record.body=(body)
