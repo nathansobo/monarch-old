@@ -18,6 +18,10 @@ module Model
         concrete_columns_by_name.values
       end
 
+      def operand_projected_columns
+        concrete_columns.map {||}
+      end
+
       def column(column_or_name)
         case column_or_name
         when String, Symbol
@@ -50,6 +54,39 @@ module Model
       def ==(other)
         return false unless other.instance_of?(self.class)
         operand == other.operand && concrete_columns_by_name == other.concrete_columns_by_name
+      end
+
+      protected
+      def subscribe_to_operands
+        operand_subscriptions.add(operand.on_insert do |tuple|
+          on_insert_node.publish(projected_tuple(tuple))
+        end)
+        
+        operand_subscriptions.add(operand.on_update do |tuple, changeset|
+          projected_tuple = projected_tuple(tuple)
+          projected_changeset = projected_changeset(projected_tuple, changeset)
+
+          on_update_node.publish(projected_tuple(tuple), projected_changeset) unless projected_changeset.empty?
+        end)
+
+      end
+
+      def projected_tuple(tuple)
+        field_values = {}
+        concrete_columns_by_name.each do |name, projected_column|
+          field_values[name] = tuple.field(projected_column.column).value
+        end
+        tuple_class.new(field_values)
+      end
+
+      def projected_changeset(projected_tuple, changeset)
+
+        
+        concrete_columns.each do
+
+        end
+
+
       end
     end
   end

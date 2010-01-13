@@ -35,14 +35,26 @@ module Model
     end
 
     def constituent_records
+      constituent_records_by_table.values
+    end
+
+    def sorted_constituent_records
       sorted_tables = constituent_records_by_table.keys.sort_by {|table| table.global_name.to_s}
       sorted_tables.map do |table|
         constituent_records_by_table[table]
       end
     end
 
+    def field(column_or_name)
+      constituent_records.each do |record|
+        field = record.field(column_or_name)
+        return field if field
+      end
+      nil
+    end
+
     def hash
-      constituent_records.hash
+      sorted_constituent_records.hash
     end
 
     def eql?(other)

@@ -27,12 +27,13 @@ module Http
       if clients.has_key?(client_id)
         clients[client_id]
       else
-        puts "#{client_id} came online"
+#        puts "#{client_id} came online"
         clients[client_id] = CometClient.new(client_id, self)
       end
     end
 
     def remove_client(client_id)
+#      puts "client #{client_id} went offline"
       clients.delete(client_id)
     end
 

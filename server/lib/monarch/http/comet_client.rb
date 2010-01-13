@@ -61,7 +61,6 @@ module Http
     end
 
     def went_offline
-      puts "client #{id} went offline"
       hub.remove_client(id)
       subscriptions.destroy_all
     end

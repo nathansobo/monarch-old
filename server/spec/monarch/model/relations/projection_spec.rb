@@ -100,6 +100,85 @@ module Model
         end
       end
 
+      describe "event handling" do
+        describe "propagation of operand events" do
+          attr_reader :on_insert_calls, :on_update_calls, :on_remove_calls, :on_insert_subscription, :on_update_subscription,
+                      :on_remove_subscription, :blog, :post
+          before do
+            @on_insert_calls = []
+            @on_update_calls = []
+            @on_remove_calls = []
+
+            @on_insert_subscription = projection.on_insert do |record|
+              on_insert_calls.push(record)
+            end
+            @on_update_subscription = projection.on_update do |record, changeset|
+              on_update_calls.push([record, changeset])
+            end
+            @on_remove_subscription = projection.on_remove do |record|
+              on_remove_calls.push(record)
+            end
+
+            @blog = Blog.find('grain')
+            @post = blog.blog_posts.first
+          end
+
+          describe "when a tuple is inserted into the operand" do
+            it "triggers on_insert events with the projection of the tuple" do
+              blog = Blog.find('grain')
+              post = blog.blog_posts.create(:title => "Cornflakes", :body => "These aren't actually very good for breakfast")
+
+              on_insert_calls.length.should == 1
+              tuple = on_insert_calls.first
+              tuple.id.should == post.id
+              tuple.blog_title.should == blog.title
+              tuple.blog_post_title.should == post.title
+              tuple.user_id.should == blog.user_id
+              tuple.body.should == post.body
+
+              on_update_calls.should be_empty
+              on_remove_calls.should be_empty
+            end
+          end
+
+          describe "when a record is updated in the operand" do
+#            context "if one of the updated columns is in the projection" do
+#              it "triggers update callbacks with the projection of the tuple" do
+#                post.title = "Moo Moo Bahh"
+#                post.save
+#
+#                on_insert_calls.should be_empty
+#
+#                on_update_calls.length.should == 1
+#                tuple = on_update_calls.first
+#                tuple.id.should == post.id
+#                tuple.blog_title.should == blog.title
+#                tuple.blog_post_title.should == post.title
+#                tuple.user_id.should == blog.user_id
+#                tuple.body.should == post.body
+#
+#                on_remove_calls.should be_empty
+#              end
+#            end
+#
+#            context "if none of the updated columns are in the projection" do
+#              it "does not trigger any callbacks" do
+#                post.created_at = Time.now
+#                post.save
+#
+#                on_insert_calls.should be_empty
+#                on_update_calls.should be_empty
+#                on_remove_calls.should be_empty
+#              end
+#            end
+          end
+
+          describe "when a record is removed from the operand" do
+
+          end
+        end
+      end
+
     end
   end
 end

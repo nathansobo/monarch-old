@@ -27,7 +27,13 @@ module Model
           raise e
         end
       end
-      resume_events unless cancelled
+
+      unless cancelled
+        start = Time.now
+#        puts "RESUMING EVENTS"
+        resume_events
+#        puts "DONE RESUMING EVENTS #{(Time.now - start) * 1000}"
+      end
     end
 
     def pause_events
