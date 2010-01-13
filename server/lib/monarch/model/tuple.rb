@@ -87,16 +87,6 @@ module Model
       true
     end
 
-    def snapshot
-      snapshot = self.class.new
-      concrete_fields_by_column.each do |column, field|
-        snapshot.instance_eval do
-          concrete_fields_by_column[column] = field.snapshot
-        end
-      end
-      snapshot
-    end
-
     protected
     attr_reader :concrete_fields_by_column
     def initialize_fields

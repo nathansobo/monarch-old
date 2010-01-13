@@ -59,28 +59,29 @@ module Model
         end)
         
         operand_subscriptions.add(operand.on_update do |tuple, changeset|
-          projected_tuple = project_tuple(tuple)
           projected_changeset = project_changeset(changeset)
-
-          on_update_node.publish(projected_tuple(tuple), projected_changeset) unless projected_changeset.empty?
+          on_update_node.publish(project_tuple(tuple), projected_changeset) if projected_changeset.has_changes?
         end)
 
+        operand_subscriptions.add(operand.on_remove do |tuple|
+          on_remove_node.publish(project_tuple(tuple))
+        end)
       end
 
       def project_tuple(tuple)
         field_values = {}
         concrete_columns_by_name.each do |name, column|
-          if column.instance_of?(AliasedColumn)
-            field_values[name] = tuple.field(column.column).value
-          else
-            field_values[name] = tuple.field(column).value
-          end
+          column = column.column if column.instance_of?(AliasedColumn)
+          field = tuple.field(column)
+          field_values[name] = field.value if field
         end
         tuple_class.new(field_values)
       end
 
       def project_changeset(changeset)
-        Changeset.new(project_tuple(changeset.new_state), project_tuple(changeset.old_state))
+        projected_new_state = project_tuple(changeset.new_state)
+        projected_old_state = project_tuple(changeset.old_state)
+        Changeset.new(projected_new_state, projected_old_state)
       end
     end
   end

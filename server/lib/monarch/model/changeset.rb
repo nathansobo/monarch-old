@@ -6,6 +6,13 @@ module Model
       @new_state, @old_state = new_state, old_state
     end
 
+    def has_changes?
+      new_state.fields.each do |field|
+        return true if changed?(field.column)
+      end
+      false
+    end
+
     def changed?(column_or_name)
       new_state.field(column_or_name).value != old_state.field(column_or_name).value
     end

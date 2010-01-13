@@ -226,15 +226,20 @@ module Model
     end
 
     def snapshot
-      snapshot = super
+      snapshot = self.class.new
       synthetic_fields_by_column.each do |column, field|
         snapshot.instance_eval do
           synthetic_fields_by_column[column] = field.snapshot
         end
       end
+      concrete_fields_by_column.each do |column, field|
+        snapshot.instance_eval do
+          concrete_fields_by_column[column] = field.snapshot
+        end
+      end
       snapshot
     end
-
+    
     protected
     attr_reader :synthetic_fields_by_column
 

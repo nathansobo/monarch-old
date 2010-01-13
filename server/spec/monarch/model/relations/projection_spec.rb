@@ -142,43 +142,59 @@ module Model
           end
 
           describe "when a record is updated in the operand" do
-#            context "if one of the updated columns is in the projection" do
-#              it "triggers update callbacks with the projection of the tuple" do
-#                post.title = "Moo Moo Bahh"
-#                post.save
-#
-#                on_insert_calls.should be_empty
-#
-#                on_update_calls.length.should == 1
-#                tuple = on_update_calls.first
-#                tuple.id.should == post.id
-#                tuple.blog_title.should == blog.title
-#                tuple.blog_post_title.should == post.title
-#                tuple.user_id.should == blog.user_id
-#                tuple.body.should == post.body
-#
-#                on_remove_calls.should be_empty
-#              end
-#            end
-#
-#            context "if none of the updated columns are in the projection" do
-#              it "does not trigger any callbacks" do
-#                post.created_at = Time.now
-#                post.save
-#
-#                on_insert_calls.should be_empty
-#                on_update_calls.should be_empty
-#                on_remove_calls.should be_empty
-#              end
-#            end
+            context "if one of the updated columns is in the projection" do
+              it "triggers update callbacks with the projection of the tuple" do
+                post.title = "Moo Moo Bahh"
+                post.save
+
+                on_insert_calls.should be_empty
+
+                on_update_calls.length.should == 1
+                on_update_tuple, on_update_changeset = on_update_calls.first
+
+                on_update_tuple.id.should == post.id
+                on_update_tuple.blog_title.should == blog.title
+                on_update_tuple.blog_post_title.should == post.title
+                on_update_tuple.user_id.should == blog.user_id
+                on_update_tuple.body.should == post.body
+                on_update_changeset.wire_representation.should == {"blog_post_title" => "Moo Moo Bahh"} 
+
+                on_remove_calls.should be_empty
+              end
+            end
+
+            context "if none of the updated columns are in the projection" do
+              it "does not trigger any callbacks" do
+                post.created_at = Time.now
+                post.save
+
+                on_insert_calls.should be_empty
+                on_update_calls.should be_empty
+                on_remove_calls.should be_empty
+              end
+            end
           end
 
           describe "when a record is removed from the operand" do
+            it "triggers on_remove events with the projection of the deleted tuple" do
+              post = BlogPost.find('grain_quinoa')
+              blog = post.blog
+              post.destroy
 
+              on_insert_calls.should be_empty
+              on_update_calls.should be_empty
+              on_remove_calls.length.should == 1
+
+              tuple = on_remove_calls.first
+              tuple.id.should == post.id
+              tuple.blog_title.should == blog.title
+              tuple.blog_post_title.should == post.title
+              tuple.user_id.should == blog.user_id
+              tuple.body.should == post.body
+            end
           end
         end
       end
-
     end
   end
 end
