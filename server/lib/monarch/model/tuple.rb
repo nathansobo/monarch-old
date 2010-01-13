@@ -26,8 +26,8 @@ module Model
 
     def initialize(field_values)
       initialize_fields
-      field_values.each do |projected_column_name, value|
-        field(projected_column_name).value = value
+      field_values.each do |column_name, value|
+        field(column_name).value = value
       end
     end
 

@@ -84,7 +84,7 @@ module Model
         if args.size == 1 && table_or_record_class?(args.first)
           TableProjection.new(self, convert_to_table_if_needed(args.first), &block)
         else
-          Projection.new(self, convert_to_projected_columns_if_needed(args), &block)
+          Projection.new(self, convert_to_columns_if_needed(args), &block)
         end
       end
 
@@ -174,14 +174,14 @@ module Model
         end
       end
 
-      def convert_to_projected_columns_if_needed(args)
+      def convert_to_columns_if_needed(args)
         args.map do |arg|
-          if arg.instance_of?(ConcreteColumn)
-            AliasedColumn.new(arg)
-          elsif table_or_record_class?(arg)
-            convert_to_table_if_needed(arg).concrete_columns.map {|c| AliasedColumn.new(c)}
-          else
+          if arg.is_a?(ConcreteColumn)
             arg
+          elsif table_or_record_class?(arg)
+            convert_to_table_if_needed(arg).concrete_columns
+          else
+            raise "Invalid projection column: #{arg.inspect}"
           end
         end.flatten
       end

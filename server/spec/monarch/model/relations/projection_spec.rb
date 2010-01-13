@@ -8,11 +8,11 @@ module Model
       before do
         @operand = Blog.join(BlogPost).on(BlogPost[:blog_id].eq(Blog[:id]))
         @projected_columns = [
-          AliasedColumn.new(BlogPost[:id]),
+          BlogPost[:id],
           Blog[:title].as(:blog_title),
           BlogPost[:title].as(:blog_post_title),
-          AliasedColumn.new(Blog[:user_id]),
-          AliasedColumn.new(BlogPost[:body])
+          Blog[:user_id],
+          BlogPost[:body]
         ]
         @projection = Projection.new(operand, projected_columns) do
           def foo; end
@@ -56,8 +56,8 @@ module Model
 
           projected_tuple.blog_post_title.should == blog_post.title
           projected_tuple.blog_title.should == blog.title
-          projected_tuple.body.should == blog_post.body
           projected_tuple.user_id.should == blog.user_id
+          projected_tuple.body.should == blog_post.body
         end
       end
 
@@ -65,11 +65,11 @@ module Model
         it "generates appropriate sql" do
           projection.to_sql.should == %{
             select distinct
-              blog_posts.id as id,
+              blog_posts.id,
               blogs.title as blog_title,
               blog_posts.title as blog_post_title,
-              blogs.user_id as user_id,
-              blog_posts.body as body
+              blogs.user_id,
+              blog_posts.body
             from
               blogs,
               blog_posts
@@ -80,7 +80,7 @@ module Model
 
         it "always honors the topmost projection operation in the relation tree" do
           composed_projection = projection.project(BlogPost[:id], Blog[:title].as(:blog_title))
-          projection.to_sql.should == %{select distinct blog_posts.id as id, blogs.title as blog_title, blog_posts.title as blog_post_title, blogs.user_id as user_id, blog_posts.body as body from blogs, blog_posts where blog_posts.blog_id = blogs.id}
+          projection.to_sql.should == %{select distinct blog_posts.id, blogs.title as blog_title, blog_posts.title as blog_post_title, blogs.user_id, blog_posts.body from blogs, blog_posts where blog_posts.blog_id = blogs.id}
         end
       end
 
@@ -88,11 +88,11 @@ module Model
         it "structurally compares the receiver with the operand" do
           operand_2 = Blog.join(BlogPost).on(BlogPost[:blog_id].eq(Blog[:id]))
           projected_columns_2 = [
-            AliasedColumn.new(BlogPost[:id]),
+            BlogPost[:id],
             Blog[:title].as(:blog_title),
             BlogPost[:title].as(:blog_post_title),
-            AliasedColumn.new(Blog[:user_id]),
-            AliasedColumn.new(BlogPost[:body])
+            Blog[:user_id],
+            BlogPost[:body]
           ]
           projection_2 = Projection.new(operand_2, projected_columns_2)
 

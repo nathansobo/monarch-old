@@ -9,8 +9,8 @@ module Model
         super(&block)
         @operand, @concrete_columns = operand, concrete_columns
         @concrete_columns_by_name = ActiveSupport::OrderedHash.new
-        concrete_columns.each do |projected_column|
-          concrete_columns_by_name[projected_column.name] = projected_column
+        concrete_columns.each do |column|
+          concrete_columns_by_name[column.name] = column
         end
       end
 
@@ -18,15 +18,11 @@ module Model
         concrete_columns_by_name.values
       end
 
-      def operand_projected_columns
-        concrete_columns.map {||}
-      end
-
       def column(column_or_name)
         case column_or_name
         when String, Symbol
           concrete_columns_by_name[column_or_name]
-        when AliasedColumn
+        when ConcreteColumn
           column_or_name
         end
       end
@@ -73,20 +69,17 @@ module Model
 
       def projected_tuple(tuple)
         field_values = {}
-        concrete_columns_by_name.each do |name, projected_column|
-          field_values[name] = tuple.field(projected_column.column).value
+        concrete_columns_by_name.each do |name, column|
+
+          if column.instance_of?(AliasedColumn)
+            field_values[name] = tuple.field(column.column).value
+          else
+            field_values[name] = tuple.field(column).value
+          end
+
+
         end
         tuple_class.new(field_values)
-      end
-
-      def projected_changeset(projected_tuple, changeset)
-
-        
-        concrete_columns.each do
-
-        end
-
-
       end
     end
   end
