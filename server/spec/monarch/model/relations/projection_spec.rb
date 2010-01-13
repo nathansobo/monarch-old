@@ -194,6 +194,28 @@ module Model
             end
           end
         end
+
+        describe "subscription lifecycle" do
+          it "subscribes to its operand the first time a subscription is made on the selection and unsubscribes once the last subscription is destroyed" do
+            subscription_1, subscription_2 = nil
+
+            lambda do
+              subscription_1 = projection.on_insert { }
+            end.should change {projection.operand.num_subscriptions}.by(3)
+
+            lambda do
+              subscription_2 = projection.on_insert { }
+            end.should_not change {projection.operand.num_subscriptions}
+
+            lambda do
+              subscription_1.destroy
+            end.should_not change {projection.operand.num_subscriptions}
+
+            lambda do
+              subscription_2.destroy
+            end.should change {projection.operand.num_subscriptions}.by(-3)
+          end
+        end
       end
     end
   end
