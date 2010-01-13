@@ -124,11 +124,13 @@ module Model
       return {} unless dirty?
       before_update(dirty_concrete_field_values_by_column_name)
       field_values_for_database = dirty_concrete_field_values_by_column_name
-      changeset = Changeset.new(self, dirty_fields)
 
+      old_state = snapshot
       Origin.update(table, id, field_values_for_database)
-      table.record_updated(self, changeset)
       mark_clean
+      new_state = snapshot
+      changeset = Changeset.new(new_state, old_state)
+      table.record_updated(self, changeset)
       after_update(changeset)
 
       changeset

@@ -135,7 +135,6 @@ module Model
                 'primary' => [{
                   'full_name' => "Jan Christian Nelson The Great",
                   'signed_up_at' => new_signed_up_at.to_millis,
-                  'human' => true,
                   'great_name' => "Jan Christian Nelson The Great The Great"
                 }],
                 'secondary' => []

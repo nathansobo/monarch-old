@@ -36,7 +36,7 @@ module Model
 
     def snapshot
       snapshot = Field.new(record, column)
-      snapshot_value = value
+      snapshot_value = remote_value
       snapshot.instance_eval do
         @value = snapshot_value
         @snapshot = true

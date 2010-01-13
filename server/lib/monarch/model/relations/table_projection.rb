@@ -45,10 +45,9 @@ module Model
         end)
 
         operand_subscriptions.add(operand.on_update do |composite_tuple, changeset|
-          record = changeset.record
-          if record.table == projected_table && last_changeset != changeset
+          if changeset.new_state.table == projected_table && last_changeset != changeset
             @last_changeset = changeset
-            on_update_node.publish(changeset.record, changeset)
+            on_update_node.publish(composite_tuple[projected_table], changeset)
           end
         end)
 
