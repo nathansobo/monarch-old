@@ -71,7 +71,7 @@ module Model
     end
 
     def select_clause_sql
-      to_sql
+      "#{to_sql} as #{name}"
     end
 
     def where_clause_sql

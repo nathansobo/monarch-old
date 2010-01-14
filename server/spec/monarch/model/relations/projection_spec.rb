@@ -65,11 +65,11 @@ module Model
         it "generates appropriate sql" do
           projection.to_sql.should == %{
             select distinct
-              blog_posts.id,
+              blog_posts.id as id,
               blogs.title as blog_title,
               blog_posts.title as blog_post_title,
-              blogs.user_id,
-              blog_posts.body
+              blogs.user_id as user_id,
+              blog_posts.body as body
             from
               blogs,
               blog_posts
@@ -80,7 +80,7 @@ module Model
 
         it "always honors the topmost projection operation in the relation tree" do
           composed_projection = projection.project(BlogPost[:id], Blog[:title].as(:blog_title))
-          projection.to_sql.should == %{select distinct blog_posts.id, blogs.title as blog_title, blog_posts.title as blog_post_title, blogs.user_id, blog_posts.body from blogs, blog_posts where blog_posts.blog_id = blogs.id}
+          projection.to_sql.should == %{select distinct blog_posts.id as id, blogs.title as blog_title, blog_posts.title as blog_post_title, blogs.user_id as user_id, blog_posts.body as body from blogs, blog_posts where blog_posts.blog_id = blogs.id}
         end
       end
 
@@ -121,6 +121,12 @@ module Model
 
             @blog = Blog.find('grain')
             @post = blog.blog_posts.first
+          end
+
+          after do
+            on_insert_subscription.destroy
+            on_update_subscription.destroy
+            on_remove_subscription.destroy
           end
 
           describe "when a tuple is inserted into the operand" do

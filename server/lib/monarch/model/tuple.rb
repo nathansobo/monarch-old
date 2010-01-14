@@ -87,6 +87,14 @@ module Model
       true
     end
 
+    def hash
+      @hash ||= field_values_by_column_name.hash
+    end
+
+    def ==(other)
+      hash == other.hash
+    end
+
     protected
     attr_reader :concrete_fields_by_column
     def initialize_fields

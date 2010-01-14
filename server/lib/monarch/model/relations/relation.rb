@@ -195,6 +195,14 @@ module Model
           raise "No viable foreign key column found between #{table_1.global_name} and #{table_2.global_name}"
         end
       end
+      
+      def hash_to_predicate(hash)
+        predicates = []
+        hash.each do |column_name, value|
+          predicates.push(column(column_name).eq(value))
+        end
+        Predicates::And.new(predicates)
+      end
 
       class PartiallyConstructedInnerJoin
         attr_reader :left_operand, :right_operand

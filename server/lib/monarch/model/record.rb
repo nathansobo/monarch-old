@@ -239,7 +239,11 @@ module Model
       end
       snapshot
     end
-    
+
+    def hash
+      object_id.hash
+    end
+
     protected
     attr_reader :synthetic_fields_by_column
 

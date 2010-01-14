@@ -50,12 +50,12 @@ module Model
             projection = TableProjection.from_wire_representation(representation, repository)
             projection.to_sql.should == %{
               select distinct
-                blog_posts.id,
-                blog_posts.title,
-                blog_posts.body,
-                blog_posts.blog_id,
-                blog_posts.created_at,
-                blog_posts.featured
+                blog_posts.id as id,
+                blog_posts.title as title,
+                blog_posts.body as body,
+                blog_posts.blog_id as blog_id,
+                blog_posts.created_at as created_at,
+                blog_posts.featured as featured
               from
                 blogs,
                 blog_posts
@@ -80,7 +80,7 @@ module Model
       describe "#to_sql" do
         context "when the composed relation contains only one TableProjection" do
           it "generates a query that selects the columns of #projected_table and includes all joined tables in its from clause" do
-            projection.to_sql.should == %{select distinct blogs.id, blogs.title, blogs.user_id from blogs, blog_posts where blogs.id = blog_posts.blog_id and blogs.id = "grain"}
+            projection.to_sql.should == %{select distinct blogs.id as id, blogs.title as title, blogs.user_id as user_id from blogs, blog_posts where blogs.id = blog_posts.blog_id and blogs.id = "grain"}
           end
         end
 
@@ -88,12 +88,12 @@ module Model
           it "generates a query that selects the columns of #projected_table and includes all joined tables in its from clause" do
             composite_projection.to_sql.should == %{
               select distinct
-                blog_posts.id,
-                blog_posts.title,
-                blog_posts.body,
-                blog_posts.blog_id,
-                blog_posts.created_at,
-                blog_posts.featured
+                blog_posts.id as id, 
+                blog_posts.title as title,
+                blog_posts.body as body,
+                blog_posts.blog_id as blog_id,
+                blog_posts.created_at as created_at,
+                blog_posts.featured as featured
               from
                 blogs,
                 blog_posts
