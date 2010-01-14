@@ -13,6 +13,13 @@ module Model
       false
     end
 
+    def has_changes_in_table?(table)
+      new_state.fields.each do |field|
+        return true if field.table == table && changed?(field.column)
+      end
+      false
+    end
+
     def changed?(column_or_name)
       new_state.field(column_or_name).value != old_state.field(column_or_name).value
     end

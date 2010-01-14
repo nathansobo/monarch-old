@@ -43,14 +43,20 @@ module Model
         end
       end
 
-      attr_reader :left_operand, :right_operand, :predicate
+      def left_operand
+        @left_operand ||= Blog.table
+      end
+
+      def right_operand
+        @right_operand ||= BlogPost.table
+      end
+
+      def predicate
+        @predicate ||= Blog[:id].eq(BlogPost[:blog_id])
+      end
 
       def join
-        return @join if @join
-        @left_operand = Blog.table
-        @right_operand = BlogPost.table
-        @predicate = Blog[:id].eq(BlogPost[:blog_id])
-        @join = InnerJoin.new(left_operand, right_operand, predicate)
+        @join ||= InnerJoin.new(left_operand, right_operand, predicate)
       end
 
       describe "#all" do
@@ -189,7 +195,7 @@ module Model
             end
 
             describe "when the update causes some composite tuples that are already present to still be present in the join" do
-              it "fires #on_update events with those composite tuples and the changeset" do
+              it "fires #on_update events with those composite tuples" do
                 blog = Blog.find("grain")
                 grain_posts = blog.blog_posts
                 blog.title = "Did you mean Barbie?"
@@ -202,6 +208,50 @@ module Model
                 Set.new(on_update_calls.map {|call| call[0][BlogPost]}).should == Set.new(grain_posts.all)
 
                 on_remove_calls.should be_empty
+              end
+
+              it "fires #on_update events with a changeset that has composite snapshots" do
+                blog = Blog.find("grain")
+                post = blog.blog_posts.first
+
+                blog_title_before = blog.title
+                post_title_before = post.title
+                post_body_before = post.body
+
+                post.title = "Malathion"
+                post.save
+
+                blog_title_after = blog.title
+                post_title_after = post.title
+                post_body_after = post.body
+
+                changeset = on_update_calls.first[1]
+
+                old_post_snapshot = changeset.old_state[BlogPost]
+                new_post_snapshot = changeset.new_state[BlogPost]
+                old_blog_snapshot = changeset.old_state[Blog]
+                new_blog_snapshot = changeset.new_state[Blog]
+
+                old_post_snapshot.title.should == post_title_before
+                old_post_snapshot.body.should == post_body_before
+                old_blog_snapshot.title.should == blog_title_before
+
+                new_post_snapshot.title.should == post_title_after
+                new_post_snapshot.body.should == post_body_after
+                new_blog_snapshot.title.should == blog_title_after
+
+                post.title = "Modified again"
+                post.save
+                blog.title = "Modified"
+                blog.save
+
+                old_post_snapshot.title.should == post_title_before
+                old_post_snapshot.body.should == post_body_before
+                old_blog_snapshot.title.should == blog_title_before
+
+                new_post_snapshot.title.should == post_title_after
+                new_post_snapshot.body.should == post_body_after
+                new_blog_snapshot.title.should == blog_title_after
               end
             end
 

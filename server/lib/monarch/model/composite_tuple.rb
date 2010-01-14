@@ -25,6 +25,17 @@ module Model
       constituent_records_by_table[table_or_record_class.table]
     end
 
+    def snapshot(snapshot_to_merge)
+      snapshot = self.class.new([])
+      constituent_records_by_table.each do |table, record|
+        constituent_record_snapshot = snapshot_to_merge[table] || record.snapshot
+        snapshot.instance_eval do
+          constituent_records_by_table[table] = constituent_record_snapshot
+        end
+      end
+      snapshot
+    end
+
     def inspect
       constituent_records_by_table_name = {}
       constituent_records_by_table.each do |table, record|
@@ -42,6 +53,10 @@ module Model
       sorted_tables.map do |table|
         constituent_records_by_table[table]
       end
+    end
+
+    def fields
+      constituent_records.map {|r| r.fields}.flatten
     end
 
     def field(column_or_name)

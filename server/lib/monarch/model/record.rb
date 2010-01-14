@@ -232,6 +232,15 @@ module Model
       snapshot
     end
 
+    def [](index_or_table)
+      if index_or_table.instance_of?(Relations::Table)
+        return self if index_or_table == table
+      else
+        super
+      end
+    end
+
+
     def hash
       object_id.hash
     end

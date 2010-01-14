@@ -1,7 +1,7 @@
 module Model
   class Field
     attr_reader :record, :column, :value, :remote_value, :validation_errors
-    delegate :name, :to => :column
+    delegate :name, :table, :to => :column
 
     def initialize(record, column)
       @record, @column = record, column

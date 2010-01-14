@@ -95,7 +95,7 @@ module Model
           removed_tuples  = previous_tuples - new_tuples
 
           inserted_tuples.each {|tuple| on_insert_node.publish(tuple)}
-          updated_tuples.each  {|tuple| on_update_node.publish(tuple, changeset)}
+          updated_tuples.each  {|tuple| on_update_node.publish(tuple, composite_changeset(tuple, changeset))}
           removed_tuples.each  {|tuple| on_remove_node.publish(tuple)}
         end)
 
@@ -112,6 +112,12 @@ module Model
             on_remove_node.publish(composite_tuple)
           end
         end)
+      end
+
+      def composite_changeset(composite_tuple, changeset_to_merge)
+        composite_new_state = composite_tuple.snapshot(changeset_to_merge.new_state)
+        composite_old_state = composite_tuple.snapshot(changeset_to_merge.old_state)
+        Changeset.new(composite_new_state, composite_old_state)
       end
     end
   end
