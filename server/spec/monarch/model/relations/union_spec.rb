@@ -3,10 +3,9 @@ require File.expand_path("#{File.dirname(__FILE__)}/../../../monarch_spec_helper
 module Model
   module Relations
     describe Union do
-      attr_reader :operand_1, :operand_2
+      attr_reader :operand_1, :operand_2, :union
 
-      def union
-        return @union if @union
+      before do
         @operand_1 = BlogPost.where(BlogPost[:blog_id].eq("grain"))
         @operand_2 = BlogPost.where(BlogPost[:blog_id].eq("vegetable"))
         @union = Union.new([operand_1, operand_2])
@@ -60,16 +59,9 @@ module Model
 
       describe "event handling" do
         describe "propagation of operand events" do
-          attr_reader :grain_blog, :vegetable_blog, :union, :on_insert_calls, :on_update_calls, :on_remove_calls,
-                      :on_insert_subscription, :on_update_subscription, :on_remove_subscription
+          attr_reader :on_insert_calls, :on_update_calls, :on_remove_calls, :on_insert_subscription, :on_update_subscription, :on_remove_subscription
 
           before do
-            @grain_blog = Blog.find('grain')
-            @vegetable_blog = Blog.find('vegetable')
-            @operand_1 = grain_blog.blog_posts.project(BlogPost[:title], BlogPost[:body])
-            @operand_2 = vegetable_blog.blog_posts.project(BlogPost[:title], BlogPost[:body])
-            @union = Union.new([operand_1, operand_2])
-
             @on_insert_calls = []
             @on_update_calls = []
             @on_remove_calls = []
@@ -92,22 +84,45 @@ module Model
           end
 
           describe "when a tuple is inserted into an operand" do
-            it "triggers #on_insert events if there are not already matching tuples in any of the union's operands" do
-              grain_blog.blog_posts.create(:title => "Hash rocket", :body => "The macro don't work")
+            it "triggers #on_insert events" do
+              grain_post = BlogPost.create(:blog_id => "grain", :title => "Hash rocket")
+              on_insert_calls.should == [grain_post]
 
-              projected_tuple = operand_1.find(BlogPost[:title].eq("Hash rocket"))
-              on_insert_calls.should == [projected_tuple]
-
-              grain_blog.blog_posts.create(:title => "Hash rocket", :body => "The macro don't work")
-              on_insert_calls.length.should == 1
-
-              vegetable_blog.blog_posts.create(:title => "Hash rocket", :body => "The macro don't work")
-              on_insert_calls.length.should == 1
-
-              vegetable_blog.blog_posts.create(:title => "Hash rocket", :body => "Slightly different")
-              on_insert_calls.length.should == 2
+              vegetable_post = BlogPost.create(:blog_id => "vegetable", :title => "Hash rocket")
+              on_insert_calls.should == [grain_post, vegetable_post]
 
               on_update_calls.should be_empty
+              on_remove_calls.should be_empty
+            end
+          end
+
+          describe "when a tuple is removed from an operand" do
+            it "triggers #on_remove events" do
+              post_1 = operand_1.first
+              post_1.destroy
+              on_remove_calls.should == [post_1]
+
+              post_2 = operand_2.first
+              post_2.destroy
+              on_remove_calls.should == [post_1, post_2]
+
+              on_insert_calls.should be_empty
+              on_update_calls.should be_empty
+            end
+          end
+
+          describe "when a tuple in one of the operands is updated" do
+            it "triggers #on_update events" do
+              post = operand_1.first
+              post.title = "Hash rocket"
+              post.save
+
+              on_insert_calls.should be_empty
+              on_update_calls.length.should == 1
+              tuple, changeset = on_update_calls.first
+              tuple.should == post
+              changeset.wire_representation.should == {"title" => "Hash rocket"}
+
               on_remove_calls.should be_empty
             end
           end

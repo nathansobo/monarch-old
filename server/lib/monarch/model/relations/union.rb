@@ -22,25 +22,19 @@ module Model
       protected
 
       def subscribe_to_operands
-
         operands.each do |operand|
           operand_subscriptions.add(operand.on_insert do |tuple|
-            if !more_than_one_exists_in_union?(tuple)
-              on_insert_node.publish(tuple)
-            end
+            on_insert_node.publish(tuple)
+          end)
+
+          operand_subscriptions.add(operand.on_update do |tuple, changeset|
+            on_update_node.publish(tuple, changeset)
+          end)
+
+          operand_subscriptions.add(operand.on_remove do |tuple|
+            on_remove_node.publish(tuple)
           end)
         end
-
-      end
-
-      def more_than_one_exists_in_union?(tuple)
-        sum = 0
-        predicate = hash_to_predicate(tuple.field_values_by_column_name)
-        operands.each do |operand|
-          sum += operand.where(predicate).size
-          return true if sum > 1
-        end
-        return false
       end
     end
   end
