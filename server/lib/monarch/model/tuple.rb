@@ -95,6 +95,14 @@ module Model
       hash == other.hash
     end
 
+    def evaluate(term)
+      if term.is_a?(Column)
+        field(term).value
+      else
+        term
+      end
+    end
+
     protected
     attr_reader :concrete_fields_by_column
     def initialize_fields

@@ -217,14 +217,6 @@ module Model
       field(field_name).validation_errors.push(error_string)
     end
 
-    def evaluate(term)
-      if term.is_a?(Column)
-        field(term).value
-      else
-        term
-      end
-    end
-
     def snapshot
       snapshot = self.class.new
       synthetic_fields_by_column.each do |column, field|
@@ -242,6 +234,10 @@ module Model
 
     def hash
       object_id.hash
+    end
+
+    def constituent_records
+      [self]
     end
 
     protected

@@ -11,7 +11,7 @@ module Model
       @constituent_records_by_table = {}
 
       if field_values_or_tuples.instance_of?(Array)
-        field_values_or_tuples.each do |tuple|
+        flatten_to_records(field_values_or_tuples).each do |tuple|
           constituent_records_by_table[tuple.table] = tuple
         end
       else
@@ -70,6 +70,10 @@ module Model
         end
       end
       table.build_record_from_database(table_specific_field_values)
+    end
+
+    def flatten_to_records(composite_tuples)
+      composite_tuples.map {|composite_tuple| composite_tuple.constituent_records }.flatten
     end
   end
 end

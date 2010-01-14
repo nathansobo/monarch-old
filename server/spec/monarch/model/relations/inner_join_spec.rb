@@ -43,8 +43,10 @@ module Model
         end
       end
 
-      attr_reader :left_operand, :right_operand, :predicate, :join
-      before do
+      attr_reader :left_operand, :right_operand, :predicate
+
+      def join
+        return @join if @join
         @left_operand = Blog.table
         @right_operand = BlogPost.table
         @predicate = Blog[:id].eq(BlogPost[:blog_id])
@@ -110,6 +112,12 @@ module Model
             @on_remove_subscription = join.on_remove do |record|
               on_remove_calls.push(record)
             end
+          end
+
+          after do
+            on_insert_subscription.destroy
+            on_update_subscription.destroy
+            on_remove_subscription.destroy
           end
 
           describe "when a record is inserted into the left operand" do
@@ -326,6 +334,30 @@ module Model
               on_remove_calls.length.should == 1
               on_remove_calls.first[Blog].should == blog
               on_remove_calls.first[BlogPost].should == blog_post
+            end
+          end
+
+          describe "when a composite tuple is inserted into one of the operands" do
+            def join
+              @join = User.join_to(Blog).join_to(BlogPost)
+            end
+
+            it "correctly constructs composite tuples out of the constituents of the inserted composite tuple and the matching tuples in the other operand" do
+              post_1 = BlogPost.create(:title => "Hash rocket", :blog_id => "misc")
+              post_2 = BlogPost.create(:title => "Green tea ice cream", :blog_id => "misc")
+              user = User.find('jan')
+              blog = user.blogs.unsafe_create(:id => 'misc')
+
+              on_insert_calls.length.should == 2
+              on_insert_calls.all? do |composite_tuple|
+                composite_tuple[User] == user && composite_tuple[Blog] == blog
+              end
+              inserted_posts = on_insert_calls.map {|ct| ct[BlogPost]}
+              inserted_posts.should include(post_1)
+              inserted_posts.should include(post_2)
+
+              on_update_calls.should be_empty
+              on_remove_calls.should be_empty
             end
           end
         end
