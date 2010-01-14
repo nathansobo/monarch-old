@@ -67,7 +67,7 @@ module Model
         end
       end
 
-        describe "#all" do
+      describe "#all" do
           it "executes an appropriate SQL query against the database and returns Records corresponding to its results" do
             all = projection.all
             all.should_not be_empty
@@ -161,7 +161,7 @@ module Model
           end
 
           describe "when a tuple is updated in the operand" do
-            it "triggers #on_update events only if the update touched columns in the projected table" do
+            it "triggers #on_update events with a projected changeset only if the update touched columns in the projected table" do
               blog = Blog.find('grain')
               post = blog.blog_posts.first
 
@@ -169,12 +169,16 @@ module Model
               post.save
               on_update_calls.should be_empty
 
+              title_before = blog.title
               blog.title = "Beep street"
               blog.save
 
               on_update_calls.length.should == 1
               on_update_calls.first[0].should == blog
-              on_update_calls.first[1].wire_representation.should == { 'title' => 'Beep street' }
+
+              changeset = on_update_calls.first[1]
+              changeset.old_state.title.should == title_before
+              changeset.new_state.title.should == "Beep street"
 
               on_insert_calls.should be_empty
               on_remove_calls.should be_empty

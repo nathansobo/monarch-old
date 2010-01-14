@@ -77,7 +77,7 @@ module Model
           removed_tuples  = previous_tuples - new_tuples
 
           inserted_tuples.each {|tuple| on_insert_node.publish(tuple)}
-          updated_tuples.each  {|tuple| on_update_node.publish(tuple, changeset)}
+          updated_tuples.each  {|tuple| on_update_node.publish(tuple, composite_changeset(tuple, changeset))}
           removed_tuples.each  {|tuple| on_remove_node.publish(tuple)}
         end)
 

@@ -32,6 +32,11 @@ module Model
       wire_representation
     end
 
+    def ==(other)
+      return false unless self.class == other.class
+      new_state == other.new_state && old_state == other.old_state
+    end
+
     def inspect
       inspect_hash = {}
       new_state.fields.each do |field|

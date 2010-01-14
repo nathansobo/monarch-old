@@ -45,9 +45,10 @@ module Model
         end)
 
         operand_subscriptions.add(operand.on_update do |composite_tuple, changeset|
-          if changeset.has_changes_in_table?(projected_table) && last_changeset != changeset
-            @last_changeset = changeset
-            on_update_node.publish(composite_tuple[projected_table], changeset)
+          projected_changeset = project_changeset(changeset)
+          if changeset.has_changes_in_table?(projected_table) && last_changeset != projected_changeset
+            @last_changeset = projected_changeset
+            on_update_node.publish(composite_tuple[projected_table], projected_changeset)
           end
         end)
 
@@ -63,6 +64,10 @@ module Model
 
       def id_column
         @id_column ||= projected_table.column(:id)
+      end
+
+      def project_changeset(changeset)
+        Changeset.new(changeset.new_state[projected_table], changeset.old_state[projected_table])
       end
     end
   end
