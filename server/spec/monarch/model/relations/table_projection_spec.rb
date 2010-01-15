@@ -180,6 +180,14 @@ module Model
               changeset.old_state.title.should == title_before
               changeset.new_state.title.should == "Beep street"
 
+              blog.title = "Hash rocket"
+              blog.save
+
+              on_update_calls.length.should == 2
+              changeset_2 = on_update_calls[1][1]
+              changeset_2.old_state.title.should == "Beep street"
+              changeset_2.new_state.title.should == "Hash rocket"
+
               on_insert_calls.should be_empty
               on_remove_calls.should be_empty
             end

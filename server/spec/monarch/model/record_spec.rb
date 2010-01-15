@@ -408,28 +408,6 @@ module Model
           record.get_field_value(:body).should == "Amaranth"
         end
       end
-
-      describe "#==" do
-        context "for Records of the same class" do
-          context "for Records with the same id" do
-            it "returns true" do
-              BlogPost.find("grain_quinoa").should == BlogPost.unsafe_new(:id => "grain_quinoa")
-            end
-          end
-
-          context "for Records with different ids" do
-            it "returns false" do
-              BlogPost.find("grain_quinoa").should_not == BlogPost.unsafe_new(:id => "grain_barley")
-            end
-          end
-        end
-
-        context "for Records of different classes" do
-          it "returns false" do
-            BlogPost.find("grain_quinoa").should_not == Blog.unsafe_new(:id => "grain_quinoa")
-          end
-        end
-      end
     end
   end
 end

@@ -31,6 +31,7 @@ Monarch.constructor("Monarch.Http.Server", {
       this.comet_client = this.new_comet_client();
       this.comet_client.connect();
       this.comet_client.on_receive(function(mutation) {
+        if (window.debug_events) console.debug(mutation);
         Repository.mutate([mutation]);
       });
     }

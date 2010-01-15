@@ -16,6 +16,10 @@ Monarch.constructor("Monarch.Model.LocalField", Monarch.Model.ConcreteField, {
     }
   },
 
+  on_remote_update: function(callback) {
+    return this._remote_field.on_update(callback);
+  },
+
   dirty: function() {
     return this._dirty;
   },

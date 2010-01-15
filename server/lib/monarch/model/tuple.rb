@@ -92,6 +92,7 @@ module Model
     end
 
     def ==(other)
+      return true if equal?(other)
       hash == other.hash
     end
 

@@ -121,7 +121,8 @@ module Model
 
     def save
       return nil unless valid?
-      return {} unless dirty?
+      return Changeset.new(snapshot, snapshot) unless dirty?
+
       before_update(dirty_concrete_field_values_by_column_name)
       field_values_for_database = dirty_concrete_field_values_by_column_name
 
@@ -164,10 +165,6 @@ module Model
 
     def dirty_fields
       fields.select { |field| field.dirty? }
-    end
-
-    def ==(other)
-      other.class == self.class && id == other.id
     end
 
     def fields
@@ -240,13 +237,17 @@ module Model
       end
     end
 
-
     def hash
       object_id.hash
     end
 
     def constituent_records
       [self]
+    end
+
+    def ==(other)
+      return false unless self.class == other.class
+      super
     end
 
     protected
