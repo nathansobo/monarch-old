@@ -35,9 +35,25 @@ Monarch.constructor("Monarch.Http.Server", {
         Repository.mutate([mutation]);
       });
     }
-    return this.post(Repository.origin_url + "/subscribe", {
+
+    var subscribe_future = new Monarch.Http.AjaxFuture();
+    this.post(Repository.origin_url + "/subscribe", {
       relations: Monarch.Util.map(relations, function(relation) {
         return relation.wire_representation();
+      })
+    }).on_success(function(subscription_ids) {
+      subscribe_future.trigger_success(Monarch.Util.map(subscription_ids, function(subscription_id, index) {
+        return new Monarch.Http.RemoteSubscription(subscription_id, relations[index]);
+      }));
+    });
+
+    return subscribe_future;
+  },
+
+  unsubscribe: function(remote_subscriptions) {
+    return this.post(Repository.origin_url + "/unsubscribe", {
+      subscription_ids: Monarch.Util.map(remote_subscriptions, function(remote_subscription) {
+        return remote_subscription.id;
       })
     });
   },

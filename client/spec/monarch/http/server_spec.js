@@ -115,8 +115,8 @@ Screw.Unit(function(c) { with(c) {
           expect(server.comet_client.connected).to(be_true);
         });
 
-        it("performs a POST to {Repository.origin_url}/subscribe with the json representation of the given relations", function() {
-          server.subscribe([Blog.table, BlogPost.table]);
+        it("performs a POST to {Repository.origin_url}/subscribe with the json representation of the given relations and invokes the returned future with RemoteSubscriptions when the post completes successfully", function() {
+          var subscribe_future = server.subscribe([Blog.table, BlogPost.table]);
 
           expect(server.posts.length).to(equal, 1);
 
@@ -125,6 +125,18 @@ Screw.Unit(function(c) { with(c) {
           expect(server.last_post.data).to(equal, {
             relations: [Blog.table.wire_representation(), BlogPost.table.wire_representation()]            
           });
+
+          var success_callback = mock_function("success_callback");
+          subscribe_future.on_success(success_callback);
+          
+          server.last_post.simulate_success(["mock_subscription_id_1", "mock_subscription_id_2"]);
+
+          var remote_subscriptions = success_callback.most_recent_args[0];
+          expect(remote_subscriptions.length).to(equal, 2);
+          expect(remote_subscriptions[0].relation).to(equal, Blog.table);
+          expect(remote_subscriptions[0].id).to(equal, "mock_subscription_id_1");
+          expect(remote_subscriptions[1].relation).to(equal, BlogPost.table);
+          expect(remote_subscriptions[1].id).to(equal, "mock_subscription_id_2");
         });
 
         it("causes all mutation commands received to be sent to Repository.mutate", function() {
@@ -134,6 +146,23 @@ Screw.Unit(function(c) { with(c) {
           server.comet_client.simulate_receive(['create', 'blogs', { id: 'animals' }]);
 
           expect(Repository.mutate).to(have_been_called, with_args([['create', 'blogs', { id: 'animals' }]]));
+        });
+      });
+
+      describe("#unsubscribe(remote_subscriptions)", function() {
+        use_example_domain_model();
+        
+        it("performs a POST to {Repository.origin_url/unsubscribe with the ids of the given RemoteSubscriptions", function() {
+          var remote_subscription_1 = new Monarch.Http.RemoteSubscription("fake_subscription_1", Blog.table);
+          var remote_subscription_2 = new Monarch.Http.RemoteSubscription("fake_subscription_2", BlogPost.table);
+
+          server.unsubscribe([remote_subscription_1, remote_subscription_2]);
+          expect(server.posts.length).to(equal, 1);
+          expect(server.last_post.type).to(equal, "post");
+          expect(server.last_post.url).to(equal, Repository.origin_url + "/unsubscribe");
+          expect(server.last_post.data).to(equal, {
+            subscription_ids: [remote_subscription_1.id, remote_subscription_2.id]
+          });
         });
       });
 

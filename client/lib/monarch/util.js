@@ -30,8 +30,8 @@ Monarch.module("Monarch.Util", {
 
   map: function(array, fn) {
     var new_array = [];
-    this.each(array, function(element) {
-      new_array.push(fn.call(element, element));
+    this.each(array, function(element, index) {
+      new_array.push(fn.call(element, element, index));
     });
     return new_array;
   },

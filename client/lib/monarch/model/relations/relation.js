@@ -273,6 +273,14 @@ Monarch.constructor("Monarch.Model.Relations.Relation", {
     this._tuples = null;
   },
 
+  remote_subscribe: function() {
+    var subscribe_future = new Monarch.Http.AjaxFuture();
+    Server.subscribe([this]).on_success(function(remote_subscriptions) {
+      subscribe_future.trigger_success(remote_subscriptions[0]);
+    });
+    return subscribe_future;
+  },
+
   // private
 
   predicate_from_hash: function(hash) {

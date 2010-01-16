@@ -11,12 +11,12 @@ module Http
     end
 
     after do
-      client.subscriptions.destroy_all
+      client.unsubscribe_all
     end
 
-    describe "#subscribe(relation)" do
-      it "causes all insert, update, and remove events on the given relation to send a message to the client" do
-        client.subscribe(BlogPost.table)
+    describe "#subscribe and #unsubscribe" do
+      specify "#subscribe causes all insert, update, and remove events on the given relation to send a message to the client and #unsubscribe cancels those events" do
+        subscription_1_id = client.subscribe(BlogPost.table)
 
         sent_message = nil
         stub(client).send do |message|
@@ -30,14 +30,32 @@ module Http
 
         expected_message = ["update", "blog_posts", record.id, { "title" => "Tejava", "body" => "I love this tea and so does Brian Takita!" }]
         mock(client).send(expected_message)
-
         record.update(:title => "Tejava", :body => "I love this tea and so does Brian Takita!")
         record.save
 
         expected_message = ["destroy", "blog_posts", record.id]
         mock(client).send(expected_message)
-
         record.destroy
+
+        client.subscribe(Blog.table)
+        client.unsubscribe(subscription_1_id)
+
+        dont_allow(client).send
+        blog_post = BlogPost.create(:title => "This one should have no event", :body => "Event free")
+
+        blog = Blog.find("grain")
+        expected_message = ["update", "blogs", blog.id, { "title" => "My new title" }]
+        mock(client).send(expected_message)
+        blog.title = "My new title"
+        blog.save
+
+        subscription_3_id = client.subscribe(BlogPost.table)
+        subscription_3_id.should_not == subscription_1_id
+
+        expected_message = ["update", "blog_posts", blog_post.id, { "title" => "Kukicha" }]
+        mock(client).send(expected_message)
+        blog_post.title = "Kukicha"
+        blog_post.save
       end
     end
 

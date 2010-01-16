@@ -1,4 +1,5 @@
 module Model
+
   class ExposedRepository < ::Http::Resource
     class << self
       def expose(name, &relation_definition)
@@ -21,6 +22,8 @@ module Model
         Http::Subresource.new(self, :post, :mutate)
       when 'subscribe'
         Http::Subresource.new(self, :post, :subscribe)
+      when 'unsubscribe'
+        Http::Subresource.new(self, :post, :unsubscribe)
       else
         raise "Unknown path"
       end
@@ -37,8 +40,15 @@ module Model
     end
 
     def subscribe(params)
-      build_relations_from_wire_representations(JSON.parse(params[:relations])).each do |relation|
+      subscription_guids = build_relations_from_wire_representations(JSON.parse(params[:relations])).map do |relation|
         current_comet_client.subscribe(relation)
+      end
+      [200, headers, { 'successful' => true, 'data' => subscription_guids}.to_json]
+    end
+
+    def unsubscribe(params)
+      JSON.parse(params[:subscription_ids]).each do |subscription_id|
+        current_comet_client.unsubscribe(subscription_id)
       end
       [200, headers, { 'successful' => true, 'data' => ""}.to_json]
     end

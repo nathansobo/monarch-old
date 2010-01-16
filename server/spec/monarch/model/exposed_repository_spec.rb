@@ -276,8 +276,8 @@ module Model
       end
     end
 
-    describe "#subscribe" do
-      it "converts the 'relations' JSON into actual relations defined in terms of the exposed tables and calls #current_comet_client.subscribe with them" do
+    describe "#subscribe and #unsubscribe" do
+      specify "#subscribe converts the 'relations' JSON into actual relations defined in terms of the exposed tables and calls #current_comet_client.subscribe with them and #unsubscribe calls #current_comet_client.unsubscribe with each subscription_id" do
         relations = [{ "type" => "table", "name" => "blogs"}, { "type" => "table", "name" => "blog_posts"}]
 
         mock_relation_1 = Object.new
@@ -286,16 +286,25 @@ module Model
         mock(exposed_repository).build_relation_from_wire_representation({ "type" => "table", "name" => "blog_posts"}) { mock_relation_2 }
 
         exposed_repository.current_comet_client = Http::FakeCometClient.new
-        mock(exposed_repository.current_comet_client).subscribe(mock_relation_1)
-        mock(exposed_repository.current_comet_client).subscribe(mock_relation_2)
+        mock(exposed_repository.current_comet_client).subscribe(mock_relation_1) { "mock_subscription_id_1"}
+        mock(exposed_repository.current_comet_client).subscribe(mock_relation_2) { "mock_subscription_id_2"}
         response = Http::Response.new(*exposed_repository.subscribe({:relations => relations.to_json}))
 
         response.should be_ok
         response.headers.should == { 'Content-Type' => 'application/json'}
-        JSON.parse(response.body).should == { 'successful' => true, 'data' => ""}
+        parsed_repsonse_body = JSON.parse(response.body)
+        parsed_repsonse_body['successful'].should be_true
+        parsed_repsonse_body['data'].should == ["mock_subscription_id_1", "mock_subscription_id_2"]
+
+        mock(exposed_repository.current_comet_client).unsubscribe("mock_subscription_id_1")
+        mock(exposed_repository.current_comet_client).unsubscribe("mock_subscription_id_2")
+        response = Http::Response.new(*exposed_repository.unsubscribe({:subscription_ids => ["mock_subscription_id_1", "mock_subscription_id_2"].to_json}))
+
+        response.should be_ok
+        response.headers.should == { 'Content-Type' => 'application/json'}
+        response.body_from_json.should == {'successful' => true, 'data' => ""}
       end
     end
-
 
     describe "#build_relation_from_wire_representation" do
       before do
