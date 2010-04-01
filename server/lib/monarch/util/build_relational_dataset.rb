@@ -1,4 +1,4 @@
-module Http
+module Util
   module BuildRelationalDataset
     def build_relational_dataset(records_or_relations)
       dataset = {}

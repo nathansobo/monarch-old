@@ -8,8 +8,8 @@ class Rack::MockResponse
   end
 end
 
-class ResourceExampleGroup < Spec::Example::ExampleGroup
-  Spec::Example::ExampleGroupFactory.register(:resource, self)
+class RackExampleGroup < Spec::Example::ExampleGroup
+  Spec::Example::ExampleGroupFactory.register(:rack, self)
 
   include Rack::Test::Methods
   include Warden::Test::Helpers
@@ -17,9 +17,4 @@ class ResourceExampleGroup < Spec::Example::ExampleGroup
   after do
     Warden::test_reset!
   end
-
-  def app
-    Application
-  end
 end
-
