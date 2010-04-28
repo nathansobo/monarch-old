@@ -712,6 +712,18 @@ Screw.Unit(function(c) { with(c) {
         ajaxOptions.success(responseJson);
         expect(future.handleResponse).to(haveBeenCalled, withArgs(responseJson));
       });
+
+      it("triggers error callbacks if the request terminates with an error", function() {
+        mock(jQuery, 'ajax');
+        var data = { foo: "bar" };
+        var future = server[requestMethod].call(server, "/users", data);
+        var ajaxOptions = jQuery.ajax.mostRecentArgs[0];
+        
+        var errorCallback = mockFunction("errorCallback");
+        future.onError(errorCallback);
+        ajaxOptions.error("mock XMLHttpRequest", "error", "exception");
+        expect(errorCallback).to(haveBeenCalled, withArgs("mock XMLHttpRequest", "error", "exception"));
+      });
     });
   });
 }});

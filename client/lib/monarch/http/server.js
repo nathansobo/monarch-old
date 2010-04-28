@@ -149,6 +149,9 @@ _.constructor("Monarch.Http.Server", {
       data: this.stringifyJsonData(data),
       success: function(response) {
         future.handleResponse(response);
+      },
+      error: function(xhr, status, errorThrown) {
+        future.triggerError(xhr, status, errorThrown);
       }
     });
     return future;
