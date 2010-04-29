@@ -15,6 +15,15 @@ module Monarch
             relation
           end
 
+          def guid_primary_key
+            self[:id].type = :string
+            @guid_primary_key = true
+          end
+
+          def guid_primary_key?
+            !@guid_primary_key.nil?
+          end
+
           def column(name, type, options={})
             column = table.define_concrete_column(name, type, options)
             define_field_writer(column)
@@ -299,7 +308,7 @@ module Monarch
         end
 
         def default_field_values
-          defaults = {}
+          defaults = self.class.guid_primary_key?? { :id => Guid.new.to_s } : {}
           table.concrete_columns.each do |column|
             defaults[column.name] = column.default_value unless column.default_value.nil?
           end

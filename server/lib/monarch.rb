@@ -46,17 +46,17 @@ module Monarch
         json_response(successful, response_data)
       end
 
-#      app.post "/repository/subscribe" do
-#        raise "No real time client" unless current_real_time_client
-#        successful, response_data = exposed_repository.subscribe(current_real_time_client, params[:relations].from_json)
-#        json_response(successful, response_data)
-#      end
-#
-#      app.post "/repository/unsubscribe" do
-#        raise "No real time client" unless current_real_time_client
-#        successful = exposed_repository.unsubscribe(current_real_time_client, params[:subscription_ids].from_json)
-#        json_response(successful, "")
-#      end
+      app.post "/repository/subscribe" do
+        raise "No real time client" unless current_real_time_client
+        successful, response_data = exposed_repository.subscribe(current_real_time_client, params[:relations].from_json)
+        json_response(successful, response_data)
+      end
+
+      app.post "/repository/unsubscribe" do
+        raise "No real time client" unless current_real_time_client
+        successful = exposed_repository.unsubscribe(current_real_time_client, params[:subscription_ids].from_json)
+        json_response(successful, "")
+      end
     end
   end
 end

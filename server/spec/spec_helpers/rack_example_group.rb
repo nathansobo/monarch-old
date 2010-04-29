@@ -12,9 +12,9 @@ class RackExampleGroup < Spec::Example::ExampleGroup
   Spec::Example::ExampleGroupFactory.register(:rack, self)
 
   include Rack::Test::Methods
-  include Warden::Test::Helpers
-
-  after do
-    Warden::test_reset!
-  end
+#  include Warden::Test::Helpers
+#
+#  after do
+#    Warden::test_reset!
+#  end
 end

@@ -62,6 +62,14 @@ module Monarch
             end
           end
 
+          describe ".guid_primary_key" do
+            it "makes the :id column's type a string and causes guids to be generated upon record creation" do
+              GuidRecord[:id].type.should == :string
+              record = GuidRecord.create!
+              record.id.should be_instance_of(String)
+            end
+          end
+
           describe ".has_many" do
             it "defines a Selection via .relates_to_many based on the given name" do
               blog = Blog.find("grain")

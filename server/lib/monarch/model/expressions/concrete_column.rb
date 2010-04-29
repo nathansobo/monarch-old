@@ -11,7 +11,7 @@ module Monarch
         end
 
         def create_column(generator)
-          if name == :id
+          if name == :id && type == :key
             generator.primary_key(name, schema_type)
           else
             generator.column(name, schema_type)
