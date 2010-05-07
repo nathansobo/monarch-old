@@ -289,6 +289,9 @@ _.constructor("Monarch.Model.Relations.Relation", {
   predicateFromHash: function(hash) {
     var predicates = [];
     _.each(hash, function(value, key) {
+
+      if (!this.column(key)) console.debug(key);
+
       predicates.push(this.column(key).eq(value))
     }, this);
 

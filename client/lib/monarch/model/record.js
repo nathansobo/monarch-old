@@ -7,9 +7,9 @@ _.constructor("Monarch.Model.Record", {
     },
 
     initialize: function() {
-      this.delegateConstructorMethods('find', 'fetch', 'tuples', 'first', 'each', 'any', 'onLocalUpdate', 'onRemoteInsert',
-                                      'onRemoteUpdate', 'onRemoteRemove', 'where', 'orderBy', 'project', 'difference',
-                                      'empty', 'createFromRemote', 'fixture', 'clear', 'table');
+      this.delegateConstructorMethods('find', 'fetch', 'tuples', 'first', 'each', 'map', 'any', 'onLocalUpdate',
+                                      'onRemoteInsert', 'onRemoteUpdate', 'onRemoteRemove', 'where', 'orderBy', 'project',
+                                      'difference', 'empty', 'createFromRemote', 'fixture', 'clear', 'table');
     },
 
     inherited: function(subconstructor) {
@@ -48,7 +48,7 @@ _.constructor("Monarch.Model.Record", {
       var conditions = options.conditions || {};
 
       var targetTableName = options.table || _.underscore(relationName);
-      var foreignKeyColumnName = options.key || _.singularize(this.table.globalName) + "Id";
+      var foreignKeyColumnName = options.key || _.camelize(_.singularize(this.table.globalName), true) + "Id";
 
       return this.relatesToMany(relationName, function() {
         var targetTable = Repository.tables[targetTableName];
