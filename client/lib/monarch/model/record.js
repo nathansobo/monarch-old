@@ -2,10 +2,6 @@
 
 _.constructor("Monarch.Model.Record", {
   constructorProperties: {
-    toString: function() {
-      return JSON.stringify(this.wireRepresentation());
-    },
-
     initialize: function() {
       this.delegateConstructorMethods('find', 'fetch', 'tuples', 'first', 'each', 'map', 'any', 'onLocalUpdate',
                                       'onRemoteInsert', 'onRemoteUpdate', 'onRemoteRemove', 'where', 'orderBy', 'project',
@@ -126,6 +122,10 @@ _.constructor("Monarch.Model.Record", {
     this.remote.initializeSyntheticFields();
     this.local.initializeSyntheticFields();
     if (this.afterInitialize) this.afterInitialize();
+  },
+
+  toString: function() {
+    return JSON.stringify(this.wireRepresentation());
   },
 
   fetch: function() {
