@@ -7,7 +7,12 @@ _.constructor("Monarch.View.History", {
   },
 
   fragment: function(fragment) {
-    return jQuery.param.fragment(fragment);
+    if (arguments.length == 1) {
+      window.location = "http://" + window.location.hostname + window.location.pathname + "#" + fragment;
+      return fragment;
+    } else {
+      return window.location.hash.replace("#", "");
+    }
   }
 });
 
