@@ -1,6 +1,13 @@
 dir = File.dirname(__FILE__)
 
+require "logger"
+LOGGER = Logger.new(File.open("/dev/null", "w+"))
+
 require "rubygems"
+require "bundler"
+
+ENV['BUNDLE_GEMFILE'] = "#{dir}/../Gemfile"
+Bundler.setup(:default, :test)
 require "spec"
 require "set"
 require "rack/test"
