@@ -19,6 +19,8 @@ Dir["#{File.dirname(__FILE__)}/spec_helpers/*.rb"].each do |spec_helper_path|
 end
 
 Origin.connection = Sequel.sqlite
+Origin.connection["pragma short_column_names = true;"]
+Origin.connection["pragma full_column_names = false;"]
 Monarch::Model::Repository.create_schema
 Monarch::Model::convert_strings_to_keys = true
 
