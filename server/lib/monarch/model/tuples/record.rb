@@ -234,8 +234,10 @@ module Monarch
           fields.each do |field|
             begin
               field.value_wire_representation.to_json
+            rescue JSON::GeneratorError
+              validation_error(field.name, "text contains one or more illegal (non-unicode) characters")
             rescue => e
-              validation_error(field.name, e.message)
+              validation_error(field.name, "unexpected error: #{e}")
             end
           end
         end
