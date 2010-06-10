@@ -347,8 +347,9 @@ module Monarch
           end
 
           describe "#valid?" do
-            it "calls #before_validate before calling validate" do
+            it "calls #before_validate and #validate_wire_representation before calling validate" do
               mock(record).before_validate.ordered
+              mock(record).validate_wire_representation.ordered
               mock(record).validate.ordered
 
               record.title = "Hola!"
@@ -356,7 +357,7 @@ module Monarch
               record.valid?
             end
 
-            describe "when #validate stores validation errors on at least one field" do
+            describe "when #validate or #validate_wire_representation stores validation errors on at least one field" do
               it "returns false" do
                 record.title = "Has Many Through"
                 mock(record).validate do
@@ -370,6 +371,15 @@ module Monarch
               it "returns true" do
                 record.should be_valid
               end
+            end
+          end
+
+          describe "#validate_wire_representation" do
+            it "stores a validation error on each field whose #value_wire_representation is not syntactically valid JSON" do
+              stub(record.field(:title)).value_wire_representation { "" }
+              stub(record.field(:body)).value_wire_representation { "\240" }
+              mock(record).validation_error(:body, anything)
+              record.validate_wire_representation
             end
           end
 

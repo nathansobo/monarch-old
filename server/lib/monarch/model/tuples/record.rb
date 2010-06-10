@@ -217,6 +217,7 @@ module Monarch
         def validate_if_needed
           return if validated?
           before_validate
+          validate_wire_representation
           validate
           mark_validated
         end
@@ -227,6 +228,16 @@ module Monarch
 
         def mark_validated
           fields.each { |field| field.mark_validated }
+        end
+
+        def validate_wire_representation
+          fields.each do |field|
+            begin
+              field.value_wire_representation.to_json
+            rescue => e
+              validation_error(field.name, e.message)
+            end
+          end
         end
 
         def validate
