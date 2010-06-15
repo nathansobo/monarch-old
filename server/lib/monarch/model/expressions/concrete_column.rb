@@ -25,7 +25,7 @@ module Monarch
           when :integer
             value ? value.to_i : nil
           when :float
-            value.to_f
+            value ? value.to_f : nil
           when :datetime
             convert_datetime_value_for_storage(value)
           when :boolean
