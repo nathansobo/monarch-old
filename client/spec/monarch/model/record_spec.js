@@ -172,6 +172,12 @@ Screw.Unit(function(c) { with(c) {
         expect(blog.userId()).to(eq, newUser.id());
         expect(blog.user()).to(eq, newUser);
       });
+
+      it("returns null if the foreign key is null", function() {
+        var blog = Blog.fixture('recipes');
+        blog.userId(null);
+        expect(blog.user()).to(beNull);
+      });
     });
 
     describe(".localCreate(fieldValues)", function() {

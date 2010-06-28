@@ -61,8 +61,10 @@ _.constructor("Monarch.Model.Record", {
       var tableName = _.underscoreAndPluralize(name);
       this.prototype[name] = function(model) {
         if (arguments.length == 0) {
+          var id = this[keyName]();
+          if (!id) return null;
           var table = Repository.tables[tableName];
-          return table.find(this[keyName]());
+          return table.find(id);
         } else {
           this[keyName](model.id());
           return model;

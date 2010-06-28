@@ -81,7 +81,7 @@ module Monarch
 
           delegate :create, :create!, :unsafe_create, :where, :project, :join, :join_to, :join_through, :aggregate, :find,
                    :size, :concrete_columns_by_name, :[], :create_table, :drop_table, :clear_table, :all, :find_or_create,
-                   :left_join, :left_join_to, :group_by, :to => :table
+                   :left_join, :left_join_to, :group_by, :on_insert, :on_remove, :on_update, :to => :table
 
           protected
           def define_field_writer(column)
@@ -114,11 +114,9 @@ module Monarch
           self
         end
 
-
         def update(values_by_method_name)
-          result = soft_update(values_by_method_name)
+          soft_update(values_by_method_name)
           save
-          result
         end
 
         def update!(values_by_method_name)
@@ -132,9 +130,7 @@ module Monarch
             field = self.field(column_name)
             field.value = value if field
           end
-          returning(dirty_field_values_wire_representation) do
-            save
-          end
+          save
         end
 
         def destroy
@@ -143,8 +139,9 @@ module Monarch
         end
 
         def save
-          return nil unless valid?
-          return Changeset.new(snapshot, snapshot) unless dirty?
+          return false unless valid?
+          return table.insert(self) unless persisted?
+          return self unless dirty?
 
           before_update(dirty_concrete_field_values_by_column_name)
           field_values_for_database = dirty_concrete_field_values_by_column_name
@@ -157,22 +154,20 @@ module Monarch
           table.record_updated(self, changeset)
           after_update(changeset)
 
-          changeset
+          self
         end
 
         def dirty?
           concrete_fields.any? {|field| field.dirty?}
         end
 
-        def mark_clean
-          fields.each { |field| field.mark_clean }
+        def persisted?
+          @persisted
         end
 
-        def dirty_field_values_wire_representation
-          dirty_fields.inject({}) do |field_values, field|
-            field_values[field.column.name] = field.value_wire_representation
-            field_values
-          end
+        def mark_clean
+          @persisted = true
+          fields.each { |field| field.mark_clean }
         end
 
         def dirty_concrete_field_values_by_column_name
@@ -310,7 +305,7 @@ module Monarch
             writer_method_name = "#{method_name}="
             self.send(writer_method_name, value) if self.respond_to?(writer_method_name)
           end
-          dirty_field_values_wire_representation
+          self
         end
 
         def initialize_relations
@@ -332,7 +327,7 @@ module Monarch
           super
           @synthetic_fields_by_column = {}
           relation.synthetic_columns.each do |column|
-            synthetic_fields_by_column[column] = SyntheticField.new(self, column, instance_eval(&column.signal_definition))
+            synthetic_fields_by_column[column] = SyntheticField.new(self, column)
           end
         end
       end
