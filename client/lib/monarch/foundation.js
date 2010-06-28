@@ -143,12 +143,12 @@ function buildPropertyAccessor(name, reader, writer, afterWriteHook, afterChange
   if (!reader) reader = function() { return this[fieldName]; };
   if (!writer) writer = function(value) { this[fieldName] = value; };
 
-  var accessor = function(value) {
+  var accessor = function() {
     if (arguments.length == 0) {
       return reader.call(this);
     } else {
       var oldValue = this[fieldName];
-      var newValue = writer.call(this, value) || this[fieldName];
+      var newValue = writer.apply(this, arguments) || this[fieldName];
       if (afterWriteHook) afterWriteHook.call(this, newValue, oldValue);
       if (afterChangeHook && newValue !== oldValue) afterChangeHook.call(this, newValue, oldValue);
       return newValue;

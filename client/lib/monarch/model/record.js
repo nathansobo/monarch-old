@@ -117,6 +117,11 @@ _.constructor("Monarch.Model.Record", {
     this.remote = new Monarch.Model.RemoteFieldset(this);
     this.local = new Monarch.Model.LocalFieldset(this, this.remote);
     this.subscriptions = new Monarch.SubscriptionBundle();
+
+    this.localVersion = 0;
+    this.remoteVersion = 0;
+    this.pendingVersion = 0;
+
     this.initializeSubscriptionNodes();
     this.subscribeToSelfMutations();
     if (fieldValuesByColumnName) this.localUpdate(fieldValuesByColumnName);
@@ -171,8 +176,8 @@ _.constructor("Monarch.Model.Record", {
     this.onRemoteCreateNode.publish(this);
   },
 
-  remotelyUpdated: function(fieldValues) {
-    this.remote.update(_.camelizeKeys(fieldValues));
+  remotelyUpdated: function(fieldValues, version) {
+    this.remote.update(_.camelizeKeys(fieldValues), version);
   },
 
   remotelyDestroyed: function() {
@@ -232,6 +237,16 @@ _.constructor("Monarch.Model.Record", {
 
   allValidationErrors: function() {
     return this.local.allValidationErrors();
+  },
+
+  nextLocalVersion: function() {
+    if (this.localVersion === this.pendingVersion) this.localVersion++;
+    return this.localVersion;
+  },
+
+  nextPendingVersion: function() {
+    this.pendingVersion = this.localVersion;
+    return this.pendingVersion;
   },
 
   dirty: function() {
