@@ -9,7 +9,6 @@ require "sequel"
 require "sequel/extensions/inflector"
 require "guid"
 require "json"
-require "warden"
 
 require "active_support/ordered_hash"
 require "active_support/core_ext/module/delegation"
@@ -35,7 +34,7 @@ module Monarch
     def registered(app)
       app.helpers Monarch::Helpers, Util::BuildRelationalDataset
       app.use Rack::AssetService, Rack::AssetService::AssetManager.instance
-      app.use Rack::RealTimeHub
+#      app.use Rack::RealTimeHub
 
       app.get "/repository/fetch" do
         dataset = exposed_repository.fetch(params[:relations].from_json)
@@ -47,17 +46,17 @@ module Monarch
         json_response(successful, response_data)
       end
 
-      app.post "/repository/subscribe" do
-        raise "No real time client" unless current_real_time_client
-        successful, response_data = exposed_repository.subscribe(current_real_time_client, params[:relations].from_json)
-        json_response(successful, response_data)
-      end
-
-      app.post "/repository/unsubscribe" do
-        raise "No real time client" unless current_real_time_client
-        successful = exposed_repository.unsubscribe(current_real_time_client, params[:subscription_ids].from_json)
-        json_response(successful, "")
-      end
+#      app.post "/repository/subscribe" do
+#        raise "No real time client" unless current_real_time_client
+#        successful, response_data = exposed_repository.subscribe(current_real_time_client, params[:relations].from_json)
+#        json_response(successful, response_data)
+#      end
+#
+#      app.post "/repository/unsubscribe" do
+#        raise "No real time client" unless current_real_time_client
+#        successful = exposed_repository.unsubscribe(current_real_time_client, params[:subscription_ids].from_json)
+#        json_response(successful, "")
+#      end
     end
   end
 end

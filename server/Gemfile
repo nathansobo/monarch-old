@@ -1,0 +1,4 @@
+gem "sequel"
+gem "active_support"
+gem "json"
+gem "guid"
