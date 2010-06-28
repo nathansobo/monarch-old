@@ -126,7 +126,8 @@ _.constructor("Monarch.View.Template", {
     handleModelFieldUpdate: function(fieldName, changes) {
       var element = this.find("[name='" + fieldName + "']");
       if (!element) return;
-
+      if (this.model().field(fieldName).dirty()) return;
+      
       if (element.attr('type') == "checkbox") {
         this.populateCheckboxField(element, changes.newValue);
       } else {
