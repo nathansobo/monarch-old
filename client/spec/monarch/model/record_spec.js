@@ -172,6 +172,12 @@ Screw.Unit(function(c) { with(c) {
         expect(blog.userId()).to(eq, newUser.id());
         expect(blog.user()).to(eq, newUser);
       });
+
+      it("returns null if the foreign key is null", function() {
+        var blog = Blog.fixture('recipes');
+        blog.userId(null);
+        expect(blog.user()).to(beNull);
+      });
     });
 
     describe(".localCreate(fieldValues)", function() {
@@ -398,6 +404,14 @@ Screw.Unit(function(c) { with(c) {
         record.save();
 
         expect(updateCallback).to(haveBeenCalled, once);
+      });
+
+      it("can become dirty if it does not match its remote counterpart", function() {
+        var record = Blog.fixture('recipes');
+        record.name('Farming');
+        expect(record.field('funProfitName').dirty()).to(beTrue);
+        record.save();
+        expect(record.field('funProfitName').dirty()).to(beFalse);
       });
     });
 

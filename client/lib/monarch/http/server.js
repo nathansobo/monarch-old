@@ -10,6 +10,7 @@ _.constructor("Monarch.Http.Server", {
   fetch: function(relations) {
     return this.get(Repository.originUrl + "/fetch", {
       relations: _.map(relations, function(relation) {
+        if (!relation.wireRepresentation) debugger;
         return relation.wireRepresentation();
       })
     });
@@ -149,6 +150,9 @@ _.constructor("Monarch.Http.Server", {
       data: this.stringifyJsonData(data),
       success: function(response) {
         future.handleResponse(response);
+      },
+      error: function(xhr, status, errorThrown) {
+        future.triggerError(xhr, status, errorThrown);
       }
     });
     return future;

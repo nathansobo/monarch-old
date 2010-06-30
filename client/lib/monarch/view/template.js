@@ -72,7 +72,7 @@ _.constructor("Monarch.View.Template", {
 
     fieldValues: function() {
       var values = {};
-      this.find("input,select").each(function() {
+      this.find("input,select,textarea").each(function() {
         var elt = jQuery(this);
         var name = elt.attr('name');
         if (!name) return;
@@ -128,7 +128,8 @@ _.constructor("Monarch.View.Template", {
     handleModelFieldUpdate: function(fieldName, changes) {
       var element = this.find("[name='" + fieldName + "']");
       if (!element) return;
-
+      if (this.model().field(fieldName).dirty()) return;
+      
       if (element.attr('type') == "checkbox") {
         this.populateCheckboxField(element, changes.newValue);
       } else {
@@ -170,13 +171,11 @@ _.constructor("Monarch.View.Template", {
 
     populateTextFields: function() {
       var model = this.model();
-      this.find("input:text").each(function() {
+      this.find("input:text, textarea").each(function() {
         var elt = jQuery(this);
         var fieldName = elt.attr('name');
         if (model[fieldName]) {
           elt.val(model[fieldName].call(model) || "");
-        } else {
-          elt.val("");
         }
       });
     },

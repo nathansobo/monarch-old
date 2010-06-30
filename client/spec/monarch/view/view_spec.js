@@ -18,6 +18,7 @@ Screw.Unit(function(c) { with(c) {
               input({name: "bar", value: "Bar"}).ref('bar');
               input({name: "baz", type: "checkbox", checked: false}).ref('baz');
               input({value: "Do not include because I have no name"});
+              textarea({name: 'textarea'}, "This too");
 
               select({name: "quux"}, function() {
                 option({value: "1"});
@@ -62,6 +63,7 @@ Screw.Unit(function(c) { with(c) {
             foo: "Foo",
             bar: "Bar",
             baz: false,
+            textarea: "This too",
             quux: 2
           });
         });
@@ -77,6 +79,7 @@ Screw.Unit(function(c) { with(c) {
             bar: "Bar",
             baz: false,
             quux: 2,
+            textarea: "This too",
             corge: "hi there"
           });
         });
@@ -123,6 +126,24 @@ Screw.Unit(function(c) { with(c) {
           expect(view.foo.val()).to(eq, 'new foo');
           model.localUpdate({foo: "old model foo new value"});
           expect(view.foo.val()).to(eq, 'new foo');
+        });
+
+        it("when a remote field is updated, only updates the form field if the local field is not dirty", function() {
+          Server.auto = false;
+          view.model(model);
+          var fooBefore = view.foo.val();
+
+          model.update({foo: "foo prime"});
+          expect(Server.updates.length).to(eq, 1);
+
+          model.update({foo: "foo double prime"});
+          expect(Server.updates.length).to(eq, 2);
+
+          Server.updates[0].simulateSuccess();
+          expect(view.foo.val()).to(eq, fooBefore);
+
+          Server.updates[0].simulateSuccess();
+          expect(view.foo.val()).to(eq, "foo double prime");
         });
       });
 
