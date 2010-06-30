@@ -92,14 +92,16 @@ _.constructor("Monarch.View.Template", {
 
     show: function($super) {
       if (this.beforeShow) this.beforeShow();
-      $super();
+      var result = $super();
       if (this.afterShow) this.afterShow();
+      return result;
     },
 
     hide: function($super) {
       if (this.beforeHide) this.beforeHide();
-      $super();
+      var result = $super();
       if (this.afterHide) this.afterHide();
+      return result;
     },
 
     model: {
