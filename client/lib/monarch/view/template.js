@@ -210,7 +210,9 @@ _.constructor("Monarch.View.Template", {
       });
     },
 
-    hitch: _.Object.prototype.hitch
+    hitch: _.Object.prototype.hitch,
+    bind: _.Object.prototype.bind,
+    defer: _.Object.prototype.defer
   }
 });
 

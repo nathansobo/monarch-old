@@ -227,6 +227,17 @@ _.constructor("_.Object", {
     return _.bind.apply(_, [this[methodName], this].concat(otherArgs));
   },
 
+  bind: function() {
+    var args = _.toArray(arguments);
+    var fn = _.first(args);
+    var otherArgs = _.rest(args);
+    return _.bind.apply(_, [fn, this].concat(otherArgs));
+  },
+
+  defer: function(fn) {
+    return _.defer(this.bind(fn));
+  },
+
   isA: function(constructor) {
     var currentConstructor = this.constructor;
     while (true) {
