@@ -220,7 +220,8 @@ _.constructor("Monarch.View.Template", {
         return $super.apply(this, args);
       }
     },
-    defer: _.Object.prototype.defer
+    defer: _.Object.prototype.defer,
+    delay: _.Object.prototype.delay
   }
 });
 
