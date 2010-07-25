@@ -1,4 +1,5 @@
 dir = File.dirname(__FILE__)
+require "digest/sha1"
 require "#{dir}/gift_wrapper/location"
 require "#{dir}/gift_wrapper/js_file"
 require "#{dir}/gift_wrapper/require_context"
@@ -17,12 +18,20 @@ class GiftWrapper
   end
 
   def require_js(*paths)
-    context = RequireContext.new
-    paths.each do |path|
-      js_file = resolve_from_load_path("#{path}.js")
-      js_file.expand_require_graph(context)
-    end
+    context = RequireContext.new(development_mode)
+    walk_require_graph(paths, context)
     context.required_web_paths
+  end
+
+  def combine_js(*paths)
+    raise "Package dir not assigned" unless package_dir
+    context = RequireContext.new(true)
+    walk_require_graph(paths, context)
+
+    digest = Digest::SHA1.hexdigest(context.combined_content)
+    File.open("#{package_dir}/combined.#{digest}.js", "w") do |file|
+      file.write(context.combined_content)
+    end
   end
 
   def resolve_web_path(web_path_to_resolve)
@@ -52,5 +61,14 @@ class GiftWrapper
       end
     end
     raise "File #{path_to_resolve} not found on load path"
+  end
+
+  protected
+
+  def walk_require_graph(paths, context)
+    paths.each do |path|
+      js_file = resolve_from_load_path("#{path}.js")
+      js_file.expand_require_graph(context)
+    end
   end
 end

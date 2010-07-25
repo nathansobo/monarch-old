@@ -22,6 +22,12 @@ class GiftWrapper
       require_context.add_require(self)
     end
 
+    def content
+      File.open(physical_path, "r") do |file|
+        file.read
+      end
+    end
+
     protected
 
     def relative_require(relative_path, requires)
