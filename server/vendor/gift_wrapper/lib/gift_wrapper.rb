@@ -10,9 +10,9 @@ class GiftWrapper
   attr_accessor :app, :development_mode
 
   class << self
-    def new(app, development_mode=false)
+    def new(app, development_mode=nil)
       instance.app = app
-      instance.development_mode = development_mode
+      instance.development_mode = development_mode unless development_mode.nil?
       instance
     end
 
@@ -43,7 +43,14 @@ class GiftWrapper
   end
 
   def mount_package_dir(physical_path_prefix, web_path_prefix="/pkg")
+    Dir.mkdir(physical_path_prefix) unless File.directory?(physical_path_prefix)
     @package_dir = mount(physical_path_prefix, web_path_prefix)
+  end
+
+  def clear_package_dir
+    if Dir["#{package_dir.physical_path}/*"].length > 0
+      system("rm #{package_dir.physical_path}/*")
+    end
   end
 
   def require_js(*paths)
