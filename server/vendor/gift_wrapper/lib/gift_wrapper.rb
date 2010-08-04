@@ -83,6 +83,7 @@ class GiftWrapper
     minify(combined_path, minified_path)
 
     metadata[paths] = digest
+
     write_metadata
     digest
   end
@@ -160,7 +161,7 @@ class GiftWrapper
   end
 
   def minify(input_path, output_path)
-    system("java -jar #{compiler_jar_path} --js #{input_path} --js_output_file #{output_path}")
+    system("java -jar #{compiler_jar_path} --js #{input_path} --js_output_file #{output_path} --warning_level=QUIET")
   end
 
   def compiler_jar_path
