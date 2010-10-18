@@ -1,11 +1,97 @@
 <html>
 
 <head>
-	<link rel="stylesheet" type="text/css" href="/stylesheets/styles.css">
-	<link rel="stylesheet" type="text/css" href="/stylesheets/syntax.css">	
+  <link rel="stylesheet" type="text/css" href="/stylesheets/syntax.css">
+  
+  <style>
+    body {
+      font-size: 16px;
+      line-height: 24px;
+      font-family: Helvetica Neue, Helvetica, Arial;
+      background: #f4f4f4;
+    }
+  
+    #toc {
+      background: #fff;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      width: 250px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 15px 0 30px 30px;
+      border-right: 1px solid #ddd;
+      box-shadow: 0 0 20px #ccc;
+      -webkit-box-shadow: 0 0 20px #ccc;
+      -moz-box-shadow: 0 0 20px #ccc;
+    } 
+    
+    #content {      
+      position: relative;
+      width: 650px;
+      margin: 40px 0 50px 310px;
+    }
+        
+    .highlight {
+      padding: 10px 0;
+      -webkit-box-shadow: 0 0 10px #ddd;
+      -moz-box-shadow: 0 0 10px #ddd;
+      background-color: #fff;
+      width: 100%;
+      overflow-x: auto;
+    }
+    
+    .highlight pre {
+      margin: 0 15px;
+
+    }
+    
+  </style>
+  
+  <script type="text/javascript" src="/javascript/jquery-1.4.2.min.js"></script>
+  <script type="text/javascript">
+
+
+    $(function() {
+      var minWidth = $("div#content").width();
+      
+      function resizeCodeBlocks() {
+        var windowWidth = $(window).width();
+        
+        $(".highlight").each(function() {
+          var elt = $(this);
+          var targetWidth = elt.find('pre')[0].scrollWidth + 30;
+          if (targetWidth <= minWidth) return;
+          var maxWidth = windowWidth - 15 - elt.offset().left;
+
+          if (maxWidth <= minWidth) {
+            targetWidth = minWidth;
+          } else if (targetWidth > maxWidth) {
+            targetWidth = maxWidth;
+          }
+          
+          elt.css('width', targetWidth);
+        });  
+      }
+      
+      resizeCodeBlocks();
+      
+      $(window).resize(resizeCodeBlocks);
+    });
+    
+    
+    
+  </script>
 </head>
 
 <body>
-	{{ content }}
+  
+  <div id="toc">
+    
+    
+  </div>
+  
+  <div id="content">
+    {{ content }}
+  </div>
 </body>
 </html>
