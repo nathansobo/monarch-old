@@ -7,61 +7,57 @@ layout: default
 
 Monarch is a framework for developing single-page web applications. It consists of a pure javascript client-side library, as well as a server-side Sinatra extension designed to interoperate with that client.
 
-##Overview##
-Monarch's most unique feature is its model framework, which is based entirely on the relational model. It includes a client-side relational database and a relational-algebra-based API for querying it. Much like in ActiveRecord, client side models are expressed in terms of tables, columns, and foreign key relationships. Monarch models support the familiar `hasMany` and `belongsTo` macros, as well as more complex relationships defined via algebraic expressions.
+##Client
 
+<h3 id="client-model">Client-Side Model Framework</h3>
+
+<h4 id="client-model-introduction">Introduction</h4>
+All Monarch model objects are stored in a **client-side active relational database**, which can be queried with a **relational algebraic API**. It's a complex and powerful system with many distributed benefits, but here's a quick overview of the key features:
+
+<div class="captionedCode">
+  <div class="caption">
+    CRUD operations against the local repository are <strong>automatically mapped to XHR requests</strong>.
+  </div>
 {% highlight javascript %}
-_.constructor("BlogPost", Monarch.Model.Record, {
-  constructorInitialize: function() {
-    this.columns({
-      blogId: 'key',
-      title: 'key',
-      body: 'string',      
-    })
-    
-    this.belongsTo('blog');
-    this.hasMany('comments');
-    this.hasMany('commenters', { 
-      through: 'comments',
-      constructorName: 'User'
-      joinColumn: 'userId',
-    });
-  }  
-});
-
-
-var post = BlogPost.find(1);
-post.comments().each(function(comment) {
-  console.debug(comment.body());
-});
+User.create({firstName: "Nathan", lastName: "Sobo"});
+company.update({name: "Hyperarchy"});
+blogPost.destroy();
 {% endhighlight %}
+</div>
 
-But unlike ActiveRecord, the Monarch API also has support for events. You can attach handlers for insert, update, and remove events on any relation.
+<div class="captionedCode">
+  <div class="caption">
+    Securely <strong>query records from the application server</strong> as if it were a relational database.
+  </div>
+{% highlight javascript %}
+blog.posts().where({published: true}).fetch();
+{% endhighlight %}
+</div>
 
+
+<div class="captionedCode">
+  <div class="caption">
+    Create <strong>standing queries</strong> by subscribing to _insert_, _update_, and _remove_ events on relations.
+  </div>
 {% highlight javascript %}
 post.comments().onInsert(function(comment) {
-  console.debug("New comment added:", comment.body());
-});
-
-post.comments().onUpdate(function(comment, changes) {
-  console.debug("Comment changed:");
-  console.debug("was:", changes.body.oldValue);
-  console.debug("is now:", changes.body.newValue);  
-});
-
-post.comments().onRemove(function(comment), function() {
-  console.debug(comment.body(), "removed")
+  $("#comments").append("<li>" + comment.body() + "</li>");
 });
 {% endhighlight %}
+</div>
 
-This allows you to specify event streams declaratively, letting the framework take care of the details. In the example above, insert and remove events could fire for multiple reasons. Either a comment was created or destroyed, or a comment's `blogPostId` key could be updated to move it from one post to another.
-
-
-##Model##
+<div class="captionedCode">
+  <div class="caption">
+    Subscribe to <strong>real-time model updates</strong> from the server over a comet connection.
+  </div>
+{% highlight javascript %}
+post.comments().subscribe();
+{% endhighlight %}
+</div>
 
 ###Defining Record Constructors###
 
-Define record constructors by inheriting from Monarch.Model.Record. In the constructor's initialize method, use constructor methods to define columns and relationships with other types of records.
+Define _record constructors_ by inheriting from `Monarch.Model.Record`. In the constructor's initialize method, use constructor methods to define columns and relationships with other types of records.
 
 
 {% highlight javascript %}
@@ -111,9 +107,9 @@ constructorName: if the name of the constructor cannot be inferred from the fore
 Defines a one to many relationship with another table. Instance records will have a reader method that returns the appropriate relation based on the current record's id.
 
 ##### Options #####
-orderBy: order the resulting relation by passing a single ordering condition or an array of multiple conditions. Conditions are formatted "columnName [asc|desc], with ascending as the default. For example: `User.hasMany("pets", {orderBy: "birthDate desc"}")`.
+orderBy: order the resulting relation by passing a single ordering condition or an array of multiple conditions. Conditions are formatted `columnName [asc|desc]`, with `asc` (ascending) as the default. For example: `User.hasMany("pets", {orderBy: "birthDate desc"}")`.
 
-table: if the table name can't be inferred from the name of the relationship, you need to specify it. For example: `User.hasMany("pets", {table: "animals"})
+table: if the table name can't be inferred from the name of the relationship, you need to specify it. For example: `User.hasMany("pets", {table: "animals"})`
 
 key: if the foreign key on the target table does not refer to the current table by name, you need to specify it. For example: `User.hasMany("pets", {table: "animals", key: "ownerId"})`
 
@@ -167,25 +163,10 @@ Calling create as above sends a POST to "/repository/mutate" with the following 
 
 The Monarch Sinatra extension can automatically authorize and perform this operation based on the current user's exposed repository, or you can roll your own server action to interpret the request.
 
-See the section on the [[client server protocol]] for details.
-
 ####localCreate(propertiesHash)####
 Creates a record locally, but does not send a request to the server yet. The record will be created remotely as soon as `#save` is called on it, and until that time it will not have an id. This is useful when you want to batch the creation of multiple objects. You can create them locally and then save them in a single operation with Server.save.
 
-
-
-
-
-
-
-
-
-
-
-
 ###Record Methods###
-
-
 
 ####Working With Relations####
 

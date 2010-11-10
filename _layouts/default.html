@@ -2,7 +2,7 @@
 
 <head>
   <link rel="stylesheet" type="text/css" href="/stylesheets/syntax.css">
-  
+    
   <style>
     body {
       margin: 0;
@@ -10,6 +10,10 @@
       line-height: 24px;
       font-family: Helvetica Neue, Helvetica, Arial;
       background: #F0F1F2;
+    }
+    
+    code {
+      font-family: Monaco, monospace;
     }
   
     #toc {
@@ -33,7 +37,26 @@
       margin-left: 300px;
       padding: 30px 0 50px 50px;
     }
-        
+     
+    .captionedCode {
+      -webkit-box-shadow: 0 0 10px #ddd;
+      -moz-box-shadow: 0 0 10px #ddd;
+      background-color: #fff;
+      width: 100%;
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+    
+    .captionedCode .caption {
+      background-color: #FFECCC;
+      padding: 10px;
+    }
+    
+    .captionedCode .highlight {
+      -webkit-box-shadow: none;
+      -moz-box-shadow: none;
+    }
+    
     .highlight {
       padding: 10px 0;
       -webkit-box-shadow: 0 0 10px #ddd;
@@ -44,10 +67,9 @@
     }
     
     .highlight pre {
+      font-family: Monaco, monospace;
       margin: 0 15px;
-
     }
-    
   </style>
   
   <script type="text/javascript" src="/javascript/jquery-1.4.2.min.js"></script>
@@ -87,10 +109,8 @@
 </head>
 
 <body>
-  
-  <div id="toc">
-    
-    
+  <div id="toc" markdown="1">
+    {% markdown toc.markdown %}
   </div>
   
   <div id="content">
